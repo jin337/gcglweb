@@ -15,29 +15,29 @@ export default {
       default: () => []
     }
   },
-  data() {
+  data () {
     return {
       left: 0
     }
   },
   watch: {
-    visitedViews() {
+    visitedViews () {
       const el = this.$refs.scrollContainer
       el.update()
     }
   },
   computed: {
-    scrollWrapper() {
+    scrollWrapper () {
       return this.$refs.scrollContainer.$refs.wrap
     }
   },
   methods: {
-    handleScroll(e) {
+    handleScroll (e) {
       const eventDelta = e.wheelDelta || -e.deltaY * 40
       const $scrollWrapper = this.scrollWrapper
       $scrollWrapper.scrollLeft = $scrollWrapper.scrollLeft + eventDelta / 4
     },
-    moveToTarget(currentTag) {
+    moveToTarget (currentTag) {
       const $container = this.$refs.scrollContainer.$el
       const $containerWidth = $container.offsetWidth
       const $scrollWrapper = this.scrollWrapper
@@ -85,13 +85,17 @@ export default {
   position: relative;
   // overflow: hidden;
   width: 100%;
+
   /deep/ {
     .el-scrollbar__bar {
+      opacity: 1;
       bottom: 0px;
-      .el-scrollbar__thumb{
+
+      .el-scrollbar__thumb {
         // min-width:100%;
       }
     }
+
     .el-scrollbar__wrap {
       height: 49px;
       overflow-x: hidden;

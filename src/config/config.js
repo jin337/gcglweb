@@ -1,3 +1,21 @@
+const themeList = {
+  theme1: {
+    menuBg: '#23B7BD',
+    menuText: '#8ffffe',
+    menuActiveText: '#fff'
+  },
+  theme2: {
+    menuBg: '#001529',
+    menuText: 'rgba(255, 255, 255, 0.65)',
+    menuActiveText: '#fff'
+  },
+  theme3: {
+    menuBg: '#409EFF',
+    menuText: 'rgba(255, 255, 255, 0.65)',
+    menuActiveText: '#fff'
+  }
+}
+
 export default {
   ACCESS_TOKEN: 'token',
   storageOptions: {
@@ -6,7 +24,8 @@ export default {
     storage: 'local' // storage name session, local, memory
   },
   childCode: '01',
-  mode: 'horizontal', //horizontal vertical
+  mode: 'vertical', //horizontal vertical
+  theme: themeList.theme2,
   // 经度表达式:（-180 至 180） 纬度表达式(-90 至 90)
   // lng: /^(\-|\+)?(((\d|[1-9]\d|1[0-7]\d|0{1,3})\.\d{0,2222222})|(\d|[1-9]\d|1[0-7]\d|0{1,3})|180\.0{0,222222}|180)$/,
   // lat: /^(\-|\+)?([0-8]?\d{1}\.\d{0,222222}|90\.0{0,222222}|[0-8]?\d{1}|90)$/,

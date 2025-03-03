@@ -1,7 +1,17 @@
 <template>
   <div class="page">
+    <div class="slogan">
+      <div class="slogan-box">
+        <img class="logo" src="@/assets/images/slogan-logo.png" alt="">
+        <div class="slogan-text">
+          <div class="slogan-text-title">创智南京工程管理平台</div>
+          <div class="slogan-text-sub">ENGINEERING MANAGEMENT PLATFORM</div>
+        </div>
+      </div>
+      <img class="slogan-img" src="@/assets/images/slogan-img.png" alt="">
+    </div>
     <div class="login-form">
-      <p class="title">PA系统</p>
+      <p class="title">欢迎登录系统</p>
       <el-form @keyup.enter.native="submit" :model="form" status-icon ref="loginForm" :rules="rules" v-if="isNoApp">
         <el-form-item prop="mobile">
           <el-input type="text" v-model="form.mobile" prefix-icon="el-icon-mobile-phone" placeholder="请输入手机号"
@@ -17,6 +27,9 @@
             type="primary">登录</el-button>
           <!-- <span style="float:right;margin:10px 2px 15px 0;color:#409EFF;cursor:pointer;" @click="enter">下载app</span> -->
         </el-form-item>
+        <el-form-item class="come-from"><el-divider>
+            中电创智（南京）科技有限公司
+          </el-divider></el-form-item>
       </el-form>
       <div v-else class="code_wrap" v-loading="loading">
         <div class="_qwrap">
@@ -187,32 +200,96 @@ export default {
 <style lang="scss">
 .page {
   background-color: #fff;
+  background-image: url("../assets/images/bg.png");
+  background-position: 50% 50%;
+  background-repeat: no-repeat;
   font-family: "PingFangSC-Regular";
   background-size: cover;
   position: relative;
   width: 100%;
   height: 100%;
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  align-items: center;
+  gap: 150px;
+
+  .slogan {
+    max-width: 360px;
+    min-width: 360px;
+
+    .slogan-box {
+      display: flex;
+      flex-direction: row;
+
+      .logo {
+        width: 56px;
+        height: 56px;
+        margin-right: 10px;
+      }
+
+      .slogan-text {
+        .slogan-text-title {
+          font-size: 28px;
+          font-weight: bold;
+        }
+
+        .slogan-text-sub {
+          font-size: 14px;
+          font-weight: lighter;
+          margin-left: 3px;
+          color: #666;
+        }
+      }
+    }
+
+    .slogan-img {
+      margin-top: 30px;
+      width: 100%;
+      height: auto;
+    }
+
+  }
 
   .login-form {
-    width: 386px;
-    height: 390px;
-    // margin: 100px auto;
+    padding: 20px 40px;
+    max-width: 360px;
+    min-width: 360px;
+    box-sizing: border-box;
     background: #fff;
-    opacity: 0.95;
-    border-radius: 10px;
-    margin: auto;
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    margin-left: -193px;
-    margin-top: -300px;
+    border-radius: 2px;
+    box-shadow: 0px 4px 10px 0px #D8D8D8;
+
+    .come-from {
+      white-space: nowrap;
+      margin-top: 50px;
+      margin-bottom: 0;
+
+      .el-divider__text {
+        font-weight: 400;
+        font-size: 12px;
+        color: #999;
+      }
+    }
   }
 
   .title {
     text-align: center;
     font-size: 25px;
     color: #333333;
-    padding: 27px 0;
+    padding-top: 30px;
+    margin-bottom: 50px;
+    position: relative;
+
+    &::after {
+      position: absolute;
+      left: 40%;
+      bottom: -4px;
+      content: "";
+      width: 20%;
+      height: 2px;
+      background-color: #409EFF;
+    }
   }
 
   .valicode-int {

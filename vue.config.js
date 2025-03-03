@@ -96,7 +96,7 @@ module.exports = {
 
   devServer: {
     open: true,
-    port: 8080,
+    port: 8034,
     proxy: {
       '/pub': {
         target: baseUrl,
