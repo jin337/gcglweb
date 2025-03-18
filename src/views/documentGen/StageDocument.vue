@@ -36,8 +36,8 @@
       </el-table-column>
       <el-table-column prop="message" label="执行信息" align="center">
       </el-table-column>
-      <el-table-column prop="query_para" label="查询参数" align="center"
-        style="display: flex; justify-content: space-around;" width="100px">
+      <el-table-column prop="query_para" label="查询参数" align="center" style="display: flex; justify-content: space-around;"
+        width="100px">
 
         <template slot-scope="scope">
           <el-tooltip effect="dark" :content="scope.row.query_para" placement="top" :enterable="false"
@@ -79,8 +79,8 @@
           </el-select>
         </el-form-item>
         <el-form-item label="工序">
-          <el-cascader v-model="form.proc_code" :options="procs" :props="procsProps" collapse-tags size="small"
-            filterable style="width: 100%" :key="iscascaderShow" clearable></el-cascader>
+          <el-cascader v-model="form.proc_code" :options="procs" :props="procsProps" collapse-tags size="small" filterable
+            style="width: 100%" :key="iscascaderShow" clearable></el-cascader>
         </el-form-item>
         <el-form-item label="施工单位">
           <el-select v-model="form.dept_id" clearable collapse-tags style="width:100%" placeholder="选择施工单位">
@@ -151,7 +151,7 @@
         <el-form-item label="导出字段">
           <el-checkbox-group v-model="form.exp_fileds">
             <el-checkbox v-for="item in exp_filedsList" :disabled="item.isSure" :label="item.value" :key="item.value">{{
-        item.label }}</el-checkbox>
+              item.label }}</el-checkbox>
           </el-checkbox-group>
         </el-form-item>
       </el-form>
@@ -270,8 +270,7 @@ export default {
     },
     async getFileUrl () {
       const api = config.defaultApi
-      const env = process.env.NODE_ENV === 'production' ? api : ''
-      const baseurl = process.env.VUE_APP_BASE_URL + env
+      const baseurl = this.$apiUrl + api
       this.file_url = baseurl + '/gen/photo-doc-templates/templatesImp.xlsx'
     },
     add () {

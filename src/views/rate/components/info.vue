@@ -1,99 +1,69 @@
 <template>
   <div class="base_info">
     <h2 class="subtitle" v-if="user_type === 0">物料清单</h2>
-    <el-table
-      class="deviceTable"
-      :data="deviceList"
-      :row-style="{ height: '30px' }"
-      :cell-style="{ padding: '0' }"
-      highlight-current-row
-      border
-      v-if="user_type === 0"
-    >
+    <el-table class="deviceTable" :data="deviceList" :row-style="{ height: '30px' }" :cell-style="{ padding: '0' }"
+      highlight-current-row border v-if="user_type === 0">
       <el-table-column label="物料规格" prop="deviceName" show-overflow-tooltip>
         <template slot-scope="scope">
-          <span>{{scope.row.deviceName}}</span>
+          <span>{{ scope.row.deviceName }}</span>
         </template>
       </el-table-column>
-      <el-table-column label="单位" prop="unit" align="center" width="50"  />
+      <el-table-column label="单位" prop="unit" align="center" width="50" />
       <el-table-column label="设计数量" align="center" prop="regNums" width="80"></el-table-column>
-       <el-table-column label="安装数量"  align="center"  prop="finishNums" width="80"></el-table-column>
+      <el-table-column label="安装数量" align="center" prop="finishNums" width="80"></el-table-column>
     </el-table>
     <div class="btns">
-      <el-button type="primary" v-hasPermi="['rate:photo_archive']" @click="photoFile" size="mini" v-if="showPhotoBtn">归档</el-button>
+      <el-button type="primary" v-hasPermi="['rate:photo_archive']" @click="photoFile" size="mini"
+        v-if="showPhotoBtn">归档</el-button>
     </div>
     <div v-for="procmain in procLists" :key="procmain.classCode" style="margin-top:10px;">
-      <h4>{{procmain.className}}</h4>
-      <div class="proc-item" v-for="(procitem,i) in procmain.procList" :key="procitem.procCode + i">
+      <h4>{{ procmain.className }}</h4>
+      <div class="proc-item" v-for="(procitem, i) in procmain.procList" :key="procitem.procCode + i">
         <span class="subtitle">
           <i class="el-icon-camera"></i>
           {{ procitem.procName }}
         </span>
-        <div v-for="(pointDirect,i) in procitem.pointList" :key="pointDirect.direction?pointDirect.direction + i + 'point' : i+'point'">
+        <div v-for="(pointDirect, i) in procitem.pointList"
+          :key="pointDirect.direction ? pointDirect.direction + i + 'point' : i + 'point'">
           <template v-if="pointDirect.direction">
             <span>方向：</span>
-            <span>{{pointDirect.direction}}</span>
+            <span>{{ pointDirect.direction }}</span>
           </template>
           <div class="container" style="margin-top:10px;" v-viewer="options">
             <div class="block" v-for="imageitem in pointDirect.attachmentList" :key="imageitem.id">
               <el-tooltip effect="dark" :content="imageitem.remark" placement="top-start" v-if="imageitem.remark">
                 <!--  有备注信息的  照片or全场景照片  -->
-                <img
-                  :src="imageitem.filePathThumb"
-                  :data-source="imageitem.filePathTrans"
-                  style="width: 100px; height:  100px"
-                  :key="imageitem.filePath"
-                  v-if="imageitem.is360===0"
-                />
-                <img
-                  :src="imageitem.filePathThumb"
-                  style="width: 100px; height: 100px"
-                  :key="imageitem.filePath"
-                  v-if="imageitem.is360===1"
-                  @click="initPhotoSphere(procitem.procName,imageitem.filePathTrans)"
-                />
+                <img :src="imageitem.filePathThumb" :data-source="imageitem.filePathTrans"
+                  style="width: 100px; height:  100px" :key="imageitem.filePath" v-if="imageitem.is360 === 0" />
+                <img :src="imageitem.filePathThumb" style="width: 100px; height: 100px" :key="imageitem.filePath"
+                  v-if="imageitem.is360 === 1" @click="initPhotoSphere(procitem.procName, imageitem.filePathTrans)" />
               </el-tooltip>
               <!-- 无备注信息的 照片or全场景照片-->
               <template v-else>
-                <img
-                  :src="imageitem.filePathThumb"
-                  :data-source="imageitem.filePathTrans"
-                  style="width: 100px; height: 100px"
-                  :key="imageitem.filePath"
-                  v-if="imageitem.is360===0"
-                />
-                <img
-                  :src="imageitem.filePathThumb"
-                  style="width: 100px; height: 100px"
-                  :key="imageitem.filePath"
-                  v-if="imageitem.is360===1"
-                  @click="initPhotoSphere(procitem.procName,imageitem.filePathTrans)"
-                />
+                <img :src="imageitem.filePathThumb" :data-source="imageitem.filePathTrans"
+                  style="width: 100px; height: 100px" :key="imageitem.filePath" v-if="imageitem.is360 === 0" />
+                <img :src="imageitem.filePathThumb" style="width: 100px; height: 100px" :key="imageitem.filePath"
+                  v-if="imageitem.is360 === 1" @click="initPhotoSphere(procitem.procName, imageitem.filePathTrans)" />
               </template>
-              <el-checkbox
-                v-if="showPhotoBtn"
-                class="check"
-                :true-label="1"
-                :false-label="0"
-                v-model="imageitem.isFile"
+              <el-checkbox v-if="showPhotoBtn" class="check" :true-label="1" :false-label="0" v-model="imageitem.isFile"
                 @change="changeFill(imageitem)"></el-checkbox>
               <div class="submit-info"
-                :style="{color: imageitem.audit===0? '#888' : (imageitem.audit===2 ||imageitem.audit===4) ? 'red':(imageitem.audit===1 || imageitem.audit===3) ?'green':'' }">
-              {{selectDictLabel(statusOptions, imageitem.audit)}}
+                :style="{ color: imageitem.audit === 0 ? '#888' : (imageitem.audit === 2 || imageitem.audit === 4) ? 'red' : (imageitem.audit === 1 || imageitem.audit === 3) ? 'green' : '' }">
+                {{ selectDictLabel(statusOptions, imageitem.audit) }}
               </div>
-                <div class="submit-info">拍摄者: {{ imageitem.submit }}</div>
+              <div class="submit-info">拍摄者: {{ imageitem.submit }}</div>
             </div>
           </div>
           <!-- 拓展信息 -->
-          <template v-if="pointDirect.extand&&pointDirect.extand.length > 0">
-            <span class="remarktitle" >
+          <template v-if="pointDirect.extand && pointDirect.extand.length > 0">
+            <span class="remarktitle">
               <i class="el-icon-s-operation"></i>
               拓展信息
             </span>
             <ul style="margin-left:10px;margin-bottom:10px;">
-              <li v-for="(item,l) in pointDirect.extand" :key="item.code + l">
-                <span>{{item.name}}:</span>
-                <span>{{item.value}}</span>
+              <li v-for="(item, l) in pointDirect.extand" :key="item.code + l">
+                <span>{{ item.name }}:</span>
+                <span>{{ item.value }}</span>
               </li>
             </ul>
           </template>
@@ -101,13 +71,8 @@
       </div>
     </div>
 
-    <el-dialog
-      :title="photoSphereName"
-      :visible.sync="visible"
-      :footer="false"
-      :append-to-body="true"
-      custom-class="photo_wrap"
-      width="70%">
+    <el-dialog :title="photoSphereName" :visible.sync="visible" :footer="false" :append-to-body="true"
+      custom-class="photo_wrap" width="70%">
       <photo :bigImg="bigImg" v-if="visible"></photo>
     </el-dialog>
 
@@ -175,10 +140,10 @@ export default {
       })
       return actions.join('')
     },
-    initPhotoSphere(name, img) {
+    initPhotoSphere (name, img) {
       // img = require('../../../assets/images/test1.jpg')
       // img = 'https://gw.alicdn.com/tfs/TB1WSInRFXXXXXlXpXXXXXXXXXX-1200-600.jpg'
-      const url = process.env.VUE_APP_BASE_URL_download
+      const url = this.$apiUrl
       img = img.replace(url, '') + '?' + new Date().getTime()
       // img = img + '?' + new Date().getTime()
       this.photoSphereName = name
@@ -199,7 +164,7 @@ export default {
       //   })
       // })
     },
-    changeFill(img) {
+    changeFill (img) {
       const _id = img.id
       const checkedId = this.attc_ids.indexOf(_id)
       const no_checkedId = this.attc_ids_no.indexOf(_id)
@@ -219,7 +184,7 @@ export default {
         }
       }
     },
-    async photoFile() {
+    async photoFile () {
       console.log(this.attc_ids_no)
       console.log(this.attc_ids)
       const params = {
@@ -236,16 +201,17 @@ export default {
 </script>
 
 <style lang="scss">
-.base_info{
+.base_info {
   .subtitle {
     display: block;
     font-size: 16px;
     color: #409eff;
     margin-top: 10px;
-    padding-bottom:4px;
+    padding-bottom: 4px;
     // border-bottom:2px solid #000;
     // margin-bottom:10px;
   }
+
   .remarktitle {
     font-family: "Microsoft YaHei", "微软雅黑";
     display: block;
@@ -253,16 +219,19 @@ export default {
     color: red;
     margin-left: 5px;
   }
+
   .submit-info {
     /* text-align: left; */
     font-size: 12px;
     color: #aaa;
   }
+
   .submit-action {
     height: 25px;
     line-height: 25px;
     vertical-align: center;
   }
+
   .block {
     // padding: 10px 5px;
     margin: 0 8px 8px 0;
@@ -270,26 +239,31 @@ export default {
     display: inline-block;
     box-sizing: border-box;
     position: relative;
-    .check{
+
+    .check {
       position: absolute;
       top: 85px;
-      right:0px;
+      right: 0px;
     }
   }
+
   .remark-info {
     text-align: left;
   }
+
   .remark-submit {
     color: #888;
     font-size: 12px;
   }
+
   .drawer-image {
     padding: 0px 20px;
     display: flex;
     flex-direction: column;
     justify-content: flex-start;
   }
-  .btns{
+
+  .btns {
     margin-top: 10px;
     float: right;
   }

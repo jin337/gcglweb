@@ -1,6 +1,6 @@
 <template>
   <div class="main-wrapper" :class="{ 'isver': mode === 'vertical', 'iscoll': isCollapse }">
-    <div class="ver-wrapper" v-if="mode === 'vertical'" :style="{ backgroundColor: variables.menuBg }">
+    <div class="ver-wrapper" v-if="mode === 'vertical'">
       <left-side-bar :mode="mode" :permission_routers="permission_routers" :activeMenu="activeMenu"
         :variables="variables" :isCollapse="isCollapse" :title="title"></left-side-bar>
     </div>
@@ -26,7 +26,17 @@ export default {
   data () {
     return {
       isCollapse: false,
+      screenWidth: 1920,
       title: 'PA系统'
+    }
+  },
+  watch: {
+    screenWidth (val) {
+      if (val >= 1920) {
+        this.title = 'PA系统'
+      } else {
+        this.title = 'PA系统'
+      }
     }
   },
   computed: {
@@ -50,15 +60,29 @@ export default {
       return path
     },
     variables () {
-      const theme = this.$store.state.theme
       return {
         // menuBg: this.mode === 'horizontal' ? '#23b7bd' : '#FAFAFA',
         // menuText: this.mode === 'horizontal' ? '#8ffffe' : 'rgba(0, 0, 0, 0.85)',
         // menuActiveText: this.mode === 'horizontal' ? '#fff' : '#23b7bd'
 
-        menuBg: theme.menuBg,
-        menuText: theme.menuText,
-        menuActiveText: theme.menuActiveText
+        menuBg: this.mode === 'horizontal' ? '#23b7bd' : '#001529',
+        menuText: this.mode === 'horizontal' ? '#8ffffe' : 'rgba(255, 255, 255, 0.65)',
+        menuActiveText: this.mode === 'horizontal' ? '#fff' : '#fff'
+      }
+    }
+  },
+  mounted () {
+    this.screenWidth = document.body.clientWidth - 1
+    const el = document.getElementsByClassName('hor-wrapper')
+    if (el) {
+      el[0].style.width = this.screenWidth + 'px'
+    }
+
+    window.onresize = () => {
+      this.screenWidth = document.body.clientWidth - 1
+      const el = document.getElementsByClassName('hor-wrapper')
+      if (el) {
+        el[0].style.width = this.screenWidth + 'px'
       }
     }
   },
@@ -105,19 +129,21 @@ export default {
       color: #000;
       box-shadow: 0 0 4px rgba(0, 0, 0, 0.2);
 
+      li {
+        color: #000;
+
+        .topic {
+          color: #000;
+        }
+      }
     }
   }
 
   .ver-wrapper {
     width: 208px;
-    overflow: hidden;
 
     .titletext {
       margin-left: 6px;
-    }
-
-    i {
-      color: #fff;
     }
   }
 }
@@ -131,8 +157,11 @@ export default {
   overflow: auto;
 
   .hor-wrapper {
-    width: 100%;
     height: 100%;
+    // width: 100%;
+    // overflow: auto;
+    // width:fit-content;
+    // min-width:100%;
     background: #fff;
     display: flex;
     flex-direction: column;
@@ -143,25 +172,26 @@ export default {
   .ver-wrapper {
     display: flex;
     flex-direction: column;
+    // background:#FAFAFA;
+    background: #001529;
   }
 
   .top {
-    width: 100%;
+    // background:#23b7bd;
+    background: #002140;
     height: 60px;
     line-height: 60px;
     color: #fff;
-    cursor: pointer;
-    display: flex;
-    justify-content: center;
 
     img {
       display: inline-block;
       vertical-align: middle;
+      padding-left: 20px;
     }
 
-    .title {
+    span {
       font-size: 18px;
-      margin-left: 10px;
+      margin: 0 0 0 8px;
     }
   }
 
@@ -169,7 +199,6 @@ export default {
     height: calc(100% - 80px);
     border-right: none;
     overflow-y: auto;
-    overflow-x: hidden;
   }
 
   .container_content {
@@ -181,7 +210,7 @@ export default {
 }
 
 .navbar .el-submenu__title i {
-  color: #fff;
+  color: rgb(143, 255, 254);
 }
 
 .el-menu--horizontal.subtit {

@@ -579,7 +579,7 @@ export default {
     },
     // 全景照片预览 ，此处用的自己写的3D全景组件，插件组件会受硬盘内存影响
     initPhotoSphere (name, img) {
-      const url = process.env.VUE_APP_BASE_URL_download
+      const url = this.$apiUrl
       img = img.replace(url, '') + '?' + new Date().getTime()
       this.photoSphereName = name
       this.visible = true

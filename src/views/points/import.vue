@@ -88,8 +88,7 @@ export default {
       const { data, code } = await this.$pub.post('/point/manage/import-init-page', { project_code: this.projectCode })
       if (code === 200) {
         const api = config.defaultApi
-        const env = process.env.NODE_ENV === 'production' ? api : ''
-        const baseurl = process.env.VUE_APP_BASE_URL + env
+        const baseurl = this.$apiUrl + api
         this.file_name = data.file_name
         this.file_url = baseurl + data.url
       } else {
@@ -161,8 +160,7 @@ export default {
           if (total_err > 0 && url) {
             const title = this.project_code + '点位导入失败列表' + '-' + parseTime(new Date(), '{y}.{m}.{d} {h}:{i}:{s}') + '.xlsx'
             const api = config.defaultApi
-            const env = process.env.NODE_ENV === 'production' ? api : ''
-            const baseurl = process.env.VUE_APP_BASE_URL + env
+            const baseurl = this.$apiUrl + api
             const link = document.createElement('a')
             link.style.display = 'none'
             link.href = baseurl + url

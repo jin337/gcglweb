@@ -1,11 +1,20 @@
+/*
+ * @Author: yuanyuan
+ * @Date: 2024-07-24 13:30:04
+ * @LastEditors: yuanyuan
+ * @LastEditTime: 2024-08-29 09:47:30
+ * @FilePath: \gcgl_web\src\ajax\pub.js
+ */
 import axios from 'axios'
 import config from '../config/config'
 import Vue from 'vue'
-const baseUrl = process.env.VUE_APP_BASE_URL
+const apiurl = window.location.origin;
+const baseUrl = apiurl ? apiurl : process.env.VUE_APP_BASE_URL
 const api = config.defaultApi
+
 // 创建axios实例
 export const pub = axios.create({
-  baseURL: process.env.NODE_ENV === 'production' ? baseUrl + api : '/pub',
+  baseURL: process.env.NODE_ENV === 'production' ? baseUrl + api : '/pub' + api,
   timeout: 300000 // 请求超时时间
 })
 

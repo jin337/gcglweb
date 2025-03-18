@@ -185,8 +185,8 @@
               <span class="subtitle">
                 <i class="el-icon-camera"></i>
                 <span :style="{ fontWeight: procitem.is_core === 1 ? '600' : 'normal', marginLeft: '4px' }">{{
-    procitem.proc_name
-  }}</span>
+                  procitem.proc_name
+                }}</span>
                 <el-tooltip effect="dark" content="关键工序" v-if="procitem.is_core === 1">
                   <img src="../../assets/images/guanj.png" style="width:16px;margin-left:10px;">
                 </el-tooltip>
@@ -683,7 +683,7 @@ export default {
     },
     // 全景照片预览 ，此处用的自己写的3D全景组件，插件组件会受硬盘内存影响
     initPhotoSphere (name, img) {
-      const url = process.env.VUE_APP_BASE_URL_download
+      const url = this.$apiUrl
       img = img.replace(url, '') + '?' + new Date().getTime()
       this.photoSphereName = name
       this.visible = true

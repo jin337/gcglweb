@@ -1,145 +1,300 @@
+<!--
+ * @Author: yuanyuan
+ * @Date: 2024-08-30 09:38:13
+ * @LastEditors: yuanyuan
+ * @LastEditTime: 2025-03-17 14:21:41
+ * @FilePath: \gcgl_web\src\views\faultOperation\buildOrder.vue
+ * @des:工单生成 新建工单
+-->
 <template>
   <div class="buildOrder" v-loading="loading">
-    <el-descriptions :column="2" size="mini" border>
-      <template v-if="isOne">
-        <el-descriptions-item label="点位名称">{{currentData.point_name}}</el-descriptions-item>
-        <el-descriptions-item label="点位编码">{{currentData.point_code}}</el-descriptions-item>
-        <el-descriptions-item label="设备IP" :span="2">
-           <ul class="n-content" v-loading="iploading">
-            <li v-for="item in ipList" :key="item.device_ip" class="li">
-              <el-tag size="small"  :closable="ipList.length>1" @close="deleteIP(item)">{{item.device_ip}}</el-tag>
-            </li>
-          </ul>
-        </el-descriptions-item>
-      </template>
+    <el-form :model="form" :rules="rules" ref="formRef" size="small">
+      <div class="vux-flexbox">
+        <span class="label">派发单位</span>
+        <el-form-item prop="dept_id">
+          <treeselect class="n-content" v-model="form.dept_id" :normalizer="normalizer" placeholder="输入搜索词查询派发单位"
+            :options="deptOptions" :flat="true" style="width:250px;" />
+        </el-form-item>
+        <el-button type="primary" style="margin-left:auto;" size="medium" @click="selectPoint">选择点位</el-button>
+      </div>
+      <vxe-table show-overflow max-height="250" :data="tableData" :row-config="{ height: 30, isHover: true }"
+        highlight-current-row border>
+        <vxe-column type=seq title="序号" width="50px" align="center"></vxe-column>
+        <vxe-column title="区域" field="area" width="100px" align="center" />
+        <vxe-column title="子系统" field="child_name" width="100px" header-align="center" />
+        <vxe-column title="点位编码" field="point_code" header-align="center" />
+        <vxe-column title="点位名称" field="point_name" header-align="center" />
+        <vxe-column title="故障数量" field="count" width="80px" align="center">
+          <template v-slot="{ row }">
+            <div>
+              <el-tooltip v-if="row.ips" class="item" effect="dark" :content="row.ips" placement="top">
+                <span>{{ row.count }}</span>
+              </el-tooltip>
+              <span v-else>{{ row.count }}</span>
+            </div>
+          </template>
+        </vxe-column>
+        <vxe-column title="故障类型" field="fault_type" header-align="center" width="140px">
+          <template v-slot="{ row }">
+            <el-select v-model="row.fault_type" :key="row.id" size="mini" placeholder="请选择" style="width:110px;"
+              @change="handleSelect(row)">
+              <el-option v-for="item in faultTypeList" :key="item.id" :label="item.label" :value="item.value" />
+            </el-select>
+          </template>
+        </vxe-column>
+        <vxe-column title="操作" align="center" width="60px">
+          <template v-slot="{ row }">
+            <el-button size="mini" type="text" @click="handleDelete(row)" v-if="row.status === 0">删除</el-button>
+          </template>
+        </vxe-column>
+      </vxe-table>
+      <div class="flexwidth">
+        <!-- 人力 -->
+        <div class="hesuanwrap">
+          <!-- 下拉框 -->
+          <div class="vux-flexbox">
+            <span class="label">人力选择</span>
+            <el-form-item prop="selectedWorkers" style="width: calc(100% - 70px)">
+              <el-select v-model="form.selectedWorkers" multiple placeholder="请选择工种" style="width: 100%">
+                <el-option v-for="worker in workerList" :key="worker.value" :label="worker.fullName"
+                  :value="worker.value">
+                  <span>{{ worker.fullName }}</span>
+                </el-option>
+              </el-select>
+            </el-form-item>
+          </div>
 
-      <el-descriptions-item label="故障类型" :span="2" label-class-name="required" >
-        <el-select class="n-content" filterable v-model="fault_type" placeholder="请选择">
-          <el-option
-            v-for="item in fault_typeList"
-            :key="item.id"
-            :label="item.label"
-            :value="item.value"
-          />
-        </el-select>
-        <span class="error">{{error.fault_type}}</span>
-      </el-descriptions-item>
-      <el-descriptions-item label="派单部门" :span="2">
-        <treeselect
-          class="n-content"
-          v-model="dept_id"
-          :normalizer="normalizer"
-          placeholder="输入搜索词查询部门"
-          :options="deptOptions"
-          :flat="true"
-        />
-      </el-descriptions-item>
-      <el-descriptions-item label="派单描述" :span="2" v-if="dept_id" label-class-name="required">
-        <el-input  class="n-content" size="mini" v-model="assign_desc" type="textarea" />
-        <span class="error">{{error.assign_desc}}</span>
-      </el-descriptions-item>
-      <el-descriptions-item label="工单描述" :span="2" label-class-name="required">
-        <el-input  class="n-content" size="mini" v-model="fault_order_desc" type="textarea" />
-        <span class="error">{{error.fault_order_desc}}</span>
-      </el-descriptions-item>
-    </el-descriptions>
+          <!-- 动态渲染选中的工种和数量输入框 -->
+          <div class="vux-flexbox" v-if="form.selectedWorkers.length > 0">
+            <span class="label">人力数量</span>
+            <div class="xunhuanbox">
+              <el-form-item v-for="worker in form.selectedWorkers" :key="worker" :prop="`workerQuantities[${worker}]`"
+                :rules="workerQuantityRules">
+                <el-tag style="margin-right:10px;">
+                  <span>{{ getWorkerName(worker) }}：</span>
+                  <el-input-number v-model="form.workerQuantities[worker]" placeholder="请输入数量" style="width: 100px"
+                    size="mini" :min="1" :step="1" step-strictly controls-position="right" />
+                </el-tag>
+              </el-form-item>
+            </div>
+          </div>
+        </div>
+
+        <!-- 车辆 -->
+        <div class="hesuanwrap">
+          <!-- 下拉框 -->
+          <div class="vux-flexbox">
+            <span class="label">车辆选择</span>
+            <el-form-item prop="selectedCars" style="width: calc(100% - 70px)">
+              <el-select v-model="form.selectedCars" multiple placeholder="请选择车辆" style="width: 100%">
+                <el-option v-for="car in carList" :key="car.value" :label="car.fullName" :value="car.value">
+                  <span>{{ car.fullName }}</span>
+                </el-option>
+              </el-select>
+            </el-form-item>
+          </div>
+
+          <!-- 动态渲染选中的车辆和数量输入框 -->
+          <div class="vux-flexbox" v-if="form.selectedCars.length > 0">
+            <span class="label">车辆数量</span>
+            <div class="xunhuanbox">
+              <el-form-item v-for="car in form.selectedCars" :key="car" :prop="`carQuantities[${car}]`"
+                :rules="carQuantityRules">
+                <el-tag style="margin-right:10px;">
+                  <span>{{ getCarName(car) }}：</span>
+                  <el-input-number v-model="form.carQuantities[car]" placeholder="请输入数量" style="width: 100px" size="mini"
+                    :min="1" :step="1" step-strictly controls-position="right" />
+                </el-tag>
+              </el-form-item>
+            </div>
+          </div>
+        </div>
+      </div>
+      <!-- 价格 -->
+      <div style="margin-top: 13px;width:100%;" class="vux-flexbox">
+        <span class="label">价格合计</span>
+        <el-form-item prop="sumPrice" style="width: calc(100% - 70px)">
+          <el-input v-model="sumPrice" readonly />
+        </el-form-item>
+      </div>
+
+      <!-- 备注 -->
+      <div style="margin-top: 13px;" class="vux-flexbox">
+        <span class="label">备 注</span>
+        <el-form-item prop="remark" style="width:calc(100% - 70px);">
+          <el-input size="mini" v-model="form.remark" type="textarea" />
+        </el-form-item>
+      </div>
+    </el-form>
 
     <div class="btns">
-      <el-button size="mini" type="primary" @click="submit">生成</el-button>
+      <el-button size="mini" type="primary" @click="handleSubmit">生成</el-button>
     </div>
+
+    <el-dialog title="选择点位" :visible.sync="selectFlag" width="1000px" append-to-body :lock-scroll="false">
+      <selectPointBox v-if="selectFlag" :project_code="project_code" :childList="childList" :areaList="areaList"
+        :selectFlag.sync="selectFlag" @initTableData="initTableData"></selectPointBox>
+    </el-dialog>
   </div>
 </template>
 
 <script>
+import mixin from './mixin.js'
+import selectPointBox from './SelectPoint.vue'
 export default {
   name: 'buildOrder',
+  mixins: [mixin],
   props: {
     buildFlag: {
       type: Boolean,
       default: false
     },
-    currentData: {
-      type: [Object, Array],
+    currentData: {//点位不是工单哦，用于故障列表单个点位生成工单的
+      type: Array,
+      default: () => []
+    },
+    currentOrder: {//当前选择的工单哦
+      type: Object,
+      default: () => { }
+    },
+    project_code: {
+      type: String,
       require: true
+    },
+    projectList: {
+      type: Array,
+      require: true
+    },
+    childList: {
+      type: Array,
+      require: true
+    },
+    areaList: {
+      type: Array,
+      require: true
+    },
+    faultTypeList: {
+      type: Array,
+      default: () => []
+    },
+    isEdit: {//编辑工单
+      type: Boolean,
+      default: false
     }
   },
   data () {
     return {
       loading: false,
-      fault_type: 1, // 故障类型 默认选中设备不在线
-      fault_typeList: [],
       deptOptions: [],
-      dept_id: null, // 派单部门
-      assign_desc: '', //  派单描述
-      fault_order_desc: '', // 工单描述
-      ipList: [], // ip列表
-      iploading: false,
-      error: {
-        fault_type: '',
-        assign_desc: '',
-        fault_order_desc: ''
-      }
+      tableData: [],
+      // 表单数据
+      form: {
+        dept_id: null,
+        selectedWorkers: [], // 人力选择 选中的
+        workerQuantities: {}, // 人力数量
+        selectedCars: [], // 车辆选择  选中的
+        carQuantities: {}, // 车辆数量
+        remark: '', // 备注
+      },
+      // 校验规则
+      rules: {
+        dept_id: [
+          { required: true, message: '请选择派发单位', trigger: 'change' },
+        ],
+        selectedWorkers: [
+          { required: true, message: '请选择人力', trigger: 'change' },
+        ],
+        selectedCars: [
+          { required: true, message: '请选择车辆', trigger: 'change' },
+        ],
+        remark: [
+          { required: true, message: '请输入备注', trigger: 'blur' },
+        ],
+      },
+      //选择点位
+      selectFlag: false
     }
   },
-  computed: {
-    isOne() {
-      return this.currentData && !Array.isArray(this.currentData)
-    }
-  },
-  watch: {
-    fault_type(val) {
-      if (val) {
-        this.error.fault_type = ''
-      } else {
-        this.error.fault_type = '故障类型必选'
-      }
-    },
-    assign_desc(val) {
-      if (val) {
-        this.error.assign_desc = ''
-      } else {
-        this.error.assign_desc = '派单描述必填'
-      }
-    },
-    fault_order_desc(val) {
-      if (val) {
-        this.error.fault_order_desc = ''
-      } else {
-        this.error.fault_order_desc = '工单描述必填'
-      }
-    }
-  },
-  mounted() {
-    this.getfault_type()
-    this.getDept()
-    if (this.isOne) {
-      this.getIpList()
-    }
+  mounted () {
+    this.getDept();
+    this.init();
   },
   components: {
-
+    selectPointBox
+  },
+  computed: {
+    // 计算金额合计
+    sumPrice () {
+      const workertotalAmount = this.form.selectedWorkers.reduce((total, worker) => {
+        const workerInfo = this.workerList.find((w) => w.value === worker);
+        if (workerInfo) {
+          return total + (this.form.workerQuantities[worker] || 0) * workerInfo.price;
+        }
+        return total;
+      }, 0);
+      const cartotalAmount = this.form.selectedCars.reduce((total, car) => {
+        const carInfo = this.carList.find((w) => w.value === car);
+        if (carInfo) {
+          return total + (this.form.carQuantities[car] || 0) * carInfo.price;
+        }
+        return total;
+      }, 0);
+      return workertotalAmount + cartotalAmount
+    }
   },
   methods: {
-    getfault_type() {
-      this.$dict(this, 'fault_type').then(res => {
-        if (res.code === 200) {
-          this.fault_typeList = (res.data || []).map(m => {
-            return {
-              value: Number(m.value),
-              label: m.label
-            }
-          })
+    async init () {
+      // 故障列表=》生成工单
+      this.tableData = Object.values(this.currentData.reduce((acc, item) => {
+        const { point_code } = item;
+        item.fault_type = 1;
+        item.ips = item.device_ip;
+        if (!acc[point_code]) {
+          acc[point_code] = { ...item, count: 1, faultReason: '设备不在线' };
         } else {
-          this.$message({
+          acc[point_code].count += 1;
+        }
+
+        return acc;
+      }, {}));
+
+      // 工单列表编辑回显  
+      if (this.isEdit) {
+        this.loading = true
+        const params = {
+          order_id: this.currentOrder.id + ''
+        }
+        const { data, code } = await this.$pub.post('/point/order/detail', params)
+        this.loading = false
+        if (code !== 200) {
+          this.tableData = []
+          return this.$message({
+            message: '获取详情出错了',
             type: 'error',
-            message: '字典获取出错了fault_type',
             showClose: true
           })
-          this.fault_typeList = []
         }
-      })
+
+        this.form.dept_id = data.fault_dept
+        this.tableData = data.point_list
+        this.form.remark = data.fault_order_desc
+
+        /** 
+         *已选回填
+         */
+        const workList = data.price_list_first.filter(m => m.type === 1);
+        const carList = data.price_list_first.filter(m => m.type === 2);
+        const workInfo = this.parseQuantities(workList);
+        const carInfo = this.parseQuantities(carList)
+
+        this.form.selectedWorkers = workInfo.keys;// 人力选择 选中的键value
+        this.form.workerQuantities = workInfo.Quantities; // 人力数量 {value:count}
+        this.form.selectedCars = carInfo.keys; // 车辆选择  选中的
+        this.form.carQuantities = carInfo.Quantities;//  车辆数量
+      }
+
     },
-    async getDept() {
+    async getDept () {
       const { data, code } = await this.$pub.post('/sys/dept/list-tree', { mc: '' })
       if (code !== 200) {
         return this.$message({
@@ -166,127 +321,149 @@ export default {
         children: node.child
       }
     },
-    // 获取ip列表
-    async getIpList() {
-      this.iploading = true
-      const params = {
-        project_code: this.currentData.project_code, // 项目编码
-        point_code: this.currentData.point_code// 点位编码
-      }
-      const { data, code } = await this.$pub.post('point/fault/fault-ip-list', params)
-      if (code === 200) {
-        this.ipList = data.list || []
-      } else {
-        this.$message({
-          type: 'error',
-          message: '获取ip列表出错了',
-          showClose: true
-        })
-        this.ipList = []
-      }
-      this.iploading = false
-    },
-    deleteIP(ip) {
-      const _acData = this.ipList.find(x => x.device_id === ip.device_id)
-      this.ipList.splice(this.ipList.indexOf(_acData), 1)
-    },
-    async submit() {
-      // error: {
-      //   fault_type: '',
-      //   assign_desc: '',
-      //   fault_order_desc: ''
-      // }
-      let flag = false
-      if (!this.fault_type) {
-        this.error.fault_type = '故障类型必选'
-        flag = true
-      }
-      if (this.dept_id && !this.assign_desc) {
-        this.error.assign_desc = '派发描述必填'
-        flag = true
-      }
-      if (!this.fault_order_desc) {
-        this.error.fault_order_desc = '工单描述必填'
-        flag = true
-      }
-      if (!flag) {
-        this.loading = true
-        let url = ''
-        let params = {
-          assign_dept: this.dept_id ? this.dept_id : 0, // 派发部门 传0 则代表不进行派单操作
-          fault_type: this.fault_type, // 故障类型
-          assign_desc: this.assign_desc ? this.assign_desc : this.fault_order_desc, // 派发描述
-          fault_order_desc: this.fault_order_desc // 故障工单描述
-        }
 
-        if (this.isOne) {
-          url = 'point/fault/build-order'
-          params = {
-            ...params,
-            project_code: this.currentData.project_code, // 项目编码
-            point_code: this.currentData.point_code, // 点位编码
-            device_list: this.ipList
-          }
-        } else {
-          url = 'point/fault/build-order-batch'
-          params = {
-            ...params,
-            point_list: this.currentData.map(m => {
+    selectPoint () {
+      this.selectFlag = true
+    },
+    // 选择点位后回调
+    initTableData (arr) {
+      console.log(arr)
+      const arrMap = new Map(arr.map(item => [item.point_code, item]));
+      const mergedData = this.tableData.map(item => {
+        // 如果 point_code 在 arr 中存在，则使用 arr 中的数据
+        if (arrMap.has(item.point_code)) {
+          return arrMap.get(item.point_code);
+        }
+        // 否则保留 tableData 中的数据
+        return item;
+      });
+
+      // 将 arr 中新增的数据（point_code 不在 tableData 中的数据）追加到结果中
+      const newDataFromArr = arr.filter(item => !this.tableData.some(t => t.point_code === item.point_code));
+      this.tableData = [...mergedData, ...newDataFromArr];
+      this.selectFlag = false;
+    },
+    // 改变故障类型实时界面切换显示
+    handleSelect (row) {
+      this.$set(this.tableData, this.tableData.indexOf(row), { ...row });
+    },
+    // 删除当前行
+    handleDelete (row) {
+      // 确认是否删除
+      this.$confirm('确定要删除该行吗？', '提示', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning'
+      })
+        .then(() => {
+          // 从表格数据中移除当前行
+          this.tableData = this.tableData.filter(item => item.id !== row.id);
+          this.$message.success('删除成功');
+        })
+        .catch(() => {
+          this.$message.info('已取消删除');
+        });
+    },
+    async handleSubmit () {
+      this.$refs.formRef.validate(async (valid) => {
+        if (this.sumPrice <= 0) {
+          return
+        }
+        if (this.tableData.length <= 0) {
+          this.$message.error('没有选择点位');
+          return
+        }
+        if (valid) {
+          console.log('表单数据：', this.form);
+          const workPrice = this.assignWorker(this.form.workerQuantities, this.workerList);
+          const carPrice = this.assignWorker(this.form.carQuantities, this.carList);
+          console.log(workPrice, carPrice)
+          const tempobj = {
+            id: this.isEdit ? this.currentOrder.id : null,
+            project_code: this.project_code,
+            fault_order_desc: this.form.remark,
+            fault_dept: this.form.dept_id,
+            // fault_order_type: 1,
+            point_list: this.tableData.map(m => {
               return {
                 point_code: m.point_code,
-                project_code: m.project_code
+                ips: m.ips,
+                status: this.isEdit ? 0 : 1,
+                count: m.count,
+                fault_type: m.fault_type
               }
+            }),
+            price_list_first: [...workPrice, ...carPrice]
+          }
+          const url = this.isEdit ? '/point/order/edit' : '/point/order/add'
+          const { code, message } = await this.$pub.post(url, tempobj)
+          if (code === 200) {
+            this.$message.success(message);
+            this.$emit('update:buildFlag', false);
+          } else {
+            this.$notify.error({
+              title: '生成失败',
+              message: message
             })
           }
-        }
-        const { code, message } = await this.$pub.post(url, params)
-        this.loading = false
-        if (code !== 200) {
-          this.$message({
-            message: message || '生成失败',
-            type: 'info',
-            showClose: true,
-            customClass: 'uploadMessage'
-          })
         } else {
-          this.$emit('update:buildFlag', false)
-          this.$emit('handleQuery')
+          this.$message.error('请填写完整表单');
         }
-      }
+      });
+
     }
   }
 }
 </script>
 
 <style lang='scss'>
-.buildOrder{
-  .required{
-    &:before{
-      content: "*";
-      color: #f56c6c;
-      margin-right: 4px;
-    }
-  }
-  .el-descriptions-item__label{
-    width:88px;
-    font-size: 14px;
-  }
-  .n-content{
-    width:548px;
-    border-radius: 4px;
-    .li{
-      width:25%;
+.buildOrder {
+  .vux-flexbox {
+    margin-bottom: 13px;
+    flex-wrap: wrap;
+
+    .label {
+      margin-right: 6px;
+      font-weight: 700;
+      color: #333;
       display: inline-block;
-      margin:10px 0;
+      width: 60px;
+    }
+
+    .el-form-item--small.el-form-item {
+      margin-bottom: 0;
+    }
+
+    .xunhuanbox {
+      display: flex;
+      flex-wrap: wrap;
+      flex: 1;
     }
   }
-  .btns{
+
+  .btns {
     text-align: right;
-    margin-top:20px;
+    margin-top: 20px;
   }
-  .error{
-    color: #f56c6c;
-    display: block;
+
+  .flexwidth {
+    margin-top: 20px;
+    flex: 1;
+    display: flex;
+    flex-wrap: wrap;
+
+    .hesuanwrap {
+      width: calc(50% - 4px);
+
+      .vux-flexbox {
+        align-items: center;
+      }
+
+      .el-tag {
+        padding: 0 0px 0 2px;
+      }
+    }
   }
+
 }
 </style>

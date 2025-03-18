@@ -10,80 +10,34 @@
           <span class="line"></span>
           <span>退库信息</span>
         </div>
-        <el-form :model="form" ref="form"  size="small"  label-width="82px" :rules="rules">
+        <el-form :model="form" ref="form" size="small" label-width="82px" :rules="rules">
           <el-form-item label="过程单号:" prop="order_code" v-if="isEdit">
-            <el-input
-              style="width:220px;"
-              v-model="form.order_code"
-              placeholder="请输入过程单号"
-              clearable
-              disabled
-            />
+            <el-input style="width:220px;" v-model="form.order_code" placeholder="请输入过程单号" clearable disabled />
           </el-form-item>
           <el-form-item label="经办人:" prop="oper_user_id">
-            <el-select
-              v-model="form.oper_user_id"
-              clearable
-              style="width:220px;"
-              filterable
-              remote
-              reserve-keyword
-              placeholder="请输入关键词"
-              :remote-method="oper_user_remoteMethod"
-              :loading="loading"
-            >
-              <el-option
-                v-for="item in userList"
-                :key="item.user_id"
-                :label="item.user_name_dept"
-                :value="item.user_id"
-              >
+            <el-select v-model="form.oper_user_id" clearable style="width:220px;" filterable remote reserve-keyword
+              placeholder="请输入关键词" :remote-method="oper_user_remoteMethod" :loading="loading">
+              <el-option v-for="item in userList" :key="item.user_id" :label="item.user_name_dept" :value="item.user_id">
               </el-option>
             </el-select>
           </el-form-item>
           <el-form-item label="经办对象:" prop="involved_user_id">
-            <el-select
-              v-model="form.involved_user_id"
-              clearable
-              style="width:220px;"
-              filterable
-              remote
-              reserve-keyword
-              placeholder="请输入关键词"
-              :remote-method="involved_user_remoteMethod"
-              :loading="loading"
-              @visible-change="before_involved_userChange($event)"
-              @change="changeinvolved_user"
-
-            >
-              <el-option
-                v-for="item in involved_userList"
-                :key="item.user_id"
-                :label="item.user_name_dept"
-                :value="item.user_id"
-              >
+            <el-select v-model="form.involved_user_id" clearable style="width:220px;" filterable remote reserve-keyword
+              placeholder="请输入关键词" :remote-method="involved_user_remoteMethod" :loading="loading"
+              @visible-change="before_involved_userChange($event)" @change="changeinvolved_user">
+              <el-option v-for="item in involved_userList" :key="item.user_id" :label="item.user_name_dept"
+                :value="item.user_id">
               </el-option>
             </el-select>
           </el-form-item>
           <el-form-item label="发生时间:" prop="oper_time">
-            <el-date-picker
-              v-model="form.oper_time"
-              type="datetime"
-              align="right"
-              style="width:220px;"
-              format="yyyy-MM-dd HH:mm:ss"
-              value-format="timestamp"
-            >
+            <el-date-picker v-model="form.oper_time" type="datetime" align="right" style="width:220px;"
+              format="yyyy-MM-dd HH:mm:ss" value-format="timestamp">
             </el-date-picker>
           </el-form-item>
           <el-form-item label="所在库房:" prop="warehouse_id">
-            <el-select v-model="form.warehouse_id"  placeholder="请选择"  style="width220px">
-              <el-option
-                v-for="item in warehouseList"
-                :key="item.id"
-                :label="item.name"
-                :value="item.id"
-              >
+            <el-select v-model="form.warehouse_id" placeholder="请选择" style="width220px">
+              <el-option v-for="item in warehouseList" :key="item.id" :label="item.name" :value="item.id">
               </el-option>
             </el-select>
           </el-form-item>
@@ -97,30 +51,28 @@
         <div class="btns">
           <el-button style="background:#F59A23;color:#fff;" size="mini" @click="addTableData">添加物料</el-button>
         </div>
-        <el-table :data="tableData" v-loading="tableLoading" style="width: 100%;" :height="tableHeight" row-key="leng" >
+        <el-table :data="tableData" v-loading="tableLoading" style="width: 100%;" :height="tableHeight" row-key="leng">
           <el-table-column prop="device_name" label="物料类型名称" min-width="110px" show-overflow-tooltip></el-table-column>
           <el-table-column prop="device_model" label="规格型号" show-overflow-tooltip>
             <template slot-scope="scope">
-              <span style="color:#409EFF;">{{scope.row.device_model}}</span>
+              <span style="color:#409EFF;">{{ scope.row.device_model }}</span>
             </template>
           </el-table-column>
           <el-table-column prop="unit" label="单位" width="60"></el-table-column>
-          <el-table-column  prop="device_brand" label="品牌" min-width="120">
+          <el-table-column prop="device_brand" label="品牌" min-width="120">
             <template slot-scope="scope">
-              <span>{{scope.row.device_brand_name}}</span>
+              <span>{{ scope.row.device_brand_name }}</span>
             </template>
           </el-table-column>
           <el-table-column prop="out_number" label="出库数量" width="80"></el-table-column>
           <el-table-column prop="number" label="退库数量" min-width="120">
             <template slot-scope="scope">
               <div>
-                <el-input
-                  v-model.trim="scope.row.number"
-                  placeholder="请输入大于0的数字"
-                  :style="{width:scope.row.error?'70%':'100%'}"
-                  controls-position="right"
-                  @input="($event)=>change($event,scope)"></el-input>
-                  <span v-if="scope.row.error" style="color:#f40;display:block;margin-left:10px;font-size:12px;">{{scope.row.error}}</span>
+                <el-input v-model.trim="scope.row.number" placeholder="请输入大于0的数字"
+                  :style="{ width: scope.row.error ? '70%' : '100%' }" controls-position="right"
+                  @input="($event) => change($event, scope)"></el-input>
+                <span v-if="scope.row.error"
+                  style="color:#f40;display:block;margin-left:10px;font-size:12px;">{{ scope.row.error }}</span>
               </div>
             </template>
           </el-table-column>
@@ -133,21 +85,10 @@
       </div>
 
       <!-- 添加物料（物料类型选择） -->
-      <el-drawer
-        title="物料类型选择"
-        :visible.sync="addTable"
-        size="100%"
-        :append-to-body="true"
-        :destroy-on-close ="true"
-        custom-class="addWarehouse"
-      >
-        <add-warehouse
-          v-if="addTable"
-          @sureAddTableData="sureAddTableData"
-          :defaultData="tableData"
-          :project_code="project_code"
-          :dept_id="form.dept_id"
-        ></add-warehouse>
+      <el-drawer title="物料类型选择" :visible.sync="addTable" size="100%" :append-to-body="true" :destroy-on-close="true"
+        custom-class="addWarehouse">
+        <add-warehouse v-if="addTable" @sureAddTableData="sureAddTableData" :defaultData="tableData"
+          :project_code="project_code" :dept_id="form.dept_id"></add-warehouse>
       </el-drawer>
     </div>
   </div>
@@ -218,7 +159,7 @@ export default {
   computed: {
 
   },
-  mounted() {
+  mounted () {
     window.onresize = () => {
       this.tableHeight = window.innerHeight - 155
     }
@@ -242,8 +183,7 @@ export default {
       this.photo_list = this.currentRow.photo_list ? this.currentRow.photo_list.map(m => {
         const isPdf = m.file_name.toLowerCase().search('.pdf') > -1
         const api = config.defaultApi
-        const env = process.env.NODE_ENV === 'production' ? api : ''
-        const baseurl = process.env.VUE_APP_BASE_URL + env
+        const baseurl = this.$apiUrl + api
         console.log(baseurl)
         const url = baseurl + m.file_path + m.file_name
         return Object.assign(m, { type: isPdf ? 'pdf' : 'img', url })
@@ -263,7 +203,7 @@ export default {
     addWarehouse
   },
   methods: {
-    addTableData() {
+    addTableData () {
       if (!this.form.involved_user_id) {
         return this.$message({
           type: 'error',
@@ -273,7 +213,7 @@ export default {
       }
       this.addTable = true
     },
-    sureAddTableData(data) { // 选择物料
+    sureAddTableData (data) { // 选择物料
       this.addTable = false
       this.tableData = data.map(m => {
         return Object.assign(m, {
@@ -284,7 +224,7 @@ export default {
         })
       })
     },
-    async oper_user_remoteMethod(query) {
+    async oper_user_remoteMethod (query) {
       if (query !== '') {
         this.loading = true
         const { code, message, data } = await this.$pub.post('/sys/user/list', { user_name: query })
@@ -301,7 +241,7 @@ export default {
         this.userList = []
       }
     },
-    async involved_user_remoteMethod(query) {
+    async involved_user_remoteMethod (query) {
       if (query !== '') {
         this.loading = true
         const { code, message, data } = await this.$pub.post('/sys/user/list', { user_name: query })
@@ -318,7 +258,7 @@ export default {
         this.involved_userList = []
       }
     },
-    before_involved_userChange(e) {
+    before_involved_userChange (e) {
       if (e && this.tableData.length > 0) {
         this.$message({
           type: 'warning',
@@ -327,14 +267,14 @@ export default {
         })
       }
     },
-    changeinvolved_user(val) {
+    changeinvolved_user (val) {
       const dep_id = this.involved_userList.find(f => f.user_id === val).dept_id
       if (dep_id !== this.form.dept_id) {
         this.tableData = []
       }
       this.form.dept_id = dep_id
     },
-    del(row) {
+    del (row) {
       const _index = row.$index
       this.$confirm('确定删除吗?', '提示', {
         confirmButtonText: '确定',
@@ -355,7 +295,7 @@ export default {
         })
       })
     },
-    save() {
+    save () {
       this.$refs.form.validate(async (valid) => {
         if (valid) {
           this.saveLoading = true
@@ -420,7 +360,7 @@ export default {
         }
       })
     },
-    valiSaveDevice() {
+    valiSaveDevice () {
       let flag = false
       for (let i = 0; i < this.tableData.length; i++) {
         const row = this.tableData[i]
@@ -440,7 +380,7 @@ export default {
       }
       return flag
     },
-    change(e, scope) {
+    change (e, scope) {
       scope.row.number = e
       const test = /\D|^0/g
       if (scope.row.number === '' || new RegExp(test).test(scope.row.number)) {
@@ -456,151 +396,183 @@ export default {
 }
 </script>
 <style lang="scss">
-.order_add{
-  .el-drawer__header{
-    margin-bottom:10px;
+.order_add {
+  .el-drawer__header {
+    margin-bottom: 10px;
   }
-  ._top{
-    display:flex;
-    flex-direction:row-reverse;
-    position:absolute;
+
+  ._top {
+    display: flex;
+    flex-direction: row-reverse;
+    position: absolute;
     top: -37px;
     right: 60px;
   }
-  .wrap{
-    width:100%;
-    display:flex;
-    justify-content:space-between;
-    height:calc(100% - 20px);
-    border-top:1px solid #eee;
-    padding:10px 20px;
+
+  .wrap {
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+    height: calc(100% - 20px);
+    border-top: 1px solid #eee;
+    padding: 10px 20px;
     box-sizing: border-box;
-    ._left{
+
+    ._left {
       width: 320px;
-      height:100%;
-      border-right:1px solid #eee;
+      height: 100%;
+      border-right: 1px solid #eee;
       overflow: auto;
-      padding-right:10px;
+      padding-right: 10px;
     }
-    ._right{
+
+    ._right {
       width: calc(100% - 360px);
-      height:100%;
+      height: 100%;
       overflow: auto;
-      padding-right:10px;
-      .cursor{
+      padding-right: 10px;
+
+      .cursor {
         cursor: pointer;
       }
     }
-    .line{
-      margin-right:4px;
+
+    .line {
+      margin-right: 4px;
     }
   }
-  .cell{
-    .el-button{
-      padding:0;
+
+  .cell {
+    .el-button {
+      padding: 0;
     }
   }
-  .el-table td{
-      padding:4px;
+
+  .el-table td {
+    padding: 4px;
   }
 }
-.el-popover.clover_popover{
-  min-width:20px;
+
+.el-popover.clover_popover {
+  min-width: 20px;
   padding: 0;
-  .brand_click{
+
+  .brand_click {
     transition: opacity 0.1s ease;
-    li{
-      padding:10px 14px;
+
+    li {
+      padding: 10px 14px;
       cursor: pointer;
-      &:hover{
-        background:#ecf1f5;
+
+      &:hover {
+        background: #ecf1f5;
       }
     }
-    li.selected{
-      background:#c8def5;
+
+    li.selected {
+      background: #c8def5;
     }
   }
 }
-.addWarehouse{
-  .el-drawer__header{
-    margin-bottom:10px;
+
+.addWarehouse {
+  .el-drawer__header {
+    margin-bottom: 10px;
   }
 }
-.clover_outadd{
-   .el-upload{
-    .el-icon-close-tip{
-      display:none!important;
+
+.clover_outadd {
+  .el-upload {
+    .el-icon-close-tip {
+      display: none !important;
     }
   }
-  .el-upload-list__item.focusing .el-icon-close-tip{
-    display:none!important;
+
+  .el-upload-list__item.focusing .el-icon-close-tip {
+    display: none !important;
   }
-  li{
+
+  li {
     cursor: pointer;
   }
 }
-.fj_wrap{
+
+.fj_wrap {
   font-size: 14px;
-  li{
-    display:flex;
+
+  li {
+    display: flex;
     align-items: center;
-    width:100%;
-    padding:4px;
-    color:#606266;
-    i{
-      &:first-child{
-        margin-right:5px;
+    width: 100%;
+    padding: 4px;
+    color: #606266;
+
+    i {
+      &:first-child {
+        margin-right: 5px;
       }
-      &:last-child{
+
+      &:last-child {
         // display: none;
         // margin-left:auto;
         // margin-right: 10px;
       }
     }
-    .el-icon-close{
+
+    .el-icon-close {
       display: none;
-      margin-left:auto;
+      margin-left: auto;
       margin-right: 10px;
     }
-    &:hover{
+
+    &:hover {
       background: #eee;
     }
-    span{
-      &:hover{
+
+    span {
+      &:hover {
         color: #409eff;
       }
     }
-    &:hover{
-      .el-icon-close{
+
+    &:hover {
+      .el-icon-close {
         display: inline-block;
       }
     }
   }
-  .el-icon-close{
-    cursor:pointer;
+
+  .el-icon-close {
+    cursor: pointer;
   }
 }
+
 .zZindex {
-  z-index:9999999 !important;
+  z-index: 9999999 !important;
 }
-.clover_prview{
-  height:calc(100% - 20px);
-  margin-top:10px!important;
-  margin-bottom:0px!important;
-  .el-dialog__body{
-    height:calc(100% - 60px)
+
+.clover_prview {
+  height: calc(100% - 20px);
+  margin-top: 10px !important;
+  margin-bottom: 0px !important;
+
+  .el-dialog__body {
+    height: calc(100% - 60px)
   }
 }
-.clover_prview_img{
-  height:calc(100% - 20px);
-  margin-top:10px!important;
-  margin-bottom:0px!important;
-  .el-dialog__body{
-    min-height:calc(100% - 60px)
+
+.clover_prview_img {
+  height: calc(100% - 20px);
+  margin-top: 10px !important;
+  margin-bottom: 0px !important;
+
+  .el-dialog__body {
+    min-height: calc(100% - 60px)
   }
 }
-.order_add  .el-drawer__body{
-    overflow:visible;
-    height: calc(100% - 55px);
-  }
+
+.order_add .el-drawer__body {
+  overflow: visible;
+  height: calc(100% - 55px);
+}
 </style>

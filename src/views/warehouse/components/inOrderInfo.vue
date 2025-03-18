@@ -1,6 +1,6 @@
 <template>
   <div class="wrap" v-loading="sureOutLoading">
-    <div class="_left" >
+    <div class="_left">
       <!-- 详情基本信息 -->
       <div class="module">
         <span class="line"></span>
@@ -9,27 +9,27 @@
       <ul class="info_wrap">
         <li>
           <span>过程单号:</span>
-          <span :title="order_info.order_code">{{order_info.order_code}}</span>
+          <span :title="order_info.order_code">{{ order_info.order_code }}</span>
         </li>
         <li>
           <span>经办人:</span>
-          <span :title="order_info.oper_user_name">{{order_info.oper_user_name}}</span>
+          <span :title="order_info.oper_user_name">{{ order_info.oper_user_name }}</span>
         </li>
         <li>
           <span>供应方:</span>
-          <span :title="order_info.supply">{{order_info.supply}}</span>
+          <span :title="order_info.supply">{{ order_info.supply }}</span>
         </li>
         <li>
           <span>发生时间:</span>
-          <span :title="parseTime(order_info.oper_time)">{{parseTime(order_info.oper_time)}}</span>
+          <span :title="parseTime(order_info.oper_time)">{{ parseTime(order_info.oper_time) }}</span>
         </li>
         <li>
           <span>所在库房:</span>
-          <span :title="order_info.warehouse_name">{{order_info.warehouse_name}}</span>
+          <span :title="order_info.warehouse_name">{{ order_info.warehouse_name }}</span>
         </li>
         <li>
           <span>最后编辑人:</span>
-          <span :title="order_info.create_user">{{order_info.create_user}}</span>
+          <span :title="order_info.create_user">{{ order_info.create_user }}</span>
         </li>
       </ul>
 
@@ -49,40 +49,36 @@
           <span>单据附件</span>
           <span v-if="inUpload" style="margin-left:65px;color: #F56C6C;">请上传*号必传项</span>
         </div>
-        <div class="fj_wrap_info" style="height:calc(100% - 310px);overflow:'auto'" >
-          <el-card v-for="(item,i) in photo_list" :key="item.file_path + i" style="margin-bottom:10px;">
+        <div class="fj_wrap_info" style="height:calc(100% - 310px);overflow:'auto'">
+          <el-card v-for="(item, i) in photo_list" :key="item.file_path + i" style="margin-bottom:10px;">
             <div style="margin-bottom:10px;">
-              <span v-if="order_info.order_status===1&&(i==='files_t1' || i==='files_t2')" style="color: #F56C6C;margin-right: 4px;">*</span>
-              <span>{{titList[i]}}</span>
+              <span v-if="order_info.order_status === 1 && (i === 'files_t1' || i === 'files_t2')"
+                style="color: #F56C6C;margin-right: 4px;">*</span>
+              <span>{{ titList[i] }}</span>
               <el-upload
-                v-if="(order_info.order_status===1&&(i==='files_t1' || i==='files_t2' || i==='files_t3')) || ((order_info.order_status===2 || order_info.order_status===4)&&(i==='files_t4' || i==='files_t5'))"
-                :name="'up'+i"
-                multiple
-                :ref="'uploadFile'+i"
-                class="clover_in"
-                action="#"
-                accept="image/png, image/jpeg,image/jpg, .pdf"
-                :auto-upload="false"
-                :http-request="httpRequest"
-                :on-change="handleChange"
-                :before-remove="beforeRemove"
-                :on-remove="handleRemove"
+                v-if="(order_info.order_status === 1 && (i === 'files_t1' || i === 'files_t2' || i === 'files_t3')) || ((order_info.order_status === 2 || order_info.order_status === 4) && (i === 'files_t4' || i === 'files_t5'))"
+                :name="'up' + i" multiple :ref="'uploadFile' + i" class="clover_in" action="#"
+                accept="image/png, image/jpeg,image/jpg, .pdf" :auto-upload="false" :http-request="httpRequest"
+                :on-change="handleChange" :before-remove="beforeRemove" :on-remove="handleRemove"
                 :on-preview="handlePreview">
                 <!-- <el-button size="mini"  style="background:#F59A23;color:#fff;" @click="changeFjType(i)">添加附件</el-button> -->
-                 <el-button :class="{isFour:i==='files_t4',isFive:i==='files_t5'}" type="text" @click="changeFjType(i)"><i class="el-icon-upload el-icon--right" style="font-size:20px;"></i></el-button>
+                <el-button :class="{ isFour: i === 'files_t4', isFive: i === 'files_t5' }" type="text" @click="changeFjType(i)"><i
+                    class="el-icon-upload el-icon--right" style="font-size:20px;"></i></el-button>
               </el-upload>
             </div>
-            <div v-for="(fj,k) in item" :key="fj.file_path+k" class="line_row">
-                <span @click="previewPdfAndImg(fj)" style="cursor:pointer;">
-                  <i class="el-icon-document"></i>
-                  <span class="text" :style="{width:(i==='files_t4' || i==='files_t5')?'158px':'180px' }">{{fj.file_name}}</span>
-                </span>
-                <i class="el-icon-close" v-if="(order_info.order_status===2 || order_info.order_status===4)&&(i==='files_t4' || i==='files_t5')" @click="removeFJ(fj,i)"></i>
+            <div v-for="(fj, k) in item" :key="fj.file_path + k" class="line_row">
+              <span @click="previewPdfAndImg(fj)" style="cursor:pointer;">
+                <i class="el-icon-document"></i>
+                <span class="text"
+                  :style="{ width: (i === 'files_t4' || i === 'files_t5') ? '158px' : '180px' }">{{ fj.file_name }}</span>
+              </span>
+              <i class="el-icon-close"
+                v-if="(order_info.order_status === 2 || order_info.order_status === 4) && (i === 'files_t4' || i === 'files_t5')"
+                @click="removeFJ(fj, i)"></i>
             </div>
             <span
-              v-if="item.length<=0&&(order_info.order_status===3  || (order_info.order_status!==1&&isStat.includes(i)))"
-              style="display:inline-block;width:100%;text-align:center;color:#ccc;"
-            >暂无附件</span>
+              v-if="item.length <= 0 && (order_info.order_status === 3 || (order_info.order_status !== 1 && isStat.includes(i)))"
+              style="display:inline-block;width:100%;text-align:center;color:#ccc;">暂无附件</span>
           </el-card>
         </div>
       </template>
@@ -93,35 +89,38 @@
         <span class="line"></span>
         <span>物料清单</span>
       </div>
-      <el-table :data="tableData" v-loading="tableLoading"  style="width: 100%;" :height="tableHeight">
+      <el-table :data="tableData" v-loading="tableLoading" style="width: 100%;" :height="tableHeight">
         <el-table-column type="index" label="序号" width="60"></el-table-column>
         <el-table-column prop="device_name" label="物料类型名称" min-width="160" show-overflow-tooltip></el-table-column>
-        <el-table-column prop="device_model" label="规格型号" show-overflow-tooltip >
+        <el-table-column prop="device_model" label="规格型号" show-overflow-tooltip>
           <template slot-scope="scope">
-            <span style="color:#409EFF;">{{scope.row.device_model}}</span>
+            <span style="color:#409EFF;">{{ scope.row.device_model }}</span>
           </template>
         </el-table-column>
         <el-table-column prop="unit" label="单位" width="60"></el-table-column>
-        <el-table-column  prop="device_brand_name" label="品牌" width="60"></el-table-column>
+        <el-table-column prop="device_brand_name" label="品牌" width="60"></el-table-column>
         <el-table-column prop="number" label="出入库数量" min-width="120" align="center">
-          <template slot-scope="scope" >
-            <span>{{scope.row.number}}</span>
+          <template slot-scope="scope">
+            <span>{{ scope.row.number }}</span>
           </template>
         </el-table-column>
       </el-table>
     </div>
 
     <div class="btns" v-if="isSeting">
-      <el-button type="primary" @click="clickIn" :loading="sureOutLoading"  size="mini" v-if="order_info.order_status===1" v-hasPermi="['warehouseIn:save']">入库</el-button>
-      <el-button type="primary" @click="clickAdd" :loading="sureOutLoading"  size="mini" v-if="order_info.order_status===2 || order_info.order_status===4" v-hasPermi="['warehouseIn:supply']">补充</el-button>
+      <el-button type="primary" @click="clickIn" :loading="sureOutLoading" size="mini" v-if="order_info.order_status === 1"
+        v-hasPermi="['warehouseIn:save']">入库</el-button>
+      <el-button type="primary" @click="clickAdd" :loading="sureOutLoading" size="mini"
+        v-if="order_info.order_status === 2 || order_info.order_status === 4"
+        v-hasPermi="['warehouseIn:supply']">补充</el-button>
     </div>
 
     <!-- pdf预览 -->
-    <el-dialog :visible.sync="isPdf"  width="70%" custom-class="clover_prview" append-to-body>
-      <iframe :src="fileUrl" style="width: 100%; height: 100%"/>
+    <el-dialog :visible.sync="isPdf" width="70%" custom-class="clover_prview" append-to-body>
+      <iframe :src="fileUrl" style="width: 100%; height: 100%" />
     </el-dialog>
     <!-- 图片预览 -->
-    <el-dialog :visible.sync="isImg"  width="240px"  append-to-body>
+    <el-dialog :visible.sync="isImg" width="240px" append-to-body>
       <img width="100%" fit="contain" :src="fileUrl">
     </el-dialog>
   </div>
@@ -186,7 +185,7 @@ export default {
   computed: {
 
   },
-  mounted() {
+  mounted () {
     window.onresize = () => {
       this.tableHeight = window.innerHeight - 300
     }
@@ -200,8 +199,7 @@ export default {
       this.currentRow.photo_list[i].map(m => {
         const isPdf = m.file_name.toLowerCase().search('.pdf') > -1
         const api = config.defaultApi
-        const env = process.env.NODE_ENV === 'production' ? api : ''
-        const baseurl = process.env.VUE_APP_BASE_URL + env
+        const baseurl = this.$apiUrl + api
         const url = baseurl + m.file_path + m.file_name
         return Object.assign(m, { type: isPdf ? 'pdf' : 'img', url })
       })
@@ -214,7 +212,7 @@ export default {
   methods: {
     parseTime,
     // 上传
-    async httpRequest(file) {
+    async httpRequest (file) {
       const currentfj = this.allFj.filter(f => f.uid === file.file.uid)[0]
       if (!currentfj) {
         this.sureOutLoading = false
@@ -253,14 +251,14 @@ export default {
         }
       }
     },
-    beforeRemove(file) {
+    beforeRemove (file) {
       return this.$confirm(`确定移除 ${file.name}？`)
     },
-    handleRemove(file, fileList) {
+    handleRemove (file, fileList) {
       this.allFj = this.allFj.filter(f => f.uid !== file.uid)
     },
     // 本次上传预览
-    handlePreview(file) {
+    handlePreview (file) {
       this.isPdf = false
       this.isImg = false
       // 获取上传图片的本地url，用于上传前的本地预览
@@ -281,14 +279,14 @@ export default {
       // }
     },
     // 历史获取数据预览
-    previewPdfAndImg(row) {
+    previewPdfAndImg (row) {
       this.isPdf = false
       this.isImg = false
       this.fileUrl = row.url
       window.open(this.fileUrl)
     },
     // 上传文件前的钩子函数
-    beforeUpload(file) {
+    beforeUpload (file) {
       if (file.size / 1024 / 1024 > 10) {
         this.$message({
           type: 'error',
@@ -301,7 +299,7 @@ export default {
         return true
       }
     },
-    handleChange(file, fileList) {
+    handleChange (file, fileList) {
       if (file.status === 'ready') {
         const isLt10M = this.beforeUpload(file)
         if (isLt10M) {
@@ -318,14 +316,14 @@ export default {
         }
       }
     },
-    changeFjType(type) {
+    changeFjType (type) {
       this.fjType = type
     },
-    removeFJ(file, type) {
+    removeFJ (file, type) {
       this.photo_list[type] = this.photo_list[type].filter(f => !(f.file_path === file.file_path && f.file_name === file.file_name))
     },
     // 入库
-    async clickIn() {
+    async clickIn () {
       if (this.tableData.length <= 0) {
         return this.$message({
           type: 'error',
@@ -385,7 +383,7 @@ export default {
       }
     },
     // 入库的保存
-    async saveIn() {
+    async saveIn () {
       this.upData.append('order_id', this.currentRow.order_id)
       this.upData.append('create_user', this.$store.state.userInfo.id)
       this.upData.append('photo_list', JSON.stringify(this.photo_list))
@@ -419,7 +417,7 @@ export default {
       this.upData.delete('photo_list')
     },
     // 补充
-    clickAdd() {
+    clickAdd () {
       let sizes = 0
       this.fileTotal1 = 0
       this.fileTotal2 = 0
@@ -463,7 +461,7 @@ export default {
       }
     },
     // 补充保存
-    async saveAdd() {
+    async saveAdd () {
       const photo = {
         files_t4: this.photo_list.files_t4,
         files_t5: this.photo_list.files_t5
@@ -506,33 +504,38 @@ export default {
 </script>
 
 <style scoped lang="scss">
-.wrap{
-  width:100%;
-  display:flex;
-  justify-content:space-between;
-  height:calc(100% - 60px);
-  border-top:1px solid #eee;
-  padding:10px 0 0;
-  position:relative;
-  ._left{
+.wrap {
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+  height: calc(100% - 60px);
+  border-top: 1px solid #eee;
+  padding: 10px 0 0;
+  position: relative;
+
+  ._left {
     width: 260px;
     height: 100%;
-    border-right:1px solid #eee;
+    border-right: 1px solid #eee;
     overflow: auto;
-    padding-right:10px;
-    .info_wrap{
-      margin-bottom:30px;
-      li{
+    padding-right: 10px;
+
+    .info_wrap {
+      margin-bottom: 30px;
+
+      li {
         line-height: 30px;
-        span:first-child{
-          width:90px;
-          display:inline-block;
-          font-weight:550;
+
+        span:first-child {
+          width: 90px;
+          display: inline-block;
+          font-weight: 550;
           vertical-align: middle;
         }
-        span:nth-child(2){
+
+        span:nth-child(2) {
           color: rgb(141, 135, 135);
-          display:inline-block;
+          display: inline-block;
           width: calc(100% - 100px);
           text-overflow: ellipsis;
           overflow: hidden;
@@ -542,105 +545,124 @@ export default {
       }
     }
   }
-  ._right{
+
+  ._right {
     width: calc(100% - 290px);
     overflow: auto;
   }
-  .btns{
-    display:flex;
-    flex-direction:row-reverse;
-    position:absolute;
+
+  .btns {
+    display: flex;
+    flex-direction: row-reverse;
+    position: absolute;
     top: -50px;
     right: 30px;
   }
-  .module{
-    .line{
+
+  .module {
+    .line {
       margin-right: 6px;
     }
   }
 }
-.fj_wrap_info{
-  .line_row{
-    display:flex;
+
+.fj_wrap_info {
+  .line_row {
+    display: flex;
     align-items: center;
-    width:100%;
-    padding:4px;
-    color:#606266;
-    i{
-      &:first-child{
-        margin-right:5px;
+    width: 100%;
+    padding: 4px;
+    color: #606266;
+
+    i {
+      &:first-child {
+        margin-right: 5px;
       }
-      &:last-child{
+
+      &:last-child {
         // display: none;
         // margin-left:auto;
         // margin-right: 10px;
       }
     }
-    .el-icon-close{
+
+    .el-icon-close {
       display: none;
-      margin-left:auto;
+      margin-left: auto;
       margin-right: 10px;
     }
-    &:hover{
+
+    &:hover {
       background: #eee;
     }
-    span{
-      &:hover{
+
+    span {
+      &:hover {
         color: #409eff;
       }
     }
-    &:hover{
-      .el-icon-close{
+
+    &:hover {
+      .el-icon-close {
         display: inline-block;
       }
     }
-    .text{
-      width:158px;
-      display:inline-block;
+
+    .text {
+      width: 158px;
+      display: inline-block;
       white-space: nowrap;
-      overflow:hidden;
+      overflow: hidden;
       text-overflow: ellipsis;
       vertical-align: middle;
     }
   }
-  .el-icon-close{
-    cursor:pointer;
+
+  .el-icon-close {
+    cursor: pointer;
   }
 }
 </style>
 <style lang="scss">
-.clover_in{
-   margin-top: -20px;
-   .el-upload{
+.clover_in {
+  margin-top: -20px;
+
+  .el-upload {
     // width:100%;
     margin-left: 60px;
-    .el-icon-close-tip{
-      display:none!important;
+
+    .el-icon-close-tip {
+      display: none !important;
     }
   }
-  .isFour{
+
+  .isFour {
     margin-left: 35px;
   }
-  .isFive{
+
+  .isFive {
     margin-left: 76px;
   }
-  .el-upload-list__item.focusing .el-icon-close-tip{
-    display:none!important;
+
+  .el-upload-list__item.focusing .el-icon-close-tip {
+    display: none !important;
   }
-  .el-button{
-    padding:0
+
+  .el-button {
+    padding: 0
   }
 }
-.el-dialog .dialog-footer{
+
+.el-dialog .dialog-footer {
   display: block;
   text-align: right;
-  margin-top:40px;
+  margin-top: 40px;
 }
-.uploadMessage{
+
+.uploadMessage {
   left: 50%;
-  top: 300px!important;
+  top: 300px !important;
   transform: translateX(-50%);
   right: 0px;
   width: 360px;
-}
-</style>
+}</style>

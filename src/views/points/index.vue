@@ -90,16 +90,17 @@
 
     <!-- 列表table -->
     <el-table :data="pointData" :height="isGJsearch ? tableHeight - 198 : tableHeight" v-loading="tableLoading"
-      style="width: 100%">
-      <el-table-column prop="point_code" label="点位编码" min-width="120px"></el-table-column>
-      <el-table-column prop="point_name" label="点位名称" min-width="220px">
+      style="width: 100%" border :header-row-style="{ height: '36px' }" :row-style="{ height: '36px' }"
+      :cell-style="{ padding: '0px' }">
+      <el-table-column prop="point_code" label="点位编码"></el-table-column>
+      <el-table-column prop="point_name" label="点位名称">
         <template slot-scope="scope">
           <i class="el-icon-edit" @click="editPointName(scope.row)" style="cursor:pointer;"
             v-if="!isLock(scope.row) && checkPermission(['points:nameEdit'])"></i>
           <a href="javascript:void(0)" class="cursor" @click="showInfoDrawer(scope.row)">{{ scope.row.point_name }}</a>
         </template>
       </el-table-column>
-      <el-table-column prop="lng_lat" label="经纬度" width="280px" header-align="center">
+      <el-table-column prop="lng_lat" label="经纬度" width="200px" align="center">
 
         <template slot-scope="scope">
           <div v-if="scope.row.lng_lat" :style="{ color: scope.row.isValidate ? '#D9001B' : '' }">
@@ -132,19 +133,19 @@
             }}</span>
         </template>
       </el-table-column>
-      <el-table-column prop="child_name" label="子系统" min-width="120px" header-align="center">
+      <el-table-column prop="child_name" label="子系统" width="120px" header-align="center">
 
         <template slot-scope="scope">
           <span class="cursor" @click="manyClick(scope.row, 'child_code')">{{ scope.row.child_name }}</span>
         </template>
       </el-table-column>
-      <el-table-column prop="area" label="区域" min-width="100px" align="center">
+      <el-table-column prop="area" label="区域" width="100px" align="center">
 
         <template slot-scope="scope">
           <span class="cursor" @click="showAreaDiao(scope.row)">{{ scope.row.area }}</span>
         </template>
       </el-table-column>
-      <el-table-column prop="origin" label="来源" align="center" min-width="120px">
+      <el-table-column prop="origin" label="来源" align="center" width="120px">
 
         <template slot-scope="scope">
           <span class="cursor" @click="manyClick(scope.row, 'origin')"
@@ -152,7 +153,7 @@
       scope.row.origin) }}</span>
         </template>
       </el-table-column>
-      <el-table-column prop="status" label="状态" align="center" min-width="120px">
+      <el-table-column prop="status" label="状态" align="center" width="120px">
 
         <template slot-scope="scope">
           <span class="cursor" @click="manyClick(scope.row, 'status')"
@@ -160,7 +161,7 @@
       scope.row.status) }}</span>
         </template>
       </el-table-column>
-      <el-table-column prop="is_lock" label="锁定" align="center" mwidth="60px">
+      <el-table-column prop="is_lock" label="锁定" align="center" width="80px">
 
         <template slot-scope="scope">
           <span :style="{ color: scope.row.is_lock === 1 ? '#D9001B' : '' }">{{ scope.row.is_lock === 1 ? '已锁定' : '未锁定'
@@ -202,24 +203,25 @@
         :statusList="status.list"></import-table>
     </el-drawer>
     <!-- 点击经纬度 -->
-    <el-dialog :visible.sync="showLngLat" width="70%" :footer="false" top="2vh" :before-close="handlelnglatClose">
+    <el-dialog :visible.sync="showLngLat" width="70%" :footer="false" top="2vh" :before-close="handlelnglatClose"
+      :lock-scroll="false">
       <lnglat :pointInfo="currentp" ref="lnglat" :project_code="form.project_code" v-if="showLngLat"
         :is_lock="isLock(currentp)"></lnglat>
     </el-dialog>
     <!-- 点击方向数 -->
-    <el-dialog :visible.sync="showdirectNums" :footer="false" width="900px" title="方向位置"
+    <el-dialog :visible.sync="showdirectNums" :footer="false" width="900px" title="方向位置" :lock-scroll="false"
       :before-close="handleCloseDirect">
       <direct :pointInfo="currentp" v-if="showdirectNums" :project_code="form.project_code" :is_lock="isLock(currentp)">
       </direct>
     </el-dialog>
     <!-- 点击子系统 来源 状态 -->
-    <el-dialog :visible.sync="showMany" :footer="false" :title="click.title" width="40%">
+    <el-dialog :visible.sync="showMany" :footer="false" :title="click.title" width="40%" :lock-scroll="false">
       <pubContainer ref="pubcontainer" v-if="showMany" :title="click.title" :pointInfo="currentp" :list="click.list"
         :project_code="form.project_code" :label="click.label" :value="click.value" :type="click.type"
         :permission="permission" @sureChange="sureChange" :is_lock="isLock(currentp)"></pubContainer>
     </el-dialog>
     <!-- 点击区域 -->
-    <el-dialog :visible.sync="showArea" :footer="false" title="区域">
+    <el-dialog :visible.sync="showArea" :footer="false" title="区域" :lock-scroll="false">
       <areaContainer v-if="showArea" :pointInfo="currentp" :areaList="area.list" :project_code="form.project_code"
         @changeshowArea="changeshowArea" :is_lock="isLock(currentp)"></areaContainer>
     </el-dialog>
@@ -230,7 +232,7 @@
         :is_lock="isLock(currentp)" :haveaddPhoto="!isLock(currentp)"></point-info>
     </el-drawer>
     <!-- 导出 -->
-    <el-dialog custom-class="exportwraps" :visible.sync="showexport" :footer="false" title="">
+    <el-dialog custom-class="exportwraps" :visible.sync="showexport" :footer="false" title="" :lock-scroll="false">
       <span style="margin-right:10px">坐标系:</span>
       <el-radio-group v-model="coordinate">
         <el-radio v-for="item in coordinateList" :key="item.value" :label="item.value">{{ item.label }}</el-radio>

@@ -147,24 +147,24 @@
       style="width: 100%"
       :default-sort = "{prop: 'oper_time', order: 'descending'}"
     >
-      <el-table-column prop="order_code" label="过程单号" width="160px"></el-table-column>
-      <el-table-column  prop="oper_user_name" label="经办人" align="center" min-width="80px"> </el-table-column>
-      <el-table-column  prop="supply" label="供应方" align="center"  min-width="120px"  v-if="orderType===1"></el-table-column>
-      <el-table-column  prop="involved_user_name" label="经办对象" align="center"  min-width="120px" v-if="orderType===2"></el-table-column>
-      <el-table-column  prop="involved_dept_name"   label="经办对象组织"  min-width="240px" v-if="orderType===2"></el-table-column>
-      <el-table-column  prop="order_status_name"  align="center" label="状态" min-width="70px">
+      <el-table-column prop="order_code" label="过程单号" width="130px"></el-table-column>
+      <el-table-column  prop="oper_user_name" label="经办人" align="center" width="80px"> </el-table-column>
+      <el-table-column  prop="supply" label="供应方" align="center"   v-if="orderType===1"></el-table-column>
+      <el-table-column  prop="involved_user_name" label="经办对象" align="center" width="120px" v-if="orderType===2"></el-table-column>
+      <el-table-column  prop="involved_dept_name"   label="经办对象组织"  min-width="100px" v-if="orderType===2"></el-table-column>
+      <el-table-column  prop="order_status_name"  align="center" label="状态" width="70px">
         <template slot-scope="scope">
           <span :style="{color:scope.row.order_status===1?'#F59A23':scope.row.order_status===2?'#70B603':''}">{{scope.row.order_status_name }}</span>
         </template>
       </el-table-column>
-      <el-table-column prop="oper_time"  label="发生时间" width="200px"  sortable>
+      <el-table-column prop="oper_time"  label="发生时间" width="160px"  sortable>
         <template slot-scope="scope">
           <span>{{ parseTime(scope.row.oper_time) }}</span>
         </template>
       </el-table-column>
-      <el-table-column  prop="warehouse_name"  align="center" label="所在库房" min-width="100px"></el-table-column>
-      <el-table-column  prop="file_count"  align="center" label="附件张数" min-width="80px"></el-table-column>
-      <el-table-column  label="操作" min-width="130px" align="center">
+      <el-table-column  prop="warehouse_name"  align="center" label="所在库房" ></el-table-column>
+      <el-table-column  prop="file_count"  align="center" label="附件张数" width="80px"></el-table-column>
+      <el-table-column  label="操作" width="130px" align="center">
         <template slot-scope="scope">
           <el-button type="text" @click="showInfo(scope.row)">详情</el-button>
           <el-button type="text" @click="toVoid(scope.row)" v-if="scope.row.order_status===2 && checkPermission(permissionVoid)">作废</el-button>

@@ -1,290 +1,221 @@
 
 <template>
   <div class="clover_logreg_container">
-    <ul class="cloverLeft" >
-      <li v-hasPermi="['materialDesign:list']"  @click="tabClick(1)" :style="{color: regType===1?'#409eff':'rgb(56, 53, 53)'}">深化设计</li>
-      <li v-hasPermi="['materialBuild:list']"  @click="tabClick(2)" :style="{color: regType===2?'#409eff':'rgb(56, 53, 53)'}">施工登记</li>
+    <ul class="cloverLeft">
+      <li v-hasPermi="['materialDesign:list']" @click="tabClick(1)"
+        :style="{ color: regType === 1 ? '#409eff' : 'rgb(56, 53, 53)' }">深化设计</li>
+      <li v-hasPermi="['materialBuild:list']" @click="tabClick(2)"
+        :style="{ color: regType === 2 ? '#409eff' : 'rgb(56, 53, 53)' }">施工登记</li>
     </ul>
     <div class="searchPoint" v-loading="tableLoading">
-      <el-form size="small" label-position="right"  label-width="68px" style="margin:0 10px;border-radius:4px;">
-        <el-form-item label="项目" >
-          <el-select style="width: 100%" v-model="form.project" placeholder="请选择" @change="handleProjectChange" value-key="id">
-            <el-option v-for="item in projectList" :key="item.projectCode" :label="item.projectName" :value="item" ></el-option>
+      <el-form size="small" label-position="right" label-width="68px" style="margin:0 10px;border-radius:4px;">
+        <el-form-item label="项目">
+          <el-select style="width: 100%" v-model="form.project" placeholder="请选择" @change="handleProjectChange"
+            value-key="id">
+            <el-option v-for="item in projectList" :key="item.projectCode" :label="item.projectName"
+              :value="item"></el-option>
           </el-select>
         </el-form-item>
         <el-form-item label="点位">
-          <el-input  v-model="form.pointCode" placeholder="请输入点位编号或名称" @input="inputChangePoint"></el-input>
+          <el-input v-model="form.pointCode" placeholder="请输入点位编号或名称" @input="inputChangePoint"></el-input>
         </el-form-item>
         <el-form-item label="标签">
-            <el-select
-              v-model="form.tag"
-              style="width:100%"
-              clearable
-              placeholder="请选择标签"
-              @change="handleSelectChange"
-            >
-              <el-option
-                v-for="item in tagList"
-                :key="item"
-                :label="item"
-                :value="item"
-              >
-              </el-option>
-            </el-select>
-        </el-form-item>
-        <el-form-item label="子系统">
-            <el-select
-              v-model="form.child"
-              style="width:100%"
-              clearable
-              placeholder="请选择子系统"
-              multiple
-              collapse-tags
-              @change="handleSelectChange"
-            >
-              <el-option
-                v-for="item in childList"
-                :key="item.key"
-                :label="item.value"
-                :value="item.key"
-              >
-              </el-option>
-            </el-select>
-        </el-form-item>
-        <el-form-item label="区域">
-            <el-select
-              v-model="form.area"
-              style="width:100%"
-              clearable
-              placeholder="请选择区域"
-              multiple
-              collapse-tags
-              @change="handleSelectChange"
-            >
-              <el-option
-                v-for="item in areaList"
-                :key="item"
-                :label="item"
-                :value="item"
-              >
-              </el-option>
-            </el-select>
-        </el-form-item>
-        <el-form-item label="施工单位" v-if="regType===2">
-            <el-select
-              v-model="form.dept_id"
-              clearable
-              collapse-tags
-              style="width:100%"
-              placeholder="默认施工单位"
-              @change="handleSelectChange"
-            >
-              <el-option
-                v-for="item in BuilderList"
-                :key="item.id"
-                :label="item.name"
-                :value="item.id"
-              >
-              </el-option>
-            </el-select>
-        </el-form-item>
-        <el-form-item label="拍照日期" v-if="regType===2">
-          <el-date-picker
-            v-model="form.phototime"
-            @change="handleSelectChange"
-            type="daterange"
-            placeholder="选择拍照日期"
-            style="width:100%"
-            range-separator="至"
-            start-placeholder="开始日期"
-            value-format="yyyy-MM-dd"
-            end-placeholder="结束日期">
-          </el-date-picker>
-        </el-form-item>
-        <el-form-item label="状态"  v-if="regType===1" >
-          <el-radio-group  v-model="form.status"  @change="handleSelectChange">
-            <el-radio v-for="item in statusList" :label="item.dict_value" :key="item.dict_value">
-              {{item.dict_label}}
-              <span v-if="item.dict_value!==2">({{item.count}})</span>
-            </el-radio>
-          </el-radio-group>
-        </el-form-item>
-        <el-form-item label="图片状态"  v-if="regType===1" >
-          <el-select  v-model="form.audit" style="width:100%" @change="handleSelectChange">
-            <el-option v-for="item in pointAuditList"  :value="item.dict_value" :label="item.dict_label" :key="item.dict_value"></el-option>
-          </el-select>
-        </el-form-item>
-        <el-form-item label="图片状态"  v-if="regType===2">
-          <el-select  v-model="form.hasNew" style="width:100%" @change="handleSelectChange">
-            <el-option v-for="item in hasNewList"  :value="item.dict_value" :label="item.dict_label" :key="item.dict_value">
+          <el-select v-model="form.tag" style="width:100%" clearable placeholder="请选择标签" @change="handleSelectChange">
+            <el-option v-for="item in tagList" :key="item" :label="item" :value="item">
             </el-option>
           </el-select>
         </el-form-item>
-        <el-form-item label="物料状态"  v-if="regType===2">
-          <el-radio-group  v-model="form.deviceAudit"  @change="handleSelectChange">
+        <el-form-item label="子系统">
+          <el-select v-model="form.child" style="width:100%" clearable placeholder="请选择子系统" multiple collapse-tags
+            @change="handleSelectChange">
+            <el-option v-for="item in childList" :key="item.key" :label="item.value" :value="item.key">
+            </el-option>
+          </el-select>
+        </el-form-item>
+        <el-form-item label="区域">
+          <el-select v-model="form.area" style="width:100%" clearable placeholder="请选择区域" multiple collapse-tags
+            @change="handleSelectChange">
+            <el-option v-for="item in areaList" :key="item" :label="item" :value="item">
+            </el-option>
+          </el-select>
+        </el-form-item>
+        <el-form-item label="施工单位" v-if="regType === 2">
+          <el-select v-model="form.dept_id" clearable collapse-tags style="width:100%" placeholder="默认施工单位"
+            @change="handleSelectChange">
+            <el-option v-for="item in BuilderList" :key="item.id" :label="item.name" :value="item.id">
+            </el-option>
+          </el-select>
+        </el-form-item>
+        <el-form-item label="拍照日期" v-if="regType === 2">
+          <el-date-picker v-model="form.phototime" @change="handleSelectChange" type="daterange" placeholder="选择拍照日期"
+            style="width:100%" range-separator="至" start-placeholder="开始日期" value-format="yyyy-MM-dd"
+            end-placeholder="结束日期">
+          </el-date-picker>
+        </el-form-item>
+        <el-form-item label="状态" v-if="regType === 1">
+          <el-radio-group v-model="form.status" @change="handleSelectChange">
+            <el-radio v-for="item in statusList" :label="item.dict_value" :key="item.dict_value">
+              {{ item.dict_label }}
+              <span v-if="item.dict_value !== 2">({{ item.count }})</span>
+            </el-radio>
+          </el-radio-group>
+        </el-form-item>
+        <el-form-item label="图片状态" v-if="regType === 1">
+          <el-select v-model="form.audit" style="width:100%" @change="handleSelectChange">
+            <el-option v-for="item in pointAuditList" :value="item.dict_value" :label="item.dict_label"
+              :key="item.dict_value"></el-option>
+          </el-select>
+        </el-form-item>
+        <el-form-item label="图片状态" v-if="regType === 2">
+          <el-select v-model="form.hasNew" style="width:100%" @change="handleSelectChange">
+            <el-option v-for="item in hasNewList" :value="item.dict_value" :label="item.dict_label"
+              :key="item.dict_value">
+            </el-option>
+          </el-select>
+        </el-form-item>
+        <el-form-item label="物料状态" v-if="regType === 2">
+          <el-radio-group v-model="form.deviceAudit" @change="handleSelectChange">
             <el-radio v-for="item in deviceAuditList" :label="item.dict_value" :key="item.dict_value">
-              {{item.dict_label}}
+              {{ item.dict_label }}
             </el-radio>
           </el-radio-group>
         </el-form-item>
       </el-form>
-      <el-table
-        class="tableWrap"
-        :show-header="false"
-        :height="tableHeight"
-        :data="pointTableData"
-        :row-style="{ height: '30px' }"
-        :cell-style="{ padding: '4px 0' }"
-        @row-click="currentClick"
-        :row-class-name="tableRowClassName"
-        ref="multipleTable"
-      >
-        <el-table-column  show-overflow-tooltip >
+      <el-table class="tableWrap" :show-header="false" :height="tableHeight" :data="pointTableData"
+        :row-style="{ height: '30px' }" :cell-style="{ padding: '4px 0' }" @row-click="currentClick"
+        :row-class-name="tableRowClassName" ref="multipleTable">
+        <el-table-column show-overflow-tooltip>
           <template slot-scope="scope">
             <h5>{{ scope.row.pointName }}</h5>
             <span style="color:#BEBFBF;">点位编码：{{ scope.row.pointCode }}</span>
           </template>
         </el-table-column>
       </el-table>
-      <el-pagination
-        layout="prev, pager, next"
-        :total="total"
-        :page-size.sync="page.page_size"
-        @current-change="pageChange"
-        :current-page.sync="page.page_no"
-        class="pagination"
-        small
-      >
+      <el-pagination layout="prev, pager, next" :total="total" :page-size.sync="page.page_size"
+        @current-change="pageChange" :current-page.sync="page.page_no" class="pagination" small>
       </el-pagination>
     </div>
     <div class="rightWrap">
       <!-- 工序 -->
-      <div class="clover_proc-main"  v-loading="centerLoading">
+      <div class="clover_proc-main" v-loading="centerLoading">
         <div class="moreText" v-if="currentPoint">
           <span class="tit">
-            {{currentPoint.pointCode}} {{currentPoint.pointName}}
+            {{ currentPoint.pointCode }} {{ currentPoint.pointName }}
           </span>
-          <div style="font-size:18px;" >
+          <div style="font-size:18px;">
             <el-button-group>
-              <el-button type="primary" size="small" v-if="(regType===1&&checkPermission(['materialDesgin:verify'])) || (regType===2&&checkPermission(['materialBuild:verify']))"   @click="plsp" class="spbtn">审批</el-button>
+              <el-button type="primary" size="small"
+                v-if="(regType === 1 && checkPermission(['materialDesgin:verify'])) || (regType === 2 && checkPermission(['materialBuild:verify']))"
+                @click="plsp" class="spbtn">审批</el-button>
               <el-tooltip class="item" effect="dark" content="全部工序" placement="top-start">
-                <el-button size="small" v-if="regType===2" @click="changeIsList('0')" :style="{color:isStatus==='0'?'#409EFF':''}">
-                  <img :src="isStatus==='0'?require('../../assets/images/all_checked.png'):require('../../assets/images/all.png')" alt="">
+                <el-button size="small" v-if="regType === 2" @click="changeIsList('0')"
+                  :style="{ color: isStatus === '0' ? '#409EFF' : '' }">
+                  <img
+                    :src="isStatus === '0' ? require('../../assets/images/all_checked.png') : require('../../assets/images/all.png')"
+                    alt="">
                 </el-button>
               </el-tooltip>
               <el-tooltip class="item" effect="dark" content="待审工序" placement="top-start">
-                <el-button size="small" v-if="regType===2&&(first || second)" @click="changeIsList('1')" :style="{color:isStatus=='1'?'#409EFF':''}">
-                  <img :src="isStatus==='1'?require('../../assets/images/no_review_checked.png'):require('../../assets/images/no_review.png')" alt="">
+                <el-button size="small" v-if="regType === 2 && (first || second)" @click="changeIsList('1')"
+                  :style="{ color: isStatus == '1' ? '#409EFF' : '' }">
+                  <img
+                    :src="isStatus === '1' ? require('../../assets/images/no_review_checked.png') : require('../../assets/images/no_review.png')"
+                    alt="">
                 </el-button>
               </el-tooltip>
               <el-tooltip class="item" effect="dark" content="审核未通过工序" placement="top-start">
-                <el-button size="small" v-if="regType===2&&(first || second)" @click="changeIsList('2')" :style="{color:isStatus==='2'?'#409EFF':''}">
-                  <img :src="isStatus==='2'?require('../../assets/images/review_failed_checked.png'):require('../../assets/images/review_failed.png')" alt="">
+                <el-button size="small" v-if="regType === 2 && (first || second)" @click="changeIsList('2')"
+                  :style="{ color: isStatus === '2' ? '#409EFF' : '' }">
+                  <img
+                    :src="isStatus === '2' ? require('../../assets/images/review_failed_checked.png') : require('../../assets/images/review_failed.png')"
+                    alt="">
                 </el-button>
               </el-tooltip>
             </el-button-group>
           </div>
         </div>
-        <div class="wrap" v-if="procLists.length>0">
-         <!-- @change="handleCollapseChange" -->
+        <div class="wrap" v-if="procLists.length > 0">
+          <!-- @change="handleCollapseChange" -->
           <el-collapse :value="activeClassName">
-            <el-collapse-item
-              v-for="item in procLists"
-              :key="item.class_code"
-              :title="item.class_name"
-              :name="item.class_code"
-            >
+            <el-collapse-item v-for="item in procLists" :key="item.class_code" :title="item.class_name"
+              :name="item.class_code">
               <div slot="title">{{ item.class_name }}</div>
-              <div class="proc-item"  v-for="procitem in item.proc_list" :key="procitem.proc_code">
+              <div class="proc-item" v-for="procitem in item.proc_list" :key="procitem.proc_code">
                 <span class="subtitle">
                   <i class="el-icon-camera"></i>
-                  <span :style="{fontWeight: procitem.is_core===1?'600':'normal',marginLeft:'4px'}">{{ procitem.proc_name }}</span>
-                  <el-tooltip effect="dark" content="关键工序" v-if="procitem.is_core===1">
-                    <img src="../../assets/images/guanj.png"  style="width:16px;margin-left:10px;">
+                  <span :style="{ fontWeight: procitem.is_core === 1 ? '600' : 'normal', marginLeft: '4px' }">{{ procitem.proc_name
+                  }}</span>
+                  <el-tooltip effect="dark" content="关键工序" v-if="procitem.is_core === 1">
+                    <img src="../../assets/images/guanj.png" style="width:16px;margin-left:10px;">
                   </el-tooltip>
                 </span>
-                <div v-for="(pointDirect,i) in procitem.pointList" :key="pointDirect.direction?pointDirect.direction + i + 'point' : i+'point'">
+                <div v-for="(pointDirect, i) in procitem.pointList"
+                  :key="pointDirect.direction ? pointDirect.direction + i + 'point' : i + 'point'">
                   <div v-if="pointDirect.direction" class="dir">
                     <span style="margin-left:20px;">方向：</span>
-                    <span>{{pointDirect.direction}}</span>
-                    <template v-if="procitem.isDesign===0 && (item.class_code!=='CLS100')">
-                      <el-tooltip v-if="!pointDirect.transfer" v-hasPermi="['logisticsRegister:procTransfer']" effect="dark" content="迁移照片">
-                        <img class="img" src="../../assets/images/transfer.png"  @click="showTransfer(pointDirect,true)" style="width:15px;margin-left:10px;">
+                    <span>{{ pointDirect.direction }}</span>
+                    <template v-if="procitem.isDesign === 0 && (item.class_code !== 'CLS100')">
+                      <el-tooltip v-if="!pointDirect.transfer" v-hasPermi="['logisticsRegister:procTransfer']"
+                        effect="dark" content="迁移照片">
+                        <img class="img" src="../../assets/images/transfer.png" @click="showTransfer(pointDirect, true)"
+                          style="width:15px;margin-left:10px;">
                       </el-tooltip>
                       <template v-if="pointDirect.transfer">
-                        <span @click="sureTransfer(procitem,pointDirect)" class="img_wrap">
+                        <span @click="sureTransfer(procitem, pointDirect)" class="img_wrap">
                           <img class="img" src="../../assets/images/transfer.png" style="width:14px;">
                           迁移
                         </span>
-                        <span  @click="showTransfer(pointDirect,false)" class="img_wrap">
+                        <span @click="showTransfer(pointDirect, false)" class="img_wrap">
                           <img class="img" src="../../assets/images/transfercancle.png" style="width:14px;">
                           取消
                         </span>
                       </template>
                     </template>
                   </div>
-                  <div class="clover_wrap"  v-viewer="options" v-if="pointDirect.attach_list.length>0">
-                    <div class="box" v-for="img in pointDirect.attach_list" :key="img.image_id" >
+                  <div class="clover_wrap" v-viewer="options" v-if="pointDirect.attach_list.length > 0">
+                    <div class="box" v-for="img in pointDirect.attach_list" :key="img.image_id">
                       <div class="box_img">
                         <el-tooltip effect="dark" placement="right-end" v-if="img.remark || img.lastTime">
                           <!--  有备注信息的  照片or全场景照片  -->
                           <div slot="content">
-                            {{img.lastTime}}
-                            <p style ="margin-top:10px;" v-if="img.remark">备注：{{img.remark}}</p>
+                            {{ img.lastTime }}
+                            <p style="margin-top:10px;" v-if="img.remark">备注：{{ img.remark }}</p>
                           </div>
-                          <img
-                            :src="img.file_path_thumb"
-                            :data-source="img.file_path_trans"
-                            :key="img.file_path"
-                            style="width: 140px;"
-                            v-if="img.is360!==1"
-                          />
-                          <img
-                            :src="img.file_path_thumb"
-                            style="width: 140px;height:140px;"
-                            :key="img.file_path"
-                            v-if="img.is360===1"
-                            @click="initPhotoSphere(procitem.procName,img.file_path_trans)"
-                          />
+                          <img :src="img.file_path_thumb" :data-source="img.file_path_trans" :key="img.file_path"
+                            style="width: 140px;" v-if="img.is360 !== 1" />
+                          <img :src="img.file_path_thumb" style="width: 140px;height:140px;" :key="img.file_path"
+                            v-if="img.is360 === 1" @click="initPhotoSphere(procitem.procName, img.file_path_trans)" />
                         </el-tooltip>
                         <!-- 无备注信息的 照片or全场景照片-->
                         <template v-else>
-                          <img
-                            :src="img.file_path_thumb"
-                            :data-source="img.file_path_trans"
-                            :key="img.file_path"
-                            style="width: 140px;"
-                            v-if="img.is360!==1"
-                          />
-                          <img
-                            :src="img.file_path_thumb"
-                            style="width: 140px;height:140px;"
-                            :key="img.file_path"
-                            v-if="img.is360===1"
-                            @click="initPhotoSphere(procitem.procName,img.file_path_trans)"
-                          />
+                          <img :src="img.file_path_thumb" :data-source="img.file_path_trans" :key="img.file_path"
+                            style="width: 140px;" v-if="img.is360 !== 1" />
+                          <img :src="img.file_path_thumb" style="width: 140px;height:140px;" :key="img.file_path"
+                            v-if="img.is360 === 1" @click="initPhotoSphere(procitem.procName, img.file_path_trans)" />
                         </template>
-                        <el-checkbox
-                          v-if="pointDirect.transfer"
-                          class="check"
-                          :true-label="1"
-                          :false-label="0"
+                        <el-checkbox v-if="pointDirect.transfer" class="check" :true-label="1" :false-label="0"
                           v-model="img.isTransfer"></el-checkbox>
-                          <div class="sett" @click="materSetting(img,procitem)" v-if="checkPermission(['logisticsRegister:proc'])&&regType===2 && img.is_fill_device===1">
-                            <!-- :class="{sett:true,'ishavepeizhi':img.is_submit_count===''}" -->
-                            <!-- <i class="el-icon-setting"></i> -->
-                            <i :class="{'el-icon-setting':true,'ishavepeizhi':img.is_submit_count===''}"></i>
-                          </div>
+                        <div class="sett" @click="materSetting(img, procitem)"
+                          v-if="checkPermission(['logisticsRegister:proc']) && regType === 2 && img.is_fill_device === 1">
+                          <!-- :class="{sett:true,'ishavepeizhi':img.is_submit_count===''}" -->
+                          <!-- <i class="el-icon-setting"></i> -->
+                          <i :class="{ 'el-icon-setting': true, 'ishavepeizhi': img.is_submit_count === '' }"></i>
+                        </div>
                       </div>
                       <div class="user">
-                        <span>拍摄: {{img.submit}}</span>
-                        <span v-if="regType===1 || (regType===2&&procitem.is_core===1)" :style="{fontWeight:'bold',color:img.audit===0?'Orange':(img.audit===1 ||img.audit===3 )?'#70b617':'#F56C6C'}"> {{selectDictLabel(imgAudit, img.audit)}}</span>
+                        <span>拍摄: {{ img.submit }}</span>
+                        <span v-if="regType === 1 || (regType === 2 && procitem.is_core === 1)"
+                          :style="{ fontWeight: 'bold', color: img.audit === 0 ? 'Orange' : (img.audit === 1 || img.audit === 3) ? '#70b617' : '#F56C6C' }">
+                          {{ selectDictLabel(imgAudit, img.audit) }}</span>
                       </div>
                       <div class="dep">
-                        <span>部门：{{img.department}}</span>
+                        <span>部门：{{ img.department }}</span>
                       </div>
-                      <div v-if="regType===1 || (regType===2&&procitem.is_core===1&&procitem.procCode!=='CLS000-04') || (regType===2&&additional.includes(form.projectCode)&&procitem.procCode==='CLS009-04')" >
-                        <el-radio-group  v-model="img.num" @change="changeImgAudit(img,pointDirect.proc_code)" class="imgRadio" v-if="(first&&[0,1,2,4].includes(img.audit)) || (imgExamine_f.includes(img.audit)&&second)">
+                      <div
+                        v-if="regType === 1 || (regType === 2 && procitem.is_core === 1 && procitem.procCode !== 'CLS000-04') || (regType === 2 && additional.includes(form.projectCode) && procitem.procCode === 'CLS009-04')">
+                        <el-radio-group v-model="img.num" @change="changeImgAudit(img, pointDirect.proc_code)"
+                          class="imgRadio"
+                          v-if="(first && [0, 1, 2, 4].includes(img.audit)) || (imgExamine_f.includes(img.audit) && second)">
                           <el-radio :label="true">通过</el-radio>
                           <el-radio :label="false" class="disagree">不通过</el-radio>
                         </el-radio-group>
@@ -292,15 +223,15 @@
                     </div>
                   </div>
                   <!-- 拓展信息 -->
-                  <template v-if="pointDirect.extand&&pointDirect.extand.length > 0">
-                    <span class="remarktitle" >
+                  <template v-if="pointDirect.extand && pointDirect.extand.length > 0">
+                    <span class="remarktitle">
                       <i class="el-icon-s-operation"></i>
                       拓展信息
                     </span>
                     <ul class="remarkRow">
                       <li v-for="(item, j) in pointDirect.extand" :key="item.code + j">
-                        <span>{{item.name}}:</span>
-                        <span>{{item.value}}</span>
+                        <span>{{ item.name }}:</span>
+                        <span>{{ item.value }}</span>
                       </li>
                     </ul>
                   </template>
@@ -310,46 +241,47 @@
           </el-collapse>
         </div>
         <!-- 工序 无数据 -->
-        <div v-if="procLists.length<=0" class="nodata" >
-          <el-image
-            :src="require(`@/assets/images/null.png`)"
-            style="height: 50px; width: 80px;margin-top:100px;"
-            v-loading="centerLoading"
-          ></el-image>
+        <div v-if="procLists.length <= 0" class="nodata">
+          <el-image :src="require(`@/assets/images/null.png`)" style="height: 50px; width: 80px;margin-top:100px;"
+            v-loading="centerLoading"></el-image>
           <p style="color: grey">
-            {{regType===1?'暂无点位深化设计图':'暂无点位工序拍照数据'}}
+            {{ regType === 1 ? '暂无点位深化设计图' : '暂无点位工序拍照数据' }}
           </p>
         </div>
       </div>
 
       <div class="clover_right_tab">
-        <ul class="right_tab" v-if="regType===2">
-          <li v-for="item in tabList" @click="changeShowtab(item)" :key="item.id" :class="{isActive: item.id===currentRightTab}">{{item.name}}</li>
+        <ul class="right_tab" v-if="regType === 2">
+          <li v-for="item in tabList" @click="changeShowtab(item)" :key="item.id"
+            :class="{ isActive: item.id === currentRightTab }">{{ item.name }}</li>
         </ul>
         <!-- 物料清单 -->
-        <div v-if="currentRightTab===1" :style="{height:(regType===2&&currentPoint)?'calc(100% - 30px)':'100%'}" class="clover_device-main"  v-loading="devloading" >
+        <div v-if="currentRightTab === 1" :style="{ height: (regType === 2 && currentPoint) ? 'calc(100% - 30px)' : '100%' }"
+          class="clover_device-main" v-loading="devloading">
           <div class="base_device" style=" padding:10px;border-bottom:1px solid #ededed;box-sizing:border-box;">
             <div class="_top">
               <h4>物料清单</h4>
               <span class="statusText" v-if="log_info.status">
-                {{selectDictLabel(statusList, log_info.status)}}
+                {{ selectDictLabel(statusList, log_info.status) }}
               </span>
-              <el-button type="primary"  size="small" style="margin-left: auto;" v-if="regType===2" @click="saveData">保存</el-button>
+              <el-button type="primary" size="small" style="margin-left: auto;" v-if="regType === 2"
+                @click="saveData">保存</el-button>
             </div>
             <div class="sub">
               <p class="info">
-                <span>最后更新人：{{log_info.userName?log_info.userName:'暂无数据'}}</span>
-                <span>操作时间：{{log_info.updateTim?log_info.updateTime:'暂无数据'}}</span>
+                <span>最后更新人：{{ log_info.userName ? log_info.userName : '暂无数据' }}</span>
+                <span>操作时间：{{ log_info.updateTim ? log_info.updateTime : '暂无数据' }}</span>
               </p>
             </div>
             <div class="opear">
-              <el-checkbox v-if="regType===1" v-model="status" style="margin:4px 6px 0 0;">已完成</el-checkbox>
-              <span :style="{fontSize:regType===1?'16px':'14px',marginRight:'6px'}">备注:</span>
+              <el-checkbox v-if="regType === 1" v-model="status" style="margin:4px 6px 0 0;">已完成</el-checkbox>
+              <span :style="{ fontSize: regType === 1 ? '16px' : '14px', marginRight: '6px' }">备注:</span>
               <el-input size="mini" v-model="log_info.remark" style="flex:1;"></el-input>
-              <el-button v-if="regType===1" type="primary" style="margin-left:6px;"  size="small" @click="saveData">保存</el-button>
+              <el-button v-if="regType === 1" type="primary" style="margin-left:6px;" size="small"
+                @click="saveData">保存</el-button>
             </div>
           </div>
-          <p class="rowp" style="margin-top:10px;display:flex;align-items:center;" v-if="regType===1&&currentPoint" >
+          <p class="rowp" style="margin-top:10px;display:flex;align-items:center;" v-if="regType === 1 && currentPoint">
             <span style="font-size: 14px;margin: 0px 6px 0 10px;">子系统：</span>
             <el-radio-group v-model="child" @change="getRightDeviceList">
               <el-radio :label="currentPoint.childCode">当前点位子系统</el-radio>
@@ -357,134 +289,96 @@
             </el-radio-group>
           </p>
           <div style="display:flex;">
-            <el-table
-              class="deviceTable"
-              :height="deviceHeight"
-              :data="deviceLists"
-              :row-style="{ height: '30px' }"
-              :cell-style="{ padding: '0' }"
-              highlight-current-row
-              :style="{width: regType===1?'100%':'calc( 100% -145px)'}"
-            >
+            <el-table class="deviceTable" :height="deviceHeight" :data="deviceLists" :row-style="{ height: '30px' }"
+              :cell-style="{ padding: '0' }" highlight-current-row
+              :style="{ width: regType === 1 ? '100%' : 'calc( 100% -145px)' }">
               <el-table-column label="物料规格" prop="deviceName" show-overflow-tooltip>
                 <template slot-scope="scope">
                   <span>
-                    <span
-                      v-if="scope.row.status===3 || scope.row.status===2"
-                      :style="{margin:'0 2px 0 0',padding: '4px 6px',background: scope.row.status===3? 'blue': 'green',color:'#fff'}"
-                    >{{statusFormat(stage_device_status,scope.row.status)}}</span>
-                    <span v-if="regType===1&&scope.row.regNums>0&&scope.row.status===1" style="margin:0 2px 0 0;padding: 4px 6px;background:red;color:#fff">已填报</span>
-                    <span v-if="regType===1" :class="{isWeight: (scope.row.regNums>0&&scope.row.status===1) ||scope.row.status===2 || scope.row.status===3 }" :style="{color:(scope.row.regNums>0&&scope.row.status===1)?'red':scope.row.status===2?'green':scope.row.status===3?'blue':'#606266'}">{{scope.row.deviceName}}</span>
-                    <span v-else :class="{isWeight: scope.row.status===2 || scope.row.status===3 }" :style="{color:scope.row.status===2?'green':scope.row.status===3?'blue':'#606266'}">{{scope.row.deviceName}}</span>
+                    <span v-if="scope.row.status === 3 || scope.row.status === 2"
+                      :style="{ margin: '0 2px 0 0', padding: '4px 6px', background: scope.row.status === 3 ? 'blue' : 'green', color: '#fff' }">{{ statusFormat(stage_device_status, scope.row.status) }}</span>
+                    <span v-if="regType === 1 && scope.row.regNums > 0 && scope.row.status === 1"
+                      style="margin:0 2px 0 0;padding: 4px 6px;background:red;color:#fff">已填报</span>
+                    <span v-if="regType === 1"
+                      :class="{ isWeight: (scope.row.regNums > 0 && scope.row.status === 1) || scope.row.status === 2 || scope.row.status === 3 }"
+                      :style="{ color: (scope.row.regNums > 0 && scope.row.status === 1) ? 'red' : scope.row.status === 2 ? 'green' : scope.row.status === 3 ? 'blue' : '#606266' }">{{ scope.row.deviceName }}</span>
+                    <span v-else :class="{ isWeight: scope.row.status === 2 || scope.row.status === 3 }"
+                      :style="{ color: scope.row.status === 2 ? 'green' : scope.row.status === 3 ? 'blue' : '#606266' }">{{ scope.row.deviceName }}</span>
                   </span>
                 </template>
               </el-table-column>
               <el-table-column label="规格型号" prop="deviceModel" width="150" show-overflow-tooltip>
                 <template slot-scope="scope">
-                  <span>{{scope.row.deviceModel}}</span>
+                  <span>{{ scope.row.deviceModel }}</span>
                 </template>
               </el-table-column>
               <el-table-column label="单位" prop="unit" width="50" align="center" />
-              <el-table-column v-if="regType===1"  label="数量"  align="center" class-name="regWrap" prop="regNums" width="80">
-                <template slot-scope="scope" >
-                  <el-input
-                    v-model="scope.row.regNums"
-                    :disabled="scope.row.status===3&&!checkPermission(['logisticsRegister:examine'])"
-                    @blur="valiAnRegNum(scope.row,scope.$index)"
-                    style="width:60px;"></el-input>
-                    <span class="tip">已安装数量：{{scope.row.finishNums}}</span>
-                    <span v-if="scope.row.error" style="color:#f40;">{{scope.row.error}}</span>
+              <el-table-column v-if="regType === 1" label="数量" align="center" class-name="regWrap" prop="regNums"
+                width="80">
+                <template slot-scope="scope">
+                  <el-input v-model="scope.row.regNums"
+                    :disabled="scope.row.status === 3 && !checkPermission(['logisticsRegister:examine'])"
+                    @blur="valiAnRegNum(scope.row, scope.$index)" style="width:60px;"></el-input>
+                  <span class="tip">已安装数量：{{ scope.row.finishNums }}</span>
+                  <span v-if="scope.row.error" style="color:#f40;">{{ scope.row.error }}</span>
                 </template>
               </el-table-column>
-              <template v-if="regType===2">
+              <template v-if="regType === 2">
                 <el-table-column label="设计数量" prop="regNums" align="center" width="80" />
-                <el-table-column  label="安装数量" prop="finishNums" align="center" width="80">
+                <el-table-column label="安装数量" prop="finishNums" align="center" width="80">
                   <template slot-scope="scope">
-                    <el-input
-                      v-model="scope.row.finishNums"
-                      :disabled="(additional1.includes(form.projectCode)) || scope.row.status===3&&!checkPermission(['logisticsRegister:examine'])"
-                      @blur="valiAnzhuangNum(scope.row,scope.$index)"
-                      style="width:60px;"
-                      :class="{noFinish:scope.row.regNums>scope.row.finishNums}"
-                    ></el-input>
-                    <span v-if="scope.row.error" style="color:#f40;">{{scope.row.error}}</span>
+                    <el-input v-model="scope.row.finishNums"
+                      :disabled="(additional1.includes(form.projectCode)) || scope.row.status === 3 && !checkPermission(['logisticsRegister:examine'])"
+                      @blur="valiAnzhuangNum(scope.row, scope.$index)" style="width:60px;"
+                      :class="{ noFinish: scope.row.regNums > scope.row.finishNums }"></el-input>
+                    <span v-if="scope.row.error" style="color:#f40;">{{ scope.row.error }}</span>
                   </template>
                 </el-table-column>
               </template>
             </el-table>
-              <!-- <el-checkbox-group v-if="regType===2" v-model="status_info" style="width:100px;" class="checkGroups">
+            <!-- <el-checkbox-group v-if="regType===2" v-model="status_info" style="width:100px;" class="checkGroups">
                 <el-checkbox v-for="i in buildStatusList" :key="i.dict_value" :label="i.dict_value" @change="buildStatusChange"></el-checkbox>
               </el-checkbox-group> -->
             <div class="checkGroupself">
-              <div v-for="i in stage_list" :key="i.id" class="el-checkboxs" :class="{isSelect:currentStage&&currentStage.stage_code===i.stage_code}" >
-                <el-checkbox v-model="i.checked" v-if="regType===2&&!i.noCkeck"  @change="buildStatusChange(i)"  :disabled="i.disabled"></el-checkbox>
-                <span v-if="regType===2&&i.noCkeck" style="display: inline-block;width:14px;"></span>
-                <span :style="{color:i.color,fontWeight:(i.status === 3 || i.status === 2 ) ?700:'normal',}" class="isLine" @click="clickStage(i)">{{i.stage_name}}</span>
+              <div v-for="i in stage_list" :key="i.id" class="el-checkboxs"
+                :class="{ isSelect: currentStage && currentStage.stage_code === i.stage_code }">
+                <el-checkbox v-model="i.checked" v-if="regType === 2 && !i.noCkeck" @change="buildStatusChange(i)"
+                  :disabled="i.disabled"></el-checkbox>
+                <span v-if="regType === 2 && i.noCkeck" style="display: inline-block;width:14px;"></span>
+                <span :style="{ color: i.color, fontWeight: (i.status === 3 || i.status === 2) ? 700 : 'normal', }"
+                  class="isLine" @click="clickStage(i)">{{ i.stage_name }}</span>
               </div>
             </div>
           </div>
         </div>
         <!-- 链路信息 -->
-        <LinkInformation
-          v-if="currentRightTab===2"
-          :point="currentPoint"
-          :projectCode="form.projectCode"
-          :isEdit="true"
-          @changeLoading="changeLoading"
-          v-loading="vloading"
-        ></LinkInformation>
+        <LinkInformation v-if="currentRightTab === 2" :point="currentPoint" :projectCode="form.projectCode" :isEdit="true"
+          @changeLoading="changeLoading" v-loading="vloading"></LinkInformation>
 
         <!-- 取电信息 -->
-        <PowerCessInformation
-          v-if="currentRightTab===3"
-          :point="currentPoint"
-          :projectCode="form.projectCode"
-          :isEdit="true"
-          @changeLoading="changeLoading"
-           v-loading="vloading"
-        ></PowerCessInformation>
+        <PowerCessInformation v-if="currentRightTab === 3" :point="currentPoint" :projectCode="form.projectCode"
+          :isEdit="true" @changeLoading="changeLoading" v-loading="vloading"></PowerCessInformation>
       </div>
     </div>
 
     <!-- 全景照片 -->
-    <el-dialog
-      :title="photoSphereName"
-      :visible.sync="photoSphereVisible"
-      :footer="false"
-      :append-to-body="true"
+    <el-dialog :title="photoSphereName" :visible.sync="photoSphereVisible" :footer="false" :append-to-body="true"
       width="70%">
       <div id="viewer"></div>
     </el-dialog>
 
     <!-- 工序里面的图片配置物料 -->
-    <el-dialog
-      title=""
-      :visible.sync="settingMaterFlag"
-      :footer="false"
-      :append-to-body="true"
-      custom-class="proc-mac-setting"
-      :show-close="false"
-      width="70%">
-      <proc-mar
-        v-if="settingMaterFlag"
-        :settingMaterFlag.sync="settingMaterFlag"
-        :current="currentSettingImg"
-        :project_code="form.projectCode"
-        :point_code="currentPoint.pointCode"
+    <el-dialog title="" :visible.sync="settingMaterFlag" :footer="false" :append-to-body="true"
+      custom-class="proc-mac-setting" :show-close="false" width="70%">
+      <proc-mar v-if="settingMaterFlag" :settingMaterFlag.sync="settingMaterFlag" :current="currentSettingImg"
+        :project_code="form.projectCode" :point_code="currentPoint.pointCode"
         @getRightDeviceList="getRightDeviceList"></proc-mar>
     </el-dialog>
 
     <!-- 工序里面的图片迁移 -->
-    <el-drawer
-      title=""
-      :visible.sync="showAllProc"
-      :append-to-body="true"
-      custom-class="proc-transfer-setting"
+    <el-drawer title="" :visible.sync="showAllProc" :append-to-body="true" custom-class="proc-transfer-setting"
       size="800px">
-      <proc-transfer
-        v-if="showAllProc"
-        :showAllProc.sync="showAllProc"
-        :transferData="transferData"
+      <proc-transfer v-if="showAllProc" :showAllProc.sync="showAllProc" :transferData="transferData"
         @refreshCenter="refreshCenter"></proc-transfer>
     </el-drawer>
   </div>
@@ -613,15 +507,15 @@ export default {
     }
   },
   computed: {
-    first() {
+    first () {
       return this.checkPermission(['logisticsRegister:photoExamine'])// 初审权限
     },
-    second() {
+    second () {
       return this.checkPermission(['logisticsRegister:photoExamine_f'])// 终审权限
     }
   },
   components: { procMar, procTransfer, LinkInformation, PowerCessInformation },
-  created() {
+  created () {
     this.getProjectsList()
     if (this.checkPermission(['materialDesign:list'])) {
       this.tabClick(1)
@@ -630,20 +524,20 @@ export default {
     }
   },
   watch: {
-    regType() {
+    regType () {
       this.getTableHeight()
       if (this.form.projectCode) {
         this.handleProjectChange(this.form)
       }
     }
   },
-  mounted() {
+  mounted () {
     this.getTableHeight()
     window.addEventListener('resize', () => this.getTableHeight())
   },
   methods: {
     checkPermission,
-    getTableHeight() {
+    getTableHeight () {
       this.$nextTick(() => {
         const el_wrap = document.getElementsByClassName('clover_device-main')[0]
         if (el_wrap) {
@@ -665,7 +559,7 @@ export default {
         }
       })
     },
-    tsFn(fn) {
+    tsFn (fn) {
       if (this.operArr.length > 0) {
         this.$confirm('当前的审批还未提交，切换将会放弃本次审批操作,确定切换吗?', '提示', {
           confirmButtonText: '确定',
@@ -685,7 +579,7 @@ export default {
         fn()
       }
     },
-    tabClick(key) {
+    tabClick (key) {
       this.currentRightTab = 1
       const tabchange = () => {
         this.regType = key
@@ -702,7 +596,7 @@ export default {
       }
       this.tsFn(tabchange)
     },
-    async getChildList() {
+    async getChildList () {
       try {
         const { data, code, message } = await this.$pub.post('project/child-list', { project_id: this.form.id })
         if (code === 200) {
@@ -721,7 +615,7 @@ export default {
         })
       }
     },
-    async getAreaList() {
+    async getAreaList () {
       try {
         var req = {
           project_code: this.form.projectCode
@@ -743,7 +637,7 @@ export default {
         })
       }
     },
-    async getProjectsList() {
+    async getProjectsList () {
       const params = {
         user_id: this.$store.state.userInfo.id
       }
@@ -757,7 +651,7 @@ export default {
         })
       }
     },
-    handleProjectChange(val) {
+    handleProjectChange (val) {
       if (val) {
         const changeProject = () => {
           this.form.projectCode = val.projectCode
@@ -787,7 +681,7 @@ export default {
         changeProject()
       }
     },
-    resetQuery() {
+    resetQuery () {
       this.page.page_no = 1
       this.total = 0
       this.currentPoint = null
@@ -810,7 +704,7 @@ export default {
       this.status_info = []
       this.status = false
     },
-    handleSelectChange() {
+    handleSelectChange () {
       if (!this.form.projectCode) {
         this.$message({
           type: 'error',
@@ -826,7 +720,7 @@ export default {
         this.getStatusCount()
       }
     },
-    inputChangePoint() {
+    inputChangePoint () {
       if (this.timer) {
         clearTimeout(this.timer)
       }
@@ -836,7 +730,7 @@ export default {
         self.handleSelectChange()
       }, 500)
     },
-    async getTagList() {
+    async getTagList () {
       const params = {
         projectCode: this.form.projectCode
       }
@@ -852,7 +746,7 @@ export default {
         })
       }
     },
-    async getBuilderList() {
+    async getBuilderList () {
       var req = {
         project_code: this.form.projectCode
       }
@@ -868,7 +762,7 @@ export default {
         })
       }
     },
-    async getPointList() {
+    async getPointList () {
       this.operArr = []
       this.tableLoading = true
       const params = {
@@ -911,7 +805,7 @@ export default {
     tableRowClassName ({ row }) {
       return this.currentPoint && row.pointCode === this.currentPoint.pointCode ? 'current-row' : ''
     },
-    currentClick(row) {
+    currentClick (row) {
       if (!row || (this.currentPoint && this.currentPoint.pointCode === row.pointCode)) {
         return
       }
@@ -1005,7 +899,7 @@ export default {
       this.tsFn(changePoint)
       this.getTableHeight()
     },
-    getRightDeviceList() {
+    getRightDeviceList () {
       // 获取最右侧信息
       this.devloading = true
       if (this.regType === 1) {
@@ -1075,7 +969,7 @@ export default {
         })
       }
     },
-    pageChange(num) {
+    pageChange (num) {
       this.page.page_no = num
       this.getPointList()
     },
@@ -1099,7 +993,7 @@ export default {
       })
       return actions.join('')
     },
-    changeInput(row, type) {
+    changeInput (row, type) {
       const pattern = /^[1-9][0-9]*$/ // 正整数的正则表达式
       // 不符合正整数时
       if (!pattern.test(this.num)) {
@@ -1107,7 +1001,7 @@ export default {
         row[type] = 0
       }
     },
-    valiAnzhuangNum(val, i) {
+    valiAnzhuangNum (val, i) {
       const reg = /[^\d]/g
       // const reg = /^(\+?)\d+(\.\d+)?$/g
       const regNums = val.regNums
@@ -1121,7 +1015,7 @@ export default {
       }
       this.$set(this.deviceLists, i, val)
     },
-    valiAnRegNum(val, i) {
+    valiAnRegNum (val, i) {
       const reg = /[^\d]/g
       const regNums = val.regNums
       const finishNums = val.finishNums
@@ -1134,7 +1028,7 @@ export default {
       }
       this.$set(this.deviceLists, i, val)
     },
-    async saveData() {
+    async saveData () {
       if (!this.currentPoint) return
       const status = this.status ? 2 : this.log_info.status === 0 ? 0 : 1
       const devices = this.deviceLists.filter(f => this.regType === 1 ? !(f.regNums <= 0 && f.status === 0) : !(f.finishNums <= 0 && f.status === 0))
@@ -1214,7 +1108,7 @@ export default {
         })
       }
     },
-    async buildStatusChange(val) {
+    async buildStatusChange (val) {
       this.devloading = true
       const params = {
         project_code: this.form.projectCode,
@@ -1242,11 +1136,11 @@ export default {
       }
       this.devloading = false
     },
-    clickStage(i) {
+    clickStage (i) {
       this.currentStage = i
       this.getRightDeviceList()
     },
-    async changeImgAudit(img, proc_code) {
+    async changeImgAudit (img, proc_code) {
       const fn = () => {
         const ids = this.operArr.map(m => m.image_id)
         img.proc_code = proc_code
@@ -1380,7 +1274,7 @@ export default {
       }
     },
     // 深化设计
-    refresh() {
+    refresh () {
       this.centerLoading = true
       this.activeClassName = null
       this.procLists = []
@@ -1418,7 +1312,7 @@ export default {
       })
     },
     // 施工登记
-    refreshCenter() {
+    refreshCenter () {
       this.centerLoading = true
       this.transCurrentPintDirect = null
       /* 0全部
@@ -1484,7 +1378,7 @@ export default {
     // handleCollapseChange(val) {
     //   console.log(val)
     // },
-    changeIsList(isStatus) {
+    changeIsList (isStatus) {
       const changeStatus = () => {
         this.isStatus = isStatus
         // 获取列表
@@ -1492,7 +1386,7 @@ export default {
       }
       this.tsFn(changeStatus)
     },
-    async getStatusCount() {
+    async getStatusCount () {
       const params = {
         page_no: 1,
         page_size: 1,
@@ -1534,13 +1428,13 @@ export default {
         })
       }
     },
-    initPhotoSphere(name, img) {
+    initPhotoSphere (name, img) {
       this.photoSphereName = name
       this.photoSphereVisible = true
       if (this.viewer) {
         this.viewer.destroy()
       }
-      // const url = process.env.VUE_APP_BASE_URL_download
+      //const url = this.$apiUrl
       // img = img.replace(url, '') + '?' + new Date().getTime()
       this.$nextTick(() => {
         this.viewer = new Viewer({
@@ -1553,13 +1447,13 @@ export default {
         })
       })
     },
-    materSetting(img, proc) {
+    materSetting (img, proc) {
       this.currentSettingImg = img
       this.currentSettingImg.proc_code = proc.procCode
       this.settingMaterFlag = true
     },
     // 迁移 start
-    showTransfer(pointDirect, flag) {
+    showTransfer (pointDirect, flag) {
       if (this.transCurrentPintDirect) { // 还原之前的
         this.transCurrentPintDirect.transfer = false
         this.transCurrentPintDirect.attach_list.map(m => {
@@ -1577,7 +1471,7 @@ export default {
 
       // })
     },
-    sureTransfer(proc, pointDirect) {
+    sureTransfer (proc, pointDirect) {
       const { proc_code, proc_name } = proc
       this.transferData = {
         proc_code,
@@ -1605,7 +1499,7 @@ export default {
       }
     },
     // 迁移end
-    changeShowtab(item) {
+    changeShowtab (item) {
       if (this.currentRightTab === item.id) {
         return
       }
@@ -1615,7 +1509,7 @@ export default {
       }
       this.getTableHeight()
     },
-    changeLoading() {
+    changeLoading () {
       this.vloading = false
     }
   }
@@ -1623,64 +1517,76 @@ export default {
 </script>
 
 <style lang="scss">
-.clover_logreg_container{
+.clover_logreg_container {
   display: flex;
   /* justify-content: space-between; */
-  height:100%;
-  width:100%;
+  height: 100%;
+  width: 100%;
   box-sizing: border-box;
-  background:#fff;
-  padding:20px;
-  .cloverLeft{
+  background: #fff;
+  padding: 20px;
+
+  .cloverLeft {
     width: 90px;
-    height:100%;
+    height: 100%;
     border-right: 1px solid #ededed;
   }
-  .cloverLeft li{
+
+  .cloverLeft li {
     margin-bottom: 20px;
-    font-size:16px;
-    font-weight:550;
+    font-size: 16px;
+    font-weight: 550;
     cursor: pointer;
   }
-  .searchPoint{
-    width:360px;
-    height:100%;
+
+  .searchPoint {
+    width: 360px;
+    height: 100%;
     border-bottom: 1px solid #ededed;
-     .el-pagination--small{
-      border:0;
+
+    .el-pagination--small {
+      border: 0;
       // border-top: 1px solid #ededed;
     }
   }
+
   .searchPoint .el-radio {
-    margin-right:15px;
+    margin-right: 15px;
   }
+
   .searchPoint .el-radio__label {
-    padding-left:0;
-    font-size:13px;
+    padding-left: 0;
+    font-size: 13px;
   }
-  .searchPoint .el-form-item{
-    margin-bottom:10px;
+
+  .searchPoint .el-form-item {
+    margin-bottom: 10px;
   }
+
   .tableWrap {
     /* margin-top:20px; */
   }
-  .tableWrap .el-table__body tr.current-row>td{
-    background:rgb(68, 120, 241);
-    color:#fff;
+
+  .tableWrap .el-table__body tr.current-row>td {
+    background: rgb(68, 120, 241);
+    color: #fff;
   }
-  .rightWrap{
+
+  .rightWrap {
     width: calc(100% - 450px);
-    display:flex;
+    display: flex;
     justify-content: space-between;
     // height: calc(100% - 20px);
-    height:100%;
+    height: 100%;
   }
-  .rightWrap .clover_wrap{
-    height:100%;
+
+  .rightWrap .clover_wrap {
+    height: 100%;
     overflow: auto;
-    margin-top:10px;
+    margin-top: 10px;
   }
-  .rightWrap .box{
+
+  .rightWrap .box {
     text-align: center;
     display: inline-block;
     box-sizing: border-box;
@@ -1689,90 +1595,105 @@ export default {
     padding: 0;
     margin-right: 10px;
     vertical-align: top;
-    margin-bottom:10px;
-    .box_img{
-      width:140px;
+    margin-bottom: 10px;
+
+    .box_img {
+      width: 140px;
       position: relative;
-      border:1px solid #eee;
+      border: 1px solid #eee;
       height: 140px;
       overflow: hidden;
-      img{
+
+      img {
         width: 140px;
         height: 140px;
       }
     }
-    .sett{
-      position:absolute;
+
+    .sett {
+      position: absolute;
       top: -30px;
       left: -30px;
       width: 60px;
-      height:60px;
+      height: 60px;
       border-radius: 50%;
       background: #fff;
-      font-size:18px;
-      border:1px solid #eee;
+      font-size: 18px;
+      border: 1px solid #eee;
       box-sizing: border-box;
-      cursor:pointer;
-      .el-icon-setting{
-        position:absolute;
+      cursor: pointer;
+
+      .el-icon-setting {
+        position: absolute;
         top: 33px;
         left: 32px;
-        color:#000;
+        color: #000;
       }
-      .ishavepeizhi{
-        color:#4478f1;
-      }
-    }
-    .sett.ishavepeizhi{
-      background:#4478f1;
-      border-color:#4478f1;
-      .el-icon-setting{
-         color:#fff;
+
+      .ishavepeizhi {
+        color: #4478f1;
       }
     }
-    .check{
+
+    .sett.ishavepeizhi {
+      background: #4478f1;
+      border-color: #4478f1;
+
+      .el-icon-setting {
+        color: #fff;
+      }
+    }
+
+    .check {
       position: absolute;
       top: 118px;
-      right:0px;
-      .el-checkbox__inner{
-        width:20px;
-        height:20px;
-        &:after{
+      right: 0px;
+
+      .el-checkbox__inner {
+        width: 20px;
+        height: 20px;
+
+        &:after {
           height: 10px;
           width: 3px;
-          left:8px;
-          top:2px;
+          left: 8px;
+          top: 2px;
         }
       }
     }
-    .user{
-      width:100%;
+
+    .user {
+      width: 100%;
       display: flex;
       justify-content: space-around;
-      margin-top:4px;
+      margin-top: 4px;
     }
   }
-  .rightWrap .clover_proc-main{
+
+  .rightWrap .clover_proc-main {
     width: 40%;
     /* margin-right:20px; */
     border-left: 1px solid #ededed;
-    padding:0px 10px 0;
+    padding: 0px 10px 0;
     overflow: auto;
     height: 100%;
     box-sizing: border-box;
   }
-  .clover_right_tab{
+
+  .clover_right_tab {
     width: 60%;
     border-left: 1px solid #ededed;
     overflow: hidden;
     height: 100%;
     box-sizing: border-box;
-    .right_tab{
-      display:flex;
+
+    .right_tab {
+      display: flex;
       align-items: center;
-      margin-left:10px;
-      border-bottom:1px solid #eee;
-      li{
+      margin-left: 10px;
+      border-bottom: 1px solid #eee;
+
+      li {
         display: inline-block;
         position: relative;
         cursor: pointer;
@@ -1794,271 +1715,325 @@ export default {
         //   margin-right: 2px;
         // }
       }
-      .isActive{
+
+      .isActive {
         background-color: #23B7BD;
         color: #fff;
         border-color: #23B7BD;
       }
     }
   }
-  .clover_device-main{
+
+  .clover_device-main {
     width: 100%;
   }
-  .clover_proc-main .wrap{
-    height:calc(100% - 45px);
+
+  .clover_proc-main .wrap {
+    height: calc(100% - 45px);
     overflow: auto;
-    >.el-collapse{
+
+    >.el-collapse {
       border-top: none;
     }
   }
-  .clover_proc-main .moreText{
-    width:100%;
-    margin-bottom:10px;
+
+  .clover_proc-main .moreText {
+    width: 100%;
+    margin-bottom: 10px;
     display: flex;
     justify-content: space-between;
     border-bottom: 1px solid #EBEEF5
   }
-  .clover_proc-main .moreText .tit{
-    display:inline-block;
-    width:calc(100% - 210px);
+
+  .clover_proc-main .moreText .tit {
+    display: inline-block;
+    width: calc(100% - 210px);
     overflow: hidden;
     white-space: nowrap;
     text-overflow: ellipsis;
     line-height: 32px;
   }
-  .clover_proc-main .moreText .el-button{
+
+  .clover_proc-main .moreText .el-button {
     padding: 6px 15px;
-    .img{
-      width:18px;
-      height:18px;
+
+    .img {
+      width: 18px;
+      height: 18px;
     }
   }
-  .clover_proc-main .moreText .spbtn{
-    cursor:pointer;
-    margin-left:6px;
+
+  .clover_proc-main .moreText .spbtn {
+    cursor: pointer;
+    margin-left: 6px;
     padding: 9px 15px;
   }
-  .clover_proc-main .moreText i{
-    cursor:pointer;
+
+  .clover_proc-main .moreText i {
+    cursor: pointer;
     font-size: 18px;
   }
-  .clover_proc-main .el-collapse-item__header{
-    font-size:16px;
-    font-weight:550;
+
+  .clover_proc-main .el-collapse-item__header {
+    font-size: 16px;
+    font-weight: 550;
   }
-  .clover_proc-main .subtitle{
+
+  .clover_proc-main .subtitle {
     color: #409eff;
-    display:block;
-    display:flex;
-    align-items:center;
+    display: block;
+    display: flex;
+    align-items: center;
     margin-bottom: 10px;
   }
-  .clover_proc-main .dir{
+
+  .clover_proc-main .dir {
     display: flex;
     align-items: center;
   }
-  .clover_device-main ._top{
-    display:flex;
+
+  .clover_device-main ._top {
+    display: flex;
     align-items: center;
   }
-  .clover_device-main ._top .statusText{
-    padding:2px 6px;
-    background:#70B617;
-    border-radius:2px;
-    color:#fff;
-    margin-left:8px;
-    font-size:12px;
+
+  .clover_device-main ._top .statusText {
+    padding: 2px 6px;
+    background: #70B617;
+    border-radius: 2px;
+    color: #fff;
+    margin-left: 8px;
+    font-size: 12px;
   }
-  .clover_device-main .sub{
-    margin-top:10px;
-    .info{
-      padding:0;
+
+  .clover_device-main .sub {
+    margin-top: 10px;
+
+    .info {
+      padding: 0;
     }
   }
-  .clover_device-main .opear{
-    margin-top:10px;
-    display:flex;
+
+  .clover_device-main .opear {
+    margin-top: 10px;
+    display: flex;
     align-items: center;
     justify-content: space-between;
   }
-  .clover_device-main .opear .el-checkbox__label{
-    font-size:16px;
-    color:#000;
+
+  .clover_device-main .opear .el-checkbox__label {
+    font-size: 16px;
+    color: #000;
   }
-  .clover_device-main .info{
-    display:flex;
+
+  .clover_device-main .info {
+    display: flex;
     align-items: center;
     justify-content: space-between;
     flex-wrap: nowrap;
-    color:#848484;
-    font-weight:500;
-    margin-top:10px;
-    font-size:14px;
+    color: #848484;
+    font-weight: 500;
+    margin-top: 10px;
+    font-size: 14px;
   }
-  .clover_device-main .deviceTable{
-    width:100%;
-    .noFinish{
-      .el-input__inner{
-        color:#f40;
+
+  .clover_device-main .deviceTable {
+    width: 100%;
+
+    .noFinish {
+      .el-input__inner {
+        color: #f40;
       }
     }
-    .isWeight{
-      font-weight:700;
+
+    .isWeight {
+      font-weight: 700;
     }
-    .regWrap{
+
+    .regWrap {
       position: relative;
-      .tip{
+
+      .tip {
         white-space: nowrap;
         position: absolute;
         padding: 4px 15px;
         border-radius: 2px;
-        background: rgba(0,0,0,0.6);
-        color:#fff;
-        top:0px;
-        left:-110px;
-        display:none;
+        background: rgba(0, 0, 0, 0.6);
+        color: #fff;
+        top: 0px;
+        left: -110px;
+        display: none;
       }
-      &:hover{
-        .tip{
+
+      &:hover {
+        .tip {
           display: block;
         }
       }
     }
   }
-  .clover_device-main .deviceTable .el-input__inner{
+
+  .clover_device-main .deviceTable .el-input__inner {
     padding: 0 5px;
-    border-radius:0;
-    height:30px;
-    line-height:30px;
+    border-radius: 0;
+    height: 30px;
+    line-height: 30px;
   }
-  .clover_device-main .deviceTable thead{
-    color:#000;
+
+  .clover_device-main .deviceTable thead {
+    color: #000;
   }
-  .clover_device-main .checkGroupself{
-    margin-top:15px;
+
+  .clover_device-main .checkGroupself {
+    margin-top: 15px;
     // margin-left:10px;
     border-left: 1px solid #ededed;
-    .el-checkboxs.isSelect{
-      border-bottom:1px solid #4478f1;
-      .isLine{
-        &:before{
-          border:1px solid #4478f1;
+
+    .el-checkboxs.isSelect {
+      border-bottom: 1px solid #4478f1;
+
+      .isLine {
+        &:before {
+          border: 1px solid #4478f1;
           background: #4478f1;
         }
       }
     }
-    .el-checkboxs{
-      border-bottom:1px solid transparent;
-       margin-left: 10px;
-      .isLine{
-        padding:4px 6px 4px 2px;
+
+    .el-checkboxs {
+      border-bottom: 1px solid transparent;
+      margin-left: 10px;
+
+      .isLine {
+        padding: 4px 6px 4px 2px;
         font-size: 14px;
         cursor: pointer;
-        margin-left:4px;
-        &:before{
-          width:1px;
-          height:10px;
-          display:inline-block;
-          border:1px solid transparent;
-          content:'';
+        margin-left: 4px;
+
+        &:before {
+          width: 1px;
+          height: 10px;
+          display: inline-block;
+          border: 1px solid transparent;
+          content: '';
           vertical-align: middle;
-          margin-right:4px;
+          margin-right: 4px;
         }
       }
     }
   }
-  .clover_device-main .checkGroupself .el-checkboxs{
-    margin-right:0px;
-    margin-bottom:4px;
+
+  .clover_device-main .checkGroupself .el-checkboxs {
+    margin-right: 0px;
+    margin-bottom: 4px;
     display: flex;
     align-items: center;
-    &:hover{
-      .isLine{
-        background:rgb(209, 230, 247);
+
+    &:hover {
+      .isLine {
+        background: rgb(209, 230, 247);
       }
     }
   }
-  .clover_device-main .checkGroupself .el-checkbox__label{
-    padding-left:4px;
+
+  .clover_device-main .checkGroupself .el-checkbox__label {
+    padding-left: 4px;
     display: none;
   }
-  .nodata{
+
+  .nodata {
     width: 100%;
-    text-align:center;
+    text-align: center;
   }
-  .imgRadio .el-radio:first-child{
-    margin-right:15px;
+
+  .imgRadio .el-radio:first-child {
+    margin-right: 15px;
   }
-  .imgRadio{
-    .disagree{
-      .el-radio__inner{
+
+  .imgRadio {
+    .disagree {
+      .el-radio__inner {
         border: 1px solid #f40;
       }
-      .el-radio__input.is-checked .el-radio__inner{
+
+      .el-radio__input.is-checked .el-radio__inner {
         background: #f40;
       }
     }
   }
+
   .remarktitle {
     font-family: "Microsoft YaHei", "微软雅黑";
     display: block;
     font-size: 14px;
     color: red;
-    width:100%;
-    text-align:left;
-    margin-top:10px;
+    width: 100%;
+    text-align: left;
+    margin-top: 10px;
   }
-  .remarkRow{
-    width:100%;
-    text-align:left;
-    margin-bottom:10px;
+
+  .remarkRow {
+    width: 100%;
+    text-align: left;
+    margin-bottom: 10px;
   }
 }
 </style>
 <style lang="scss">
-.clover_logreg_container{
+.clover_logreg_container {
   .more {
     text-overflow: ellipsis;
     overflow: hidden;
-    width:auto !important;
+    width: auto !important;
     white-space: nowrap;
   }
-  .el-pagination--small .btn-next, .el-pagination--small .btn-prev, .el-pagination--small .el-pager li, .el-pagination--small .el-pager li.btn-quicknext, .el-pagination--small .el-pager li.btn-quickprev, .el-pagination--small .el-pager li:last-child {
-      border-color: transparent;
-      font-size: 12px;
-      line-height: 22px;
-      height: 22px;
-      min-width: 20px !important;
+
+  .el-pagination--small .btn-next,
+  .el-pagination--small .btn-prev,
+  .el-pagination--small .el-pager li,
+  .el-pagination--small .el-pager li.btn-quicknext,
+  .el-pagination--small .el-pager li.btn-quickprev,
+  .el-pagination--small .el-pager li:last-child {
+    border-color: transparent;
+    font-size: 12px;
+    line-height: 22px;
+    height: 22px;
+    min-width: 20px !important;
   }
+
   .el-pagination {
     white-space: nowrap;
     padding: 2px 0px !important;
     color: #303133;
     font-weight: 700;
   }
+
   .el-input__inner {
-      border-radius: 0px !important;
-      height: 30px !important;
-      line-height: 30px !important;
+    border-radius: 0px !important;
+    height: 30px !important;
+    line-height: 30px !important;
   }
-  .tableWrap td{
+
+  .tableWrap td {
     cursor: pointer;
   }
-  .dir :nth-child(3){
-    margin-left:10px;
+
+  .dir :nth-child(3) {
+    margin-left: 10px;
   }
-  .img_wrap{
-    height:21px;
+
+  .img_wrap {
+    height: 21px;
     display: flex;
     align-items: center;
-    border:1px solid #EBEEF5;
+    border: 1px solid #EBEEF5;
     padding: 0 10px;
     cursor: pointer;
   }
-  .img{
+
+  .img {
     cursor: pointer;
-    margin-right:5px;
+    margin-right: 5px;
   }
 }
-
 </style>

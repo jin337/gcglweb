@@ -79,27 +79,25 @@ export default {
 }
 </script>
 
-<style lang="scss" scoped>
+<style lang="scss">
 .scroll-container {
   white-space: nowrap;
   position: relative;
   // overflow: hidden;
   width: 100%;
 
-  /deep/ {
-    .el-scrollbar__bar {
-      opacity: 1;
-      bottom: 0px;
+  .el-scrollbar__bar {
+    bottom: 0px;
 
-      .el-scrollbar__thumb {
-        // min-width:100%;
-      }
-    }
-
-    .el-scrollbar__wrap {
-      height: 49px;
-      overflow-x: hidden;
+    .el-scrollbar__thumb {
+      // min-width:100%;
     }
   }
+
+  .el-scrollbar__wrap {
+    height: 49px;
+    overflow-x: hidden;
+  }
+
 }
 </style>

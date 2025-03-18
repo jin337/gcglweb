@@ -1,3 +1,10 @@
+/*
+ * @Author: yuanyuan
+ * @Date: 2024-08-30 09:38:12
+ * @LastEditors: yuanyuan
+ * @LastEditTime: 2024-09-02 16:12:15
+ * @FilePath: \gcgl_web\src\router\routers.js
+ */
 import Vue from 'vue';
 import Router from 'vue-router';
 import Layout from '../views/layout/index';
@@ -5,7 +12,7 @@ import login from "@/views/login";
 
 // 解决ElementUI导航栏中的vue-router在3.0版本以上重复点菜单报错问题
 const originalPush = Router.prototype.push
-Router.prototype.push = function push(location) {
+Router.prototype.push = function push (location) {
   return originalPush.call(this, location).catch(err => err)
 }
 
@@ -14,6 +21,7 @@ export const constantRouterMap = [
   {
     path: "/login",
     name: "login",
+    meta: { title: '登录页', noCache: true },
     component: login,
   },
   {
@@ -78,7 +86,7 @@ export const constantRouterMap = [
 
 const router = new Router({
   linkExactActiveClass: 'active',
-  mode:'hash',
+  mode: 'hash',
   // base:'/web/',//前缀,跟打包名称一致
   scrollBehavior: () => ({ y: 0 }),
   routes: constantRouterMap

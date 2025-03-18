@@ -34,45 +34,40 @@
         <el-button type="primary" @click="handleQuery">查询</el-button>
       </el-form-item>
       <el-form-item style="float:right">
-        <el-button type="primary" @click="handleSomeBuild"
-          :disabled="selectedAllData.length > 50 || selectedAllData.length <= 0">
+        <el-button type="primary" @click="handleSomeBuild">
           批量生成工单
-          <span v-if="selectedAllData.length > 0">（已选{{ selectedAllData.length }}条，最多每次生成50条）</span>
+          <!-- <span v-if="selectedAllData.length > 0">（已选{{ selectedAllData.length }}条，最多每次生成50条）</span> -->
         </el-button>
       </el-form-item>
     </el-form>
 
-    <el-table ref="selTable" v-loading="tableLoading" :data="allData[page.page_no]" :height="tableHeight"
-      style="width: 100%" row-key="id" :reserve-selection="true" @select="handleSelect" @select-all="handleSelectionAll"
-      :header-row-style="{ height: '36px' }" :row-style="{ height: '36px' }" :cell-style="{ padding: '0px' }">
-      <el-table-column type="selection" :selectable="selectable" width="55" align="center" />
-      <!-- <el-table-column prop="project_name" label="项目名称" width="150"  /> -->
+    <el-table ref="selTable" v-loading="tableLoading" :data="tableData" :height="tableHeight" style="width: 100%"
+      row-key="id" :header-row-style="{ height: '36px' }" :row-style="{ height: '36px' }" border
+      :cell-style="{ padding: '0px' }">
+      <el-table-column type="selection" :selectable="selectable" width="60" align="center" />
       <el-table-column prop="point_code" label="点位编码" show-overflow-tooltip width="130" align="center"></el-table-column>
-      <el-table-column prop="point_name" label="点位名称" show-overflow-tooltip min-width="150"
-        header-align="center"></el-table-column>
-      <el-table-column prop="device_ip" label="设备IP" width="150" align="center"></el-table-column>
-      <el-table-column prop="device_model" label="设备类型" min-width="120px" align="center"></el-table-column>
-      <el-table-column prop="device_name" label="设备名称" min-width="150px" align="center"></el-table-column>
-      <el-table-column prop="child_name" label="子系统" min-width="150px" align="center"></el-table-column>
-      <el-table-column prop="area" label="区域" min-width="100px" align="center"></el-table-column>
-      <el-table-column prop="check_time" label="最后检测时间" width="150px" align="center">
-        <template slot-scope="scope">
-          <span>{{ scope.row.check_time }}</span>
+      <el-table-column prop="point_name" label="点位名称" header-align="center"></el-table-column>
+      <el-table-column prop="device_num" label="设备数量" width="80" align="center">
+        <template slot-scope="{row}">
+          <span class="cursor" @click="showNum(row, 'shebei')">{{ row.device_num ? row.device_num : 0 }}</span>
         </template>
       </el-table-column>
-      <el-table-column prop="order_id" label="是否生成工单" align="center" min-width="100px">
-        <template slot-scope="scope">
-          <span>{{ scope.row.order_id === 0 ? '否' : '是' }}</span>
+      <el-table-column prop="drop_num" label="掉线数量" width="120" align="center">
+        <template slot-scope="{row}">
+          <span class="cursor" @click="showNum(row, 'diaoxian')">{{ row.drop_num ? row.drop_num : 0 }}</span>
         </template>
       </el-table-column>
-      <el-table-column label="操作" min-width="100px">
+      <el-table-column prop="fix_num" label="在维修数量" width="100" align="center">
+        <template slot-scope="{row}">
+          <span class="cursor" @click="showNum(row, 'weixiu')">{{ row.fix_num ? row.fix_num : 0 }}</span>
+        </template>
+      </el-table-column>
+      <el-table-column prop="dept" label="维护责任单位" width="120" align="center"></el-table-column>
+      <el-table-column prop="child_name" label="子系统" width="120px" align="center"></el-table-column>
+      <el-table-column prop="area" label="区域" width="100px" align="center"></el-table-column>
+      <el-table-column label="操作" width="150px" header-align="center">
         <template slot-scope="scope">
-          <el-button class="filter-item border" v-if="scope.row.order_id !== 0" size="mini" type="text"
-            @click="handleInfo(scope.row)">
-            关联工单
-          </el-button>
-          <el-button v-if="scope.row.order_id === 0" class="filter-item border" size="mini" type="text"
-            @click="handleBuild(scope.row)">
+          <el-button v-if="scope.row.order_id === 0" class="border" type="text" @click="handleBuild(scope.row)">
             工单生成
           </el-button>
         </template>
@@ -88,22 +83,30 @@
     </div>
 
     <!-- 生成工单 批量生成工单 -->
-    <el-dialog :title="title" :visible.sync="buildFlag" width="700px" append-to-body>
-      <build-order v-if="buildFlag" :currentData="currentData" :buildFlag.sync="buildFlag"
-        @handleQuery="handleQuery"></build-order>
+    <el-dialog :title="title" :visible.sync="buildFlag" width="900px" append-to-body :lock-scroll="false">
+      <build-order v-if="buildFlag" :currentData="currentData" :buildFlag.sync="buildFlag" :projectList="projectList"
+        :project_code="form.project_code || ''" :childList="childList" :areaList="areaList"
+        :faultTypeList="faultTypeList"></build-order>
     </el-dialog>
 
-    <!-- 关联工单工单详情 -->
-    <el-drawer title="" :visible.sync="infoFlag" size="740px" append-to-body custom-class="info_fault_work pub_fault">
-      <info-order ref="info" v-if="infoFlag" :infoFlag.sync="infoFlag" :presentId="presentId"></info-order>
-    </el-drawer>
+    <!-- 点击数量展示 -->
+    <el-dialog title="" :visible.sync="numsFlag" width="600px" append-to-body :lock-scroll="false">
+      <el-table v-loading="numsLoading" :data="numsData" :height="500" style="width: 100%"
+        :header-row-style="{ height: '36px' }" :row-style="{ height: '36px' }" :cell-style="{ padding: '0px' }">
+        <el-table-column prop="ip" label="IP" align="center"></el-table-column>
+        <el-table-column prop="start" label="首次上线日期" align="center" v-if="numsType === 'shebei'"></el-table-column>
+        <el-table-column prop="status" label="状态" align="center" v-if="numsType === 'shebei'"></el-table-column>
+        <el-table-column prop="end" label="掉线日期" align="center" v-if="numsType === 'diaoxian'"></el-table-column>
+        <el-table-column prop="gldw" label="关联单位" align="center" v-if="numsType === 'weixiu'"></el-table-column>
+      </el-table>
+    </el-dialog>
+
   </div>
 </template>
 
 <script>
 import { checkPermission } from '@/utils/tool'
 import buildOrder from './buildOrder.vue'
-import infoOrder from './infoOrder.vue'
 export default {
   name: 'faultOperationFault',
   data () {
@@ -112,6 +115,7 @@ export default {
         project: null,
         project_id: null,
         project_code: null,
+        project_name: '',
         content: '',
         is_build: 0,
         child_code: [],
@@ -119,29 +123,30 @@ export default {
       },
       childList: [],
       areaList: [],
-      total: 20,
+      faultTypeList: [],
+      total: 0,
       page: {
         page_no: 1,
         page_size: 10
       },
+      tableData: [],
       dict: {
         build: [{ id: 0, label: '全部', value: 0 }, { id: 1, label: '是', value: 1 }, { id: 2, label: '否', value: 2 }],
         fault_type: []
       },
       projectList: [],
       tableLoading: false,
-      tableHeight: window.innerHeight - 223,
-      allData: {}, // 所有物品数据
-      selectedAllData: [],
+      tableHeight: window.innerHeight - 250,
       buildFlag: false,
       title: '生成工单',
       currentData: null,
       presentId: null, // 目前操作的orderid
-      infoFlag: false
+      // 点击设备数量shebei，掉线数量diaoxian，维修设备数量weixiu
+      numsType: '', // shebei diaoxian weixiu
+      numsLoading: false,
+      numsFlag: false,
+      numsData: []
     }
-  },
-  computed: {
-
   },
   created () {
     this.getfault_type()
@@ -152,7 +157,7 @@ export default {
     window.addEventListener('resize', () => this.getTableHeight())
   },
   components: {
-    buildOrder, infoOrder // 工单详情
+    buildOrder
   },
   methods: {
     checkPermission,
@@ -253,7 +258,7 @@ export default {
     getfault_type () {
       this.$dict(this, 'fault_type').then(res => {
         if (res.code === 200) {
-          this.dict.fault_type = (res.data || []).map(m => {
+          this.faultTypeList = (res.data || []).map(m => {
             return {
               value: Number(m.value),
               label: m.label
@@ -265,7 +270,7 @@ export default {
             message: '字典获取出错了fault_type',
             showClose: true
           })
-          this.dict.fault_type = []
+          this.faultTypeList = []
         }
       })
     },
@@ -278,41 +283,33 @@ export default {
           customClass: 'uploadMessage'
         })
       }
-      const allIds = this.selectedAllData.map(m => m.id)
-      if (this.page.page_no in this.allData) {
-        this.$nextTick(() => {
-          this.allData[this.page.page_no].forEach(f => {
-            if (allIds.includes(f.id)) {
-              this.$refs.selTable.toggleRowSelection(f, true)
-            }
-          })
-        })
-      } else {
-        this.tableLoading = true
-        const params = {
-          ...this.form,
-          page_no: this.page.page_no,
-          page_size: this.page.page_size
-        }
-        const { data, code } = await this.$pub.post('point/fault/fault-list', params)
-        this.tableLoading = false
-        if (code !== 200) {
-          this.total = 0
-          this.tableData = []
-          return this.$message({
-            message: '获取列表出错了',
-            type: 'error',
-            showClose: true
-          })
-        }
-        this.total = data.total
-        this.allData[this.page.page_no] = (data.list || []).map(m => {
-          return {
-            ...m,
-            id: m.point_code + m.project_code + m.device_ip
-          }
+      this.tableLoading = true
+      const params = {
+        ...this.form,
+        page_no: this.page.page_no,
+        page_size: this.page.page_size
+      }
+      const { data, code } = await this.$pub.post('point/fault/fault-list', params)
+      this.tableLoading = false
+      if (code !== 200) {
+        this.total = 0
+        this.tableData = []
+        return this.$message({
+          message: '获取列表出错了',
+          type: 'error',
+          showClose: true
         })
       }
+      this.total = data.total
+      this.tableData = (data.list || []).map(m => {
+        return {
+          ...m,
+          id: m.point_code + m.project_code + m.device_ip
+        }
+      })
+      this.$nextTick(() => {
+        this.$refs.selTable.toggleAllSelection()
+      })
     },
     getTableHeight () {
       this.$nextTick(() => {
@@ -327,6 +324,7 @@ export default {
     handleProjectChange (val) {
       this.form.project_code = val.projectCode
       this.form.project_id = val.id
+      this.form.project_name = val.projectName
       this.form.area = []
       this.form.child_code = []
       this.childList = []
@@ -336,8 +334,7 @@ export default {
       this.handleQuery()
     },
     handleQuery () {
-      this.allData = {}
-      this.selectedAllData = []
+      this.tableData = []
       this.page.page_no = 1
       this.getList()
     },
@@ -352,42 +349,16 @@ export default {
     selectable (row) {
       return row.order_id === 0
     },
-    handleSelect (selection, row) {
-      const allIds = this.selectedAllData.map(m => m.id)
-      if (allIds.includes(row.id)) {
-        this.selectedAllData = this.selectedAllData.filter(f => f.id !== row.id)
-      } else {
-        this.selectedAllData.push(row)
-      }
-    },
-    // 全选
-    handleSelectionAll (selection) {
-      if (selection.length <= 0) {
-        const ids = this.allData[this.page.page_no].map(m => m.id)
-        this.selectedAllData = this.selectedAllData.filter(k => !ids.includes(k.id))
-      } else {
-        const allIds = this.selectedAllData.map(m => m.id)
-        selection.forEach(f => {
-          if (!allIds.includes(f.id)) {
-            this.selectedAllData.push(f)
-          }
-        })
-      }
-    },
-    // 关联工单
-    handleInfo (row) {
-      this.infoFlag = true
-      this.presentId = row.order_id// 当前的order_id
-    },
     // 生成
     handleBuild (row) {
-      this.title = '生成工单'
       this.buildFlag = true
-      this.currentData = row
+      this.currentData = [row]
+      this.title = this.form.project_name + '-工单生成'
     },
     // 批量生成
     handleSomeBuild () {
-      if (this.selectedAllData.length <= 0) {
+      const selectedAllData = this.$refs.selTable.selection
+      if (selectedAllData.length <= 0) {
         return this.$message({
           type: 'waring',
           message: '请先选择需要生成工单的故障',
@@ -395,10 +366,35 @@ export default {
         })
       }
 
-      this.title = '批量生成工单'
       this.buildFlag = true
-      this.currentData = [...this.selectedAllData]
-    }
+      this.title = this.form.project_name + '-工单生成'
+      this.currentData = [...selectedAllData]
+    },
+    // 展示数量弹窗
+    showNum (row, type) {
+      return
+      // this.numsType = type
+      // this.numsLoading = true
+      // const params = {
+
+      // }
+      // const { data, code } = await this.$pub.post('', params)
+      // this.numsLoading = false
+      // if (code !== 200) {
+      //   this.total = 0
+      //   this.numsData = []
+      //   return this.$message({
+      //     message: '获取列表出错了',
+      //     type: 'error',
+      //     showClose: true
+      //   })
+      // }
+      // this.numsData = data
+      // this.numsData = [
+      //   { ip: '12.12.12.12', start: '2024-03-21', end: '2024-05-03', status: 'haha' }
+      // ]
+      // this.numsFlag = true
+    },
   }
 }
 </script>
@@ -410,8 +406,33 @@ export default {
   width: 100%;
   box-sizing: border-box;
 
+  .border {
+    margin-right: 20px;
+  }
+
   .table {
     margin-top: 20px;
+
+  }
+
+  .el-table__header th {
+    background-color: #f8f8f9;
+    color: #606266;
+  }
+
+  .cursor {
+    padding: 4px 20px;
+    cursor: pointer;
+    color: #409EFF;
+
+    &:hover {
+      background: #409EFF;
+      color: #fff;
+      opacity: 0.9;
+      border-radius: 4px;
+    }
   }
 }
 </style>
+
+   

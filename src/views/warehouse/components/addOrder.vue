@@ -8,130 +8,76 @@
       <div class="_left">
         <div class="module">
           <span class="line"></span>
-          <span>{{orderType===1?'入库信息':'出库信息'}}</span>
+          <span>{{ orderType === 1 ? '入库信息' : '出库信息' }}</span>
         </div>
-        <el-form :model="form" ref="form"  size="small"  label-width="82px" :rules="rules">
-          <el-form-item label="过程单号:" prop="order_code" v-if="orderType===1 || (orderType===2&&isEdit)">
-            <el-input
-              style="width:220px;"
-              v-model="form.order_code"
-              placeholder="请输入过程单号"
-              clearable
-              :disabled="orderType===2"
-            />
+        <el-form :model="form" ref="form" size="small" label-width="82px" :rules="rules">
+          <el-form-item label="过程单号:" prop="order_code" v-if="orderType === 1 || (orderType === 2 && isEdit)">
+            <el-input style="width:220px;" v-model="form.order_code" placeholder="请输入过程单号" clearable
+              :disabled="orderType === 2" />
           </el-form-item>
           <el-form-item label="经办人:" prop="oper_user_id">
-            <el-select
-              v-model="form.oper_user_id"
-              clearable
-              style="width:220px;"
-              filterable
-              remote
-              reserve-keyword
-              placeholder="请输入关键词"
-              :remote-method="oper_user_remoteMethod"
-              :loading="loading"
-            >
-              <el-option
-                v-for="item in userList"
-                :key="item.user_id"
-                :label="item.user_name_dept"
-                :value="item.user_id"
-              >
+            <el-select v-model="form.oper_user_id" clearable style="width:220px;" filterable remote reserve-keyword
+              placeholder="请输入关键词" :remote-method="oper_user_remoteMethod" :loading="loading">
+              <el-option v-for="item in userList" :key="item.user_id" :label="item.user_name_dept" :value="item.user_id">
               </el-option>
             </el-select>
           </el-form-item>
-          <el-form-item label="供应方:" prop="supply" v-if="orderType===1">
-            <el-input
-              style="width:220px;"
-              v-model="form.supply"
-              placeholder="请输入供应方"
-              clearable
-            />
+          <el-form-item label="供应方:" prop="supply" v-if="orderType === 1">
+            <el-input style="width:220px;" v-model="form.supply" placeholder="请输入供应方" clearable />
           </el-form-item>
-          <el-form-item label="经办对象:" prop="involved_user_id" v-if="orderType===2">
-            <el-select
-              v-model="form.involved_user_id"
-              clearable
-              style="width:220px;"
-              filterable
-              remote
-              reserve-keyword
-              placeholder="请输入关键词"
-              :remote-method="involved_user_remoteMethod"
-              :loading="loading"
-            >
-              <el-option
-                v-for="item in involved_userList"
-                :key="item.user_id"
-                :label="item.user_name_dept"
-                :value="item.user_id"
-              >
+          <el-form-item label="经办对象:" prop="involved_user_id" v-if="orderType === 2">
+            <el-select v-model="form.involved_user_id" clearable style="width:220px;" filterable remote reserve-keyword
+              placeholder="请输入关键词" :remote-method="involved_user_remoteMethod" :loading="loading">
+              <el-option v-for="item in involved_userList" :key="item.user_id" :label="item.user_name_dept"
+                :value="item.user_id">
               </el-option>
             </el-select>
           </el-form-item>
           <el-form-item label="发生时间:" prop="oper_time">
-            <el-date-picker
-              v-model="form.oper_time"
-              type="datetime"
-              align="right"
-              style="width:220px;"
-              format="yyyy-MM-dd HH:mm:ss"
-              value-format="timestamp"
-            >
+            <el-date-picker v-model="form.oper_time" type="datetime" align="right" style="width:220px;"
+              format="yyyy-MM-dd HH:mm:ss" value-format="timestamp">
             </el-date-picker>
           </el-form-item>
           <el-form-item label="所在库房:" prop="warehouse_id">
-            <el-select v-model="form.warehouse_id"  placeholder="请选择"  :style="{width:orderType===1?'160px':'220px'}" @visible-change="before_warehouseChange($event)" @change="warehouseChange">
-              <el-option
-                v-for="item in warehouseList"
-                :key="item.id"
-                :label="item.name"
-                :value="item.id"
-              >
+            <el-select v-model="form.warehouse_id" placeholder="请选择" :style="{ width: orderType === 1 ? '160px' : '220px' }"
+              @visible-change="before_warehouseChange($event)" @change="warehouseChange">
+              <el-option v-for="item in warehouseList" :key="item.id" :label="item.name" :value="item.id">
               </el-option>
             </el-select>
-            <span style="text-align:right;" v-if="orderType===1">
-              <el-button @click="addWarehouse" size="small" style="background:#F59A23;color:#fff;margin-left:5px;" >新增</el-button>
+            <span style="text-align:right;" v-if="orderType === 1">
+              <el-button @click="addWarehouse" size="small"
+                style="background:#F59A23;color:#fff;margin-left:5px;">新增</el-button>
             </span>
           </el-form-item>
         </el-form>
 
         <!-- 附件 -->
-        <template  v-if="orderType===1">
+        <template v-if="orderType === 1">
           <div class="module">
             <span class="line"></span>
             <span>单据附件</span>
           </div>
           <div class="fj_wrap">
-            <el-card v-for="(item,i) in photo_list" :key="i" style="margin-bottom:10px;">
+            <el-card v-for="(item, i) in photo_list" :key="i" style="margin-bottom:10px;">
               <div style="margin-bottom:10px;">
-                <span v-if="i==='files_t1'|| i==='files_t2'" style="color: #F56C6C;margin-right: 4px;">*</span>
-                <span>{{i==='files_t1'?'物流单据':i==='files_t2'?'到货照片':'随货附件'}}</span>
-                 <el-upload
-                  :name="'up'+i"
-                  multiple
-                  :ref="'uploadFile'+i"
-                  class="clover_outadd"
-                  action="#"
-                  accept="image/png, image/jpeg,image/jpg, .pdf"
-                  :auto-upload="false"
-                  :http-request="httpRequest"
-                  :on-change="handleChange"
-                  :before-remove="beforeRemove"
-                  :on-remove="handleRemove"
+                <span v-if="i === 'files_t1' || i === 'files_t2'" style="color: #F56C6C;margin-right: 4px;">*</span>
+                <span>{{ i === 'files_t1' ? '物流单据' : i === 'files_t2' ? '到货照片' : '随货附件' }}</span>
+                <el-upload :name="'up' + i" multiple :ref="'uploadFile' + i" class="clover_outadd" action="#"
+                  accept="image/png, image/jpeg,image/jpg, .pdf" :auto-upload="false" :http-request="httpRequest"
+                  :on-change="handleChange" :before-remove="beforeRemove" :on-remove="handleRemove"
                   :on-preview="handlePreview">
                   <!-- style="background:#F59A23;color:#fff;" -->
                   <!-- <el-button size="mini"   @click="changeFjType(i)">+</el-button> -->
-                  <el-button :class="{isThree:i==='files_t3'}" type="text" @click="changeFjType(i)"><i class="el-icon-upload el-icon--right" style="font-size:20px;"></i></el-button>
+                  <el-button :class="{ isThree: i === 'files_t3' }" type="text" @click="changeFjType(i)"><i
+                      class="el-icon-upload el-icon--right" style="font-size:20px;"></i></el-button>
                 </el-upload>
               </div>
-              <div v-for="(fj,k) in item" :key="fj.file_path+k" class="line_row">
+              <div v-for="(fj, k) in item" :key="fj.file_path + k" class="line_row">
                 <span @click="previewPdfAndImg(fj)" style="cursor:pointer">
                   <i class="el-icon-document"></i>
-                  <span class="text">{{fj.file_name}}</span>
+                  <span class="text">{{ fj.file_name }}</span>
                 </span>
-                <i class="el-icon-close" @click="removeFJ(fj,i)"></i>
+                <i class="el-icon-close" @click="removeFJ(fj, i)"></i>
               </div>
             </el-card>
           </div>
@@ -145,30 +91,28 @@
         <div class="btns">
           <el-button style="background:#F59A23;color:#fff;" size="mini" @click="addTableData">添加物料</el-button>
         </div>
-        <el-table :data="tableData" v-loading="tableLoading" style="width: 100%;" :height="tableHeight" row-key="leng" >
+        <el-table :data="tableData" v-loading="tableLoading" style="width: 100%;" :height="tableHeight" row-key="leng">
           <el-table-column prop="device_name" label="物料类型名称" show-overflow-tooltip></el-table-column>
           <el-table-column prop="device_model" label="规格型号" show-overflow-tooltip>
             <template slot-scope="scope">
-              <span style="color:#409EFF;">{{scope.row.device_model}}</span>
+              <span style="color:#409EFF;">{{ scope.row.device_model }}</span>
             </template>
           </el-table-column>
           <el-table-column prop="unit" label="单位" width="60"></el-table-column>
-          <el-table-column  prop="device_brand" label="品牌" min-width="120">
+          <el-table-column prop="device_brand" label="品牌" min-width="120">
             <template slot-scope="scope">
-              <span>{{scope.row.device_brand_name}}</span>
+              <span>{{ scope.row.device_brand_name }}</span>
             </template>
           </el-table-column>
-          <el-table-column prop="stock_number" label="库存数量" v-if="orderType===2" width="80"></el-table-column>
-          <el-table-column prop="number" :label="orderType===2?'出库数量':'入库数量'" min-width="120">
+          <el-table-column prop="stock_number" label="库存数量" v-if="orderType === 2" width="80"></el-table-column>
+          <el-table-column prop="number" :label="orderType === 2 ? '出库数量' : '入库数量'" min-width="120">
             <template slot-scope="scope">
               <div>
-                <el-input
-                  v-model.trim="scope.row.number"
-                  placeholder="请输入大于0的数字"
-                  :style="{width:scope.row.error?'70%':'100%'}"
-                  controls-position="right"
-                  @input="($event)=>change($event,scope)"></el-input>
-                  <span v-if="scope.row.error" style="color:#f40;display:block;margin-left:10px;font-size:12px;">{{scope.row.error}}</span>
+                <el-input v-model.trim="scope.row.number" placeholder="请输入大于0的数字"
+                  :style="{ width: scope.row.error ? '70%' : '100%' }" controls-position="right"
+                  @input="($event) => change($event, scope)"></el-input>
+                <span v-if="scope.row.error"
+                  style="color:#f40;display:block;margin-left:10px;font-size:12px;">{{ scope.row.error }}</span>
               </div>
             </template>
           </el-table-column>
@@ -181,36 +125,20 @@
       </div>
 
       <!-- 添加物料（物料类型选择） -->
-      <el-drawer
-        title="物料类型选择"
-        :visible.sync="addTable"
-        size="100%"
-        :append-to-body="true"
-        :destroy-on-close ="true"
-        custom-class="addWarehouse"
-      >
-        <add-warehouse-in
-          v-if="addTable&&orderType===1"
-          @sureAddTableData="sureAddTableData"
-          :defaultData="tableData"
-          :project_code="project_code"
-          :warehouse_id="form.warehouse_id"
-        ></add-warehouse-in>
-        <add-warehouse-out
-          v-if="addTable&&orderType===2"
-          @sureAddTableData="sureAddTableData"
-          :defaultData="tableData"
-          :project_code="project_code"
-          :warehouse_id="form.warehouse_id"
-        ></add-warehouse-out>
+      <el-drawer title="物料类型选择" :visible.sync="addTable" size="100%" :append-to-body="true" :destroy-on-close="true"
+        custom-class="addWarehouse">
+        <add-warehouse-in v-if="addTable && orderType === 1" @sureAddTableData="sureAddTableData" :defaultData="tableData"
+          :project_code="project_code" :warehouse_id="form.warehouse_id"></add-warehouse-in>
+        <add-warehouse-out v-if="addTable && orderType === 2" @sureAddTableData="sureAddTableData" :defaultData="tableData"
+          :project_code="project_code" :warehouse_id="form.warehouse_id"></add-warehouse-out>
       </el-drawer>
 
       <!-- pdf预览 -->
-      <el-dialog :visible.sync="isPdf"  width="70%" custom-class="clover_prview" append-to-body>
-        <iframe :src="fileUrl" style="width: 100%; height: 100%"/>
+      <el-dialog :visible.sync="isPdf" width="70%" custom-class="clover_prview" append-to-body>
+        <iframe :src="fileUrl" style="width: 100%; height: 100%" />
       </el-dialog>
       <!-- 图片预览 -->
-      <el-dialog :visible.sync="isImg"  width="800px" custom-class="clover_prview_img"  append-to-body>
+      <el-dialog :visible.sync="isImg" width="800px" custom-class="clover_prview_img" append-to-body>
         <img width="100%" fit="contain" :src="fileUrl">
       </el-dialog>
     </div>
@@ -293,7 +221,7 @@ export default {
   computed: {
 
   },
-  mounted() {
+  mounted () {
     window.onresize = () => {
       this.tableHeight = window.innerHeight - 155
     }
@@ -321,8 +249,7 @@ export default {
         this.currentRow.photo_list[i].map(m => {
           const isPdf = m.file_name.toLowerCase().search('.pdf') > -1
           const api = config.defaultApi
-          const env = process.env.NODE_ENV === 'production' ? api : ''
-          const baseurl = process.env.VUE_APP_BASE_URL + env
+          const baseurl = this.$apiUrl + api
           const url = baseurl + m.file_path + m.file_name
           return Object.assign(m, { type: isPdf ? 'pdf' : 'img', url })
         })
@@ -342,7 +269,7 @@ export default {
     addWarehouseIn, addWarehouseOut
   },
   methods: {
-    addTableData() {
+    addTableData () {
       if (!this.form.warehouse_id) {
         return this.$message({
           type: 'error',
@@ -352,7 +279,7 @@ export default {
       }
       this.addTable = true
     },
-    sureAddTableData(data) { // 选择物料
+    sureAddTableData (data) { // 选择物料
       this.addTable = false
       this.tableData = data.map(m => {
         return Object.assign(m, {
@@ -363,7 +290,7 @@ export default {
         })
       })
     },
-    async oper_user_remoteMethod(query) {
+    async oper_user_remoteMethod (query) {
       if (query !== '') {
         this.loading = true
         const { code, message, data } = await this.$pub.post('/sys/user/list', { user_name: query })
@@ -376,7 +303,7 @@ export default {
         this.userList = []
       }
     },
-    async involved_user_remoteMethod(query) {
+    async involved_user_remoteMethod (query) {
       if (query !== '') {
         this.loading = true
         const { code, message, data } = await this.$pub.post('/sys/user/list', { user_name: query })
@@ -389,16 +316,16 @@ export default {
         this.involved_userList = []
       }
     },
-    before_warehouseChange(e) {
+    before_warehouseChange (e) {
       if (e && this.tableData.length > 0) {
         this.$message.warning('切换库房，右侧物料将被清空')
       }
     },
-    warehouseChange() {
+    warehouseChange () {
       this.tableData = []
     },
 
-    del(row) {
+    del (row) {
       const _index = row.$index
       this.$confirm('确定删除吗?', '提示', {
         confirmButtonText: '确定',
@@ -420,7 +347,7 @@ export default {
       })
     },
     // 上传
-    async httpRequest(file) {
+    async httpRequest (file) {
       const currentfj = this.allFj.filter(f => f.uid === file.file.uid)[0]
       if (!currentfj) {
         this.saveLoading = false
@@ -445,14 +372,14 @@ export default {
         }
       }
     },
-    beforeRemove(file) {
+    beforeRemove (file) {
       return this.$confirm(`确定移除 ${file.name}？`)
     },
-    handleRemove(file, fileList) {
+    handleRemove (file, fileList) {
       this.allFj = this.allFj.filter(f => f.uid !== file.uid)
     },
     // 本次上传预览
-    handlePreview(file) {
+    handlePreview (file) {
       this.isPdf = false
       this.isImg = false
       // 获取上传图片的本地url，用于上传前的本地预览
@@ -473,7 +400,7 @@ export default {
       // }
     },
     // 历史获取数据预览
-    previewPdfAndImg(row) {
+    previewPdfAndImg (row) {
       this.isPdf = false
       this.isImg = false
       // const type = row.type
@@ -489,11 +416,11 @@ export default {
       //   this.$message("当前文件暂不支持预览");
       // }
     },
-    removeFJ(file, type) {
+    removeFJ (file, type) {
       this.photo_list[type] = this.photo_list[type].filter(f => !(f.file_path === file.file_path && f.file_name === file.file_name))
     },
     // 上传文件前的钩子函数
-    beforeUpload(file) {
+    beforeUpload (file) {
       if (file.size / 1024 / 1024 > 10) {
         this.$message({
           type: 'error',
@@ -506,7 +433,7 @@ export default {
         return true
       }
     },
-    handleChange(file, fileList) {
+    handleChange (file, fileList) {
       if (file.status === 'ready') {
         const isLt10M = this.beforeUpload(file)
         if (isLt10M) {
@@ -523,10 +450,10 @@ export default {
         }
       }
     },
-    changeFjType(type) {
+    changeFjType (type) {
       this.fjType = type
     },
-    save() {
+    save () {
       this.$refs.form.validate(async (valid) => {
         if (valid) {
           this.saveLoading = true
@@ -627,7 +554,7 @@ export default {
         }
       })
     },
-    async saveIn() {
+    async saveIn () {
       let errMsg = ''
       let succesMsg = ''
       let url = ''
@@ -687,7 +614,7 @@ export default {
       this.screenLoading = false
       this.saveLoading = false
     },
-    valiSaveDevice() {
+    valiSaveDevice () {
       let flag = false
       for (let i = 0; i < this.tableData.length; i++) {
         const row = this.tableData[i]
@@ -707,7 +634,7 @@ export default {
       }
       return flag
     },
-    addWarehouse() {
+    addWarehouse () {
       const h = this.$createElement
       let inp_value = ''
       this.$msgbox({
@@ -774,7 +701,7 @@ export default {
         }
       }).catch(err => { console.log(err) })
     },
-    change(e, scope) {
+    change (e, scope) {
       scope.row.number = e
       const test = /\D|^0/g
       if (scope.row.number === '' || new RegExp(test).test(scope.row.number)) {
@@ -790,174 +717,213 @@ export default {
 }
 </script>
 <style lang="scss">
-.order_add{
+.order_add {
   display: block;
-  .el-drawer__header{
-    margin-bottom:10px;
+
+  .el-drawer__header {
+    margin-bottom: 10px;
   }
-  ._top{
-    display:flex;
-    flex-direction:row-reverse;
-    position:absolute;
+
+  ._top {
+    display: flex;
+    flex-direction: row-reverse;
+    position: absolute;
     top: -37px;
     right: 60px;
   }
-  .wrap{
-    width:100%;
-    display:flex;
-    justify-content:space-between;
-    height:calc(100% - 20px);
-    border-top:1px solid #eee;
-    padding:10px 20px;
+
+  .wrap {
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+    height: calc(100% - 20px);
+    border-top: 1px solid #eee;
+    padding: 10px 20px;
     box-sizing: border-box;
-    ._left{
+
+    ._left {
       width: 320px;
       height: 100%;
-      border-right:1px solid #eee;
-      padding-right:10px;
+      border-right: 1px solid #eee;
+      padding-right: 10px;
     }
-    ._right{
+
+    ._right {
       width: calc(100% - 360px);
-      height:100%;
+      height: 100%;
       overflow: auto;
-      padding-right:10px;
-      .cursor{
+      padding-right: 10px;
+
+      .cursor {
         cursor: pointer;
       }
     }
-    .line{
-      margin-right:4px;
+
+    .line {
+      margin-right: 4px;
     }
   }
-  .cell{
-    .el-button{
-      padding:0;
+
+  .cell {
+    .el-button {
+      padding: 0;
     }
   }
-  .el-table td{
-      padding:4px;
+
+  .el-table td {
+    padding: 4px;
   }
-  .el-drawer__body{
-    overflow:visible;
+
+  .el-drawer__body {
+    overflow: visible;
     height: calc(100% - 55px);
   }
 }
-.el-popover.clover_popover{
-  min-width:20px;
+
+.el-popover.clover_popover {
+  min-width: 20px;
   padding: 0;
-  .brand_click{
+
+  .brand_click {
     transition: opacity 0.1s ease;
-    li{
-      padding:10px 14px;
+
+    li {
+      padding: 10px 14px;
       cursor: pointer;
-      &:hover{
-        background:#ecf1f5;
+
+      &:hover {
+        background: #ecf1f5;
       }
     }
-    li.selected{
-      background:#c8def5;
+
+    li.selected {
+      background: #c8def5;
     }
   }
 }
-.addWarehouse{
-  .el-drawer__header{
-    margin-bottom:10px;
+
+.addWarehouse {
+  .el-drawer__header {
+    margin-bottom: 10px;
   }
 }
-.clover_outadd{
-    margin-top: -20px;
-   .el-upload{
-     margin-left: 60px;
-    .el-icon-close-tip{
-      display:none!important;
+
+.clover_outadd {
+  margin-top: -20px;
+
+  .el-upload {
+    margin-left: 60px;
+
+    .el-icon-close-tip {
+      display: none !important;
     }
-    .el-button{
-      padding:0
+
+    .el-button {
+      padding: 0
     }
   }
-  .el-upload-list__item.focusing .el-icon-close-tip{
-    display:none!important;
+
+  .el-upload-list__item.focusing .el-icon-close-tip {
+    display: none !important;
   }
-  li{
+
+  li {
     cursor: pointer;
   }
-  .isThree{
+
+  .isThree {
     margin-left: -10px;
   }
 }
-.fj_wrap{
+
+.fj_wrap {
   font-size: 14px;
-  height:calc(100% - 320px);
+  height: calc(100% - 320px);
   overflow: auto;
-  .line_row{
-    display:flex;
+
+  .line_row {
+    display: flex;
     align-items: center;
-    width:100%;
-    padding:4px;
-    color:#606266;
-    i{
-      &:first-child{
-        margin-right:5px;
+    width: 100%;
+    padding: 4px;
+    color: #606266;
+
+    i {
+      &:first-child {
+        margin-right: 5px;
       }
-      &:last-child{
+
+      &:last-child {
         // display: none;
         // margin-left:auto;
         // margin-right: 10px;
       }
     }
-    .el-icon-close{
+
+    .el-icon-close {
       display: none;
-      margin-left:auto;
+      margin-left: auto;
       margin-right: 10px;
     }
-    &:hover{
+
+    &:hover {
       background: #eee;
     }
-    span{
-      &:hover{
+
+    span {
+      &:hover {
         color: #409eff;
       }
     }
-    &:hover{
-      .el-icon-close{
+
+    &:hover {
+      .el-icon-close {
         display: inline-block;
       }
     }
-    .text{
-      width:210px;
-      display:inline-block;
+
+    .text {
+      width: 210px;
+      display: inline-block;
       white-space: nowrap;
-      overflow:hidden;
+      overflow: hidden;
       text-overflow: ellipsis;
       vertical-align: middle;
     }
   }
-  .el-icon-close{
-    cursor:pointer;
+
+  .el-icon-close {
+    cursor: pointer;
   }
 }
+
 .zZindex {
-  z-index:9999999 !important;
+  z-index: 9999999 !important;
 }
-.clover_prview{
-  height:calc(100% - 20px);
-  margin-top:10px!important;
-  margin-bottom:0px!important;
-  .el-dialog__body{
-    height:calc(100% - 60px)
+
+.clover_prview {
+  height: calc(100% - 20px);
+  margin-top: 10px !important;
+  margin-bottom: 0px !important;
+
+  .el-dialog__body {
+    height: calc(100% - 60px)
   }
 }
-.clover_prview_img{
-  height:calc(100% - 20px);
-  margin-top:10px!important;
-  margin-bottom:0px!important;
-  .el-dialog__body{
-    min-height:calc(100% - 60px)
+
+.clover_prview_img {
+  height: calc(100% - 20px);
+  margin-top: 10px !important;
+  margin-bottom: 0px !important;
+
+  .el-dialog__body {
+    min-height: calc(100% - 60px)
   }
 }
-.uploadMessage{
+
+.uploadMessage {
   left: 50%;
-  top: 300px!important;
+  top: 300px !important;
   transform: translateX(-50%);
   right: 0px;
   width: 360px;

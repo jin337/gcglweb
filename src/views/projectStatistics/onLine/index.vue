@@ -3,95 +3,66 @@
     <div class="_left" v-loading="leftLoading">
       <p class="title">在线汇总</p>
       <el-form class="header" inline size="mini">
-        <el-form-item label="项目" >
-          <el-select
-            v-model="leftForm.project_code"
-            placeholder="请选择"
-            filterable
-            >
-              <el-option v-for="item in projectList" :key="item.projectCode" :label="item.projectName" :value="item.projectCode" ></el-option>
+        <el-form-item label="项目">
+          <el-select v-model="leftForm.project_code" placeholder="请选择" filterable>
+            <el-option v-for="item in projectList" :key="item.projectCode" :label="item.projectName"
+              :value="item.projectCode"></el-option>
           </el-select>
         </el-form-item>
-        <el-form-item label="日期" prop="check_date" >
-          <el-date-picker
-            v-model="leftForm.check_date"
-            align="right"
-            placeholder="选择日期"
-            value-format="yyyy-MM-dd">
+        <el-form-item label="日期" prop="check_date">
+          <el-date-picker v-model="leftForm.check_date" align="right" placeholder="选择日期" value-format="yyyy-MM-dd">
           </el-date-picker>
         </el-form-item>
         <el-form-item>
           <el-button type="primary" @click="getLeftData">查询</el-button>
         </el-form-item>
       </el-form>
-      <vxe-table
-        show-overflow
-        :height="leftTableHeight"
-        :data="leftData"
-        :row-config="{height: 30}"
-        highlight-current-row
-        empty-text="暂无在线汇总请查询"
-      >
-        <vxe-column title="项目编码" field="project_code" ></vxe-column>
-        <vxe-column title="在线日期" width="120px" field="check_date" ></vxe-column>
-        <vxe-column title="不在线数量" field="fail_status"  width="120"  align="center"  />
-        <vxe-column title="在线数量" field="ok_status"  width="100"  align="center"  />
-        <vxe-column title="设备总数" field="sum"  width="120"  align="center" />
-        <vxe-column title="在线百分比" field="percentage"  width="120"  align="center" ></vxe-column>
+      <vxe-table show-overflow :height="leftTableHeight" :data="leftData" :row-config="{ height: 30 }" highlight-current-row
+        empty-text="暂无在线汇总请查询">
+        <vxe-column title="项目编码" field="project_code" width="120px"></vxe-column>
+        <vxe-column title="在线日期" width="120px" field="check_date"></vxe-column>
+        <vxe-column title="不在线数量" field="fail_status" width="120" align="center" />
+        <vxe-column title="在线数量" field="ok_status" width="100" align="center" />
+        <vxe-column title="设备总数" field="sum" width="120" align="center" />
+        <vxe-column title="在线百分比" field="percentage" width="120" align="center"></vxe-column>
       </vxe-table>
     </div>
     <div class="_right" v-loading="rightLoading">
       <p class="title">在线明细</p>
       <el-form class="header" inline size="mini">
-        <el-form-item label="项目" >
-          <el-select
-            v-model="rightForm.project_code"
-            placeholder="请选择"
-            filterable
-            >
-              <el-option v-for="item in projectList" :key="item.projectCode" :label="item.projectName" :value="item.projectCode" ></el-option>
+        <el-form-item label="项目">
+          <el-select v-model="rightForm.project_code" placeholder="请选择" filterable>
+            <el-option v-for="item in projectList" :key="item.projectCode" :label="item.projectName"
+              :value="item.projectCode"></el-option>
           </el-select>
         </el-form-item>
-        <el-form-item label="日期" prop="check_date" >
-          <el-date-picker
-            v-model="rightForm.check_date"
-            align="right"
-            placeholder="选择日期"
-            value-format="yyyy-MM-dd">
+        <el-form-item label="日期" prop="check_date">
+          <el-date-picker v-model="rightForm.check_date" align="right" placeholder="选择日期" value-format="yyyy-MM-dd">
           </el-date-picker>
         </el-form-item>
         <el-form-item label="点位">
-          <el-input v-model="rightForm.point_code" placeholder="点位编码"  @clear="getRightData" clearable   style="width:140px;"></el-input>
+          <el-input v-model="rightForm.point_code" placeholder="点位编码" @clear="getRightData" clearable
+            style="width:140px;"></el-input>
         </el-form-item>
         <el-form-item label="IP">
-          <el-input v-model="rightForm.ip" placeholder="IP地址"  @clear="getRightData"  clearable  style="width:140px;"></el-input>
+          <el-input v-model="rightForm.ip" placeholder="IP地址" @clear="getRightData" clearable
+            style="width:140px;"></el-input>
         </el-form-item>
         <el-form-item label="状态">
-          <el-select v-model="rightForm.check_status"  placeholder="请选择"   style="width:100px;" >
-            <el-option
-              v-for="item in check_statusList"
-              :key="item.value"
-              :label="item.label"
-              :value="item.value"
-            />
+          <el-select v-model="rightForm.check_status" placeholder="请选择" style="width:100px;">
+            <el-option v-for="item in check_statusList" :key="item.value" :label="item.label" :value="item.value" />
           </el-select>
         </el-form-item>
         <el-form-item>
           <el-button type="primary" @click="getRightData">查询</el-button>
         </el-form-item>
       </el-form>
-      <vxe-table
-        show-overflow
-        :height="rightTableHeight"
-        :data="rightData"
-        :row-config="{height: 30}"
-        highlight-current-row
-        empty-text="暂无在线详细请查询"
-      >
-        <vxe-column title="项目编码" field="project_code" width="150px"  ></vxe-column>
-        <vxe-column title="点位编码" field="point_code" width="150px"  ></vxe-column>
-        <vxe-column title="点位名称" field="point_name"   />
-        <vxe-column title="设备名称" field="device_model"  width="150px"  />
+      <vxe-table show-overflow :height="rightTableHeight" :data="rightData" :row-config="{ height: 30 }"
+        highlight-current-row empty-text="暂无在线详细请查询">
+        <vxe-column title="项目编码" field="project_code" width="150px"></vxe-column>
+        <vxe-column title="点位编码" field="point_code" width="150px"></vxe-column>
+        <vxe-column title="点位名称" field="point_name" min-width="120px" />
+        <vxe-column title="设备名称" field="device_model" width="150px" />
         <vxe-column title="IP地址" field="ip" width="120px" align="center" />
         <vxe-column title="在线状态" field="check_status_name" width="80px" align="center"></vxe-column>
         <vxe-column title="在线日期" field="check_date" width="120px" align="center"></vxe-column>
@@ -131,7 +102,7 @@ export default {
   computed: {
 
   },
-  mounted() {
+  mounted () {
     this.getProject()
     this.getTableHeight()
     window.addEventListener('resize', () => this.getTableHeight())
@@ -140,7 +111,7 @@ export default {
 
   },
   methods: {
-    getTableHeight() {
+    getTableHeight () {
       this.$nextTick(() => {
         const el_wrap = document.getElementsByClassName('online_wrap')[0]
         if (el_wrap) {
@@ -156,7 +127,7 @@ export default {
         }
       })
     },
-    async getProject() {
+    async getProject () {
       try {
         const params = {
           user_id: this.$store.state.userInfo.id
@@ -179,7 +150,7 @@ export default {
         })
       }
     },
-    async getLeftData() {
+    async getLeftData () {
       if (!this.leftForm.project_code || !this.leftForm.check_date) {
         return
       }
@@ -203,7 +174,7 @@ export default {
       })
       this.leftLoading = false
     },
-    async getRightData() {
+    async getRightData () {
       if (!this.rightForm.project_code || !this.rightForm.check_date) {
         return
       }
@@ -235,45 +206,50 @@ export default {
 </script>
 
 <style lang='scss'>
-.online_wrap{
-  height:100%;
-  width:100%;
-  display:flex;
-  align-items:center;
-  ._left{
-    width:40%;
-    height:100%;
-    padding:10px 20px;
+.online_wrap {
+  height: 100%;
+  width: 100%;
+  display: flex;
+  align-items: center;
+
+  ._left {
+    width: 40%;
+    height: 100%;
+    padding: 10px 20px;
     box-sizing: border-box;
   }
-  ._right{
+
+  ._right {
     // border-left:1px solid #eee;
     box-sizing: border-box;
-    width:60%;
-    height:100%;
-     padding:10px 20px;
+    width: 60%;
+    height: 100%;
+    padding: 10px 20px;
   }
-  .title{
-    padding-bottom:10px;
-    border-bottom:1px solid #eee;
-    display:flex;
-    align-items:center;
-    &:before{
+
+  .title {
+    padding-bottom: 10px;
+    border-bottom: 1px solid #eee;
+    display: flex;
+    align-items: center;
+
+    &:before {
       content: '';
-      margin-right:4px;
-      display:inline-block;
-      height:12px;
-      width:0;
-      border:2px solid #23b7bd;
+      margin-right: 4px;
+      display: inline-block;
+      height: 12px;
+      width: 0;
+      border: 2px solid #23b7bd;
     }
   }
-  .header{
-    margin-top:20px;
+
+  .header {
+    margin-top: 20px;
   }
 }
 
 // 公共的
-.projectStatistics_container{
+.projectStatistics_container {
   padding: 20px;
   box-sizing: border-box;
   height: 100%;
@@ -286,44 +262,49 @@ export default {
     height: 3px;
   }
 
-  .btns::-webkit-scrollbar-thumb{
+  .btns::-webkit-scrollbar-thumb {
     /*滚动条里面小方块*/
     border-radius: 4px;
     box-shadow: inset 0 0 5px rgba(112, 110, 110, 0.2);
     background: rgba(144, 147, 153, 0.3);
   }
 
-  .btns::-webkit-scrollbar-track{
+  .btns::-webkit-scrollbar-track {
     /*滚动条里面轨道*/
     box-shadow: inset 0 0 5px rgba(235, 225, 225, 0.8);
     border-radius: 10px;
     background: #f7f5f5;
   }
 
-   .btns_wrap{
+  .btns_wrap {
     width: 100%;
     display: flex;
     flex-wrap: nowrap;
-    .el-icon-arrow-left,.el-icon-arrow-right{
-      height:43px;
-      line-height:43px;
+
+    .el-icon-arrow-left,
+    .el-icon-arrow-right {
+      height: 43px;
+      line-height: 43px;
       cursor: pointer;
       padding: 0 6px;
       border: 1px solid #DCDFE6;
       box-sizing: border-box;
       border-bottom: 3px solid rgba(144, 147, 153, 0.3);
+
       &:hover {
         color: #409EFF;
         border-color: #c6e2ff;
         background-color: #ecf5ff;
       }
     }
-    .el-button{
-      border-top:0;
-      border-bottom:0;
+
+    .el-button {
+      border-top: 0;
+      border-bottom: 0;
     }
   }
-  .btns{
+
+  .btns {
     max-width: 100%;
     display: flex;
     flex-wrap: nowrap;
@@ -331,17 +312,20 @@ export default {
     border-top: 1px solid #EBEEF5;
     box-sizing: border-box;
     position: relative;
-    .isActive.el-button{
-      color:#fff;
+
+    .isActive.el-button {
+      color: #fff;
       background: #409eff;
     }
-    .el-button{
+
+    .el-button {
       color: #606266;
     }
   }
-  .content_wrap{
+
+  .content_wrap {
     border: 1px solid #EBEEF5;
-    border-top:0;
+    border-top: 0;
   }
 }
 </style>

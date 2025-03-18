@@ -84,8 +84,8 @@
               <span class="subtitle">
                 <i class="el-icon-camera"></i>
                 <span :style="{ fontWeight: procitem.is_core === 1 ? '600' : 'normal', marginLeft: '4px' }">{{
-      procitem.proc_name
-    }}</span>
+                  procitem.proc_name
+                }}</span>
                 <el-tooltip effect="dark" content="关键工序" v-if="procitem.is_core === 1">
                   <img src="../../assets/images/guanj.png" style="width:16px;margin-left:10px;">
                 </el-tooltip>
@@ -200,13 +200,13 @@
                 <span>
                   <span v-if="scope.row.status === 3 || scope.row.status === 2"
                     :style="{ margin: '0 2px 0 0', padding: '4px 6px', background: scope.row.status === 3 ? 'blue' : 'green', color: '#fff' }">{{
-      statusFormat(stage_device_status, scope.row.status) }}</span>
+                      statusFormat(stage_device_status, scope.row.status) }}</span>
                   <span v-if="scope.row.regNums > 0 && scope.row.status === 1"
                     style="margin:0 2px 0 0;padding: 4px 6px;background:red;color:#fff">已填报</span>
                   <span
                     :class="{ isWeight: (scope.row.regNums > 0 && scope.row.status === 1) || scope.row.status === 2 || scope.row.status === 3 }"
                     :style="{ color: (scope.row.regNums > 0 && scope.row.status === 1) ? 'red' : scope.row.status === 2 ? 'green' : scope.row.status === 3 ? 'blue' : '#606266' }">{{
-      scope.row.deviceName }}</span>
+                      scope.row.deviceName }}</span>
                 </span>
               </template>
             </el-table-column>
@@ -227,7 +227,7 @@
                   已安装数量：{{ scope.row.finishNums }}
                   <div v-if="scope.row.isPhotoAdd > 0">已绑定照片数量：{{ scope.row.isPhotoAdd }}</div>
                   <div v-if="scope.row.isPhotoAdd > 0">设计数量不能小于{{ scope.row.finishNums > scope.row.isPhotoAdd ?
-      scope.row.finishNums : scope.row.isPhotoAdd }}</div>
+                    scope.row.finishNums : scope.row.isPhotoAdd }}</div>
                 </span>
                 <span v-if="scope.row.error" style="color:#f40;">{{ scope.row.error }}</span>
               </template>
@@ -1016,7 +1016,7 @@ export default {
       if (this.viewer) {
         this.viewer.destroy()
       }
-      // const url = process.env.VUE_APP_BASE_URL_download
+      // const url = const url = this.$apiUrl
       // img = img.replace(url, '') + '?' + new Date().getTime()
       this.$nextTick(() => {
         this.viewer = new Viewer({

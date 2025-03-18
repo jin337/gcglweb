@@ -1,5 +1,5 @@
 <template>
-  <div class="workorder">
+  <div class="workorder" v-loading="loading">
     <el-form size="small" inline label-width="80px">
       <el-form-item label="项目">
         <el-select v-model="form.project" placeholder="请选择" clearable style="width:220px;" size="small"
@@ -13,45 +13,24 @@
       </el-form-item>
       <el-form-item label="故障类型">
         <el-select v-model="form.fault_type" clearable placeholder="请选择" style="width:220px;" @clear="handleQuery">
-          <el-option v-for="item in dict.fault_type" :key="item.id" :label="item.label" :value="item.value" />
+          <el-option v-for="item in faultTypeList" :key="item.id" :label="item.label" :value="item.value" />
         </el-select>
       </el-form-item>
-      <el-form-item label="工单类型">
-        <el-select v-model="form.fault_order_type" clearable placeholder="请选择" style="width:220px;" @clear="handleQuery">
-          <el-option v-for="item in dict.fault_order_type" :key="item.id" :label="item.label" :value="item.value" />
+      <el-form-item label="处理状态">
+        <el-select v-model="form.status" clearable placeholder="请选择" style="width:220px;" @clear="handleQuery">
+          <el-option v-for="item in statusList" :key="item.value" :label="item.label" :value="item.value" />
         </el-select>
       </el-form-item>
-      <el-form-item label="状态">
-        <el-select v-model="form.status" multiple collapse-tags clearable placeholder="请选择" style="width:220px;"
-          @clear="handleQuery">
-          <el-option v-for="item in dict.status" :key="item.value" :label="item.label" :value="item.value" />
-        </el-select>
-      </el-form-item>
-      <el-form-item label="是否挂起">
-        <el-select v-model="form.is_hang" collapse-tags clearable placeholder="请选择" style="width:220px;"
-          @clear="handleQuery">
-          <el-option label="挂起" value="1"></el-option>
-          <el-option label="正常" value="2"></el-option>
-        </el-select>
-      </el-form-item>
-      <el-form-item label="部门">
+      <el-form-item label="派发单位">
         <treeselect style="width:220px;" v-model="form.assign_dept" :normalizer="normalizer" placeholder="输入搜索词查询部门"
           :options="deptOptions" />
       </el-form-item>
-      <el-form-item label="生成时间" prop="time">
-        <el-date-picker v-model="form.time" type="datetimerange" align="right" unlink-panels range-separator="至"
-          start-placeholder="开始时间" end-placeholder="结束时间" value-format="yyyy-MM-dd" style="width:220px;">
-        </el-date-picker>
-      </el-form-item>
-      <el-form-item label="派发时间" prop="time">
-        <el-date-picker v-model="form.assignTime" type="datetimerange" align="right" unlink-panels range-separator="至"
-          start-placeholder="开始时间" end-placeholder="结束时间" value-format="yyyy-MM-dd" style="width:220px;">
-        </el-date-picker>
-      </el-form-item>
-      <el-form-item label="完成时间" prop="time">
-        <el-date-picker v-model="form.completeTime" type="datetimerange" align="right" unlink-panels range-separator="至"
-          start-placeholder="开始时间" end-placeholder="结束时间" value-format="yyyy-MM-dd" style="width:220px;">
-        </el-date-picker>
+      <!-- <el-form-item label="区域">
+        <el-select v-model="form.area" multiple collapse-tags clearable style="width:220px;" placeholder="默认所有区域"
+          @clear="handleQuery">
+          <el-option v-for="item in areaList" :key="item.key" :label="item.value" :value="item.key">
+          </el-option>
+        </el-select>
       </el-form-item>
       <el-form-item label="子系统">
         <el-select v-model="form.child_code" multiple clearable collapse-tags style="width:220px;" placeholder="默认所有子系统"
@@ -59,79 +38,51 @@
           <el-option v-for="item in childList" :key="item.key" :label="item.value" :value="item.key">
           </el-option>
         </el-select>
+      </el-form-item> -->
+      <el-form-item label="完工时间" prop="time">
+        <el-date-picker v-model="form.completeTime" type="datetimerange" align="right" unlink-panels range-separator="至"
+          start-placeholder="开始时间" end-placeholder="结束时间" value-format="yyyy-MM-dd" style="width:220px;">
+        </el-date-picker>
       </el-form-item>
-      <el-form-item label="区域">
-        <el-select v-model="form.area" multiple collapse-tags clearable style="width:220px;" placeholder="默认所有区域"
-          @clear="handleQuery">
-          <el-option v-for="item in areaList" :key="item.key" :label="item.value" :value="item.key">
-          </el-option>
-        </el-select>
-      </el-form-item>
-      <el-form-item label=" ">
-        <!-- <el-button type="primary" @click="handleQuery">查询</el-button>
-        <el-button  @click="handleAdd">新建</el-button> -->
-      </el-form-item>
+
       <el-form-item class="add">
         <el-button type="primary" @click="handleQuery">查询</el-button>
         <el-button @click="handleAdd">新建</el-button>
-        <el-button type="primary" @click="exportExcel" :loading="exportLoading" v-if="form.project_code">导出</el-button>
+        <!-- <el-button type="primary" @click="exportExcel" :loading="exportLoading" v-if="form.project_code">导出</el-button> -->
       </el-form-item>
     </el-form>
 
     <el-table ref="table" v-loading="tableLoading" :data="tableData" :height="tableHeight" style="width: 100%"
-      :header-row-style="{ height: '36px' }" :row-style="{ height: '36px' }" :cell-style="{ padding: '0px' }">
-      <!-- <el-table-column prop="project_code" label="项目编码" show-overflow-tooltip width="150" align="center"  /> -->
-      <el-table-column prop="fault_order_code" label="工单编号" align="center" width="180" />
-      <el-table-column prop="point_code" label="点位编码" show-overflow-tooltip width="160" align="center"></el-table-column>
-      <el-table-column prop="point_name" label="点位名称" show-overflow-tooltip min-width="150"
-        header-align="center"></el-table-column>
-      <el-table-column prop="child_name" label="子系统" min-width="150px" align="center"></el-table-column>
-      <el-table-column prop="area" label="区域" min-width="100px" align="center"></el-table-column>
+      :header-row-style="{ height: '36px' }" :row-style="{ height: '36px' }" :cell-style="{ padding: '0px' }" border>
+      <el-table-column prop="fault_order_code" label="工单编号" align="center" />
+      <!-- <el-table-column prop="faultCount" label="报障点位数量" align="center" width="120" />
       <el-table-column prop="device_count" label="报障设备数量" width="120px" align="center">
         <template slot-scope="scope">
           <span style="cursor:pointer;" @click="showdevice(scope.row)">{{ scope.row.device_count }}</span>
         </template>
-      </el-table-column>
-      <el-table-column prop="assign_dept_name" label="接单部门" show-overflow-tooltip min-width="150px"
-        align="center"></el-table-column>
+      </el-table-column> -->
+      <el-table-column prop="fault_dept_name" label="接单部门" show-overflow-tooltip></el-table-column>
       <el-table-column prop="create_user_name" label="派发人" align="center"></el-table-column>
-      <el-table-column prop="create_time" label="生成时间" width="150px" align="center">
+      <el-table-column prop="create_time" label="派单时间" align="center">
         <template slot-scope="scope">
-          <span>{{ scope.row.create_time }}</span>
+          <span>{{ scope.row.create_time ? parseTime(scope.row.create_time) : '' }}</span>
         </template>
       </el-table-column>
-      <el-table-column prop="status_name" label="状态" align="center" min-width="100px">
+      <el-table-column prop="status_name" label="状态" align="center">
         <template slot-scope="scope">
-          <span>{{ scope.row.status_name }}</span>
+          <span>{{ statusList[scope.row.status].label }}</span>
         </template>
       </el-table-column>
-      <el-table-column prop="is_hang" label="是否挂起" align="center" min-width="100px">
+      <el-table-column prop="fault_order_desc" label="备注" align="center"></el-table-column>
+      <el-table-column label="操作" width="140px">
         <template slot-scope="scope">
-          <span>{{ scope.row.is_hang === '1' ? '挂起' : '正常' }}</span>
-        </template>
-      </el-table-column>
-      <el-table-column label="操作" width="120px">
-        <template slot-scope="scope">
-          <el-button class="filter-item border" size="mini" type="text" style="margin-right:10px;"
-            @click="handleInfo(scope.row)">
-            详情
-          </el-button>
-          <el-dropdown trigger="click" v-if="[1, 2, 3, 4, 7].includes(scope.row.status)"
-            @command="(command) => handleCommand(command, scope.row)">
-            <el-button size="mini" type="text">更多</el-button>
-            <el-dropdown-menu slot="dropdown">
-              <el-dropdown-item v-if="scope.row.status === 1 && scope.row.is_hang !== '1'" icon="el-icon-collection-tag"
-                command="a">工单派单</el-dropdown-item>
-              <el-dropdown-item v-if="scope.row.status === 4 && scope.row.is_hang !== '1'" icon="el-icon-collection-tag"
-                command="b">改派处理</el-dropdown-item>
-              <el-dropdown-item v-if="scope.row.status === 7 && scope.row.is_hang !== '1'" icon="el-icon-circle-check"
-                command="c">结单审核</el-dropdown-item>
-              <el-dropdown-item v-if="[3, 7].includes(scope.row.status)" icon="el-icon-circle-plus-outline" command="d">{{
-                scope.row.is_hang === '1' ? '解除挂起' : '工单挂起' }}</el-dropdown-item>
-              <el-dropdown-item v-if="canDelList.includes(scope.row.status)" icon="el-icon-delete"
-                command="e">工单删除</el-dropdown-item>
-            </el-dropdown-menu>
-          </el-dropdown>
+          <el-button size="mini" type="text" @click="handleEdit(scope.row)" v-if="scope.row.status !== 2">编辑</el-button>
+          <el-button size="mini" type="text" @click="handleDispose(scope.row)"
+            v-if="scope.row.status === 1">处理</el-button>
+          <el-button size="mini" type="text" @click="handleInfo(scope.row)"> 详情</el-button>
+          <el-button size="small" type="text" @click="handleDelete(scope.row)"
+            v-if="scope.row.status === 0">删除</el-button>
+          <el-button size="mini" type="text" @click="handlePrint(scope.row)" v-if="scope.row.status === 2">打印</el-button>
         </template>
       </el-table-column>
     </el-table>
@@ -143,87 +94,59 @@
         background>
       </el-pagination>
     </div>
+
     <!-- 设备列表 -->
     <el-dialog title="" :visible.sync="deviceFlag" width="1100px" append-to-body custom-class="device_fault_work">
       <device-list v-if="deviceFlag" :presentId="presentId" :deviceFlag.sync="deviceFlag"></device-list>
     </el-dialog>
 
     <!-- 新建工单 -->
-    <el-dialog title="" @close="handleQuery" :visible.sync="addorderFlag" width="700px" append-to-body
-      custom-class="add_fault_work">
-      <add-order v-if="addorderFlag" :addorderFlag.sync="addorderFlag" :fault_typeList="dict.fault_type"></add-order>
+    <el-dialog :title="isEdit ? '编辑工单' : '新建工单'" @close="getList" :visible.sync="addorderFlag" width="900px"
+      append-to-body custom-class="dis_fault_work">
+      <build-order v-if="addorderFlag" :buildFlag.sync="addorderFlag" :projectList="projectList"
+        :project_code="form.project_code" :childList="childList" :areaList="areaList" :faultTypeList="faultTypeList"
+        :isEdit="isEdit" :currentOrder="currentData"></build-order>
     </el-dialog>
 
-    <!-- 工单派单 -->
-    <el-dialog title="" @close="handleQuery" :visible.sync="distributeFlag" width="700px" append-to-body
-      custom-class="pub_fault">
-      <distribute-order ref="distribute" v-if="distributeFlag" :distributeFlag.sync="distributeFlag"
-        :presentId="presentId"></distribute-order>
-    </el-dialog>
-
-    <!-- 工单改派 -->
-    <el-dialog title="" @close="handleQuery" :visible.sync="changedistributeFlag" width="700px" append-to-body
-      custom-class="pub_fault">
-      <change-distribute-order ref="changedistribute" v-if="changedistributeFlag"
-        :changedistributeFlag.sync="changedistributeFlag" :presentId="presentId"></change-distribute-order>
-    </el-dialog>
-
-    <!-- 接单审核 -->
-    <el-dialog title="" @close="handleQuery" :visible.sync="examineFlag" width="700px" append-to-body
-      custom-class="pub_fault">
-      <examine-order ref="examine" v-if="examineFlag" :examineFlag.sync="examineFlag" :presentId="presentId"
-        :fault_typeList="dict.fault_type"></examine-order>
-    </el-dialog>
-
-    <!-- 工单详情 -->
-    <el-drawer title="" :visible.sync="infoFlag" size="740px" append-to-body custom-class="info_fault_work pub_fault">
-      <info-order ref="info" v-if="infoFlag" :infoFlag.sync="infoFlag" :presentId="presentId"
-        :currentP="currentP"></info-order>
-    </el-drawer>
-
-    <!-- 挂起弹出 -->
-    <el-dialog :visible.sync="hangFlag" append-to-body title="工单挂起">
-      <h3 style="margin-bottom: 20px;font-size: 16px;display: flex;align-items: center;">
-        <i class="el-icon-warning" style="color:#e6a23c;font-size:24px;margin-right:12px;"></i>
-        备注
-      </h3>
-      <el-input v-if="hangFlag" type="textarea" v-model="hang_remark" :rows="3" v-focus></el-input>
-      <div slot="footer" class="dialog-footer">
-        <el-button size="mini" type="text" @click="cancleHangFn">取消</el-button>
-        <el-button size="mini" :loading="submitloading" type="primary" @click="hangFn">确认</el-button>
-      </div>
+    <!-- 工单处理  工单详情 -->
+    <el-dialog :title="isInfo ? '工单处理详情' : '工单处理'" @close="getList" :visible.sync="disposeFlag" width="1200px"
+      append-to-body custom-class="dis_fault_work">
+      <dispose-order v-if="disposeFlag" :disposeFlag.sync="disposeFlag" :isOpear="!isInfo" :currentData="currentData"
+        :faultTypeList="faultTypeList"></dispose-order>
     </el-dialog>
 
   </div>
 </template>
 
 <script>
-import { checkPermission, downloadFile } from '@/utils/tool'
+import { checkPermission, downloadFile, parseTime } from '@/utils/tool'
 import deviceList from './deviceList.vue'
-import addOrder from './addOrder.vue'
-import distributeOrder from './distributeOrder.vue'
-import changeDistributeOrder from './changeDistributeOrder.vue'
-import examineOrder from './examineOrder.vue'
-import infoOrder from './infoOrder.vue'
+import buildOrder from './buildOrder.vue'
+import disposeOrder from './disposeOrder.vue'
+
+
 
 export default {
   name: 'faultoperaworkorder',
   data () {
     return {
+      loading: false,
       form: {
         project: null,
         project_id: null,
         project_code: null,
         content: '',
-        time: null,
-        assignTime: null,
         completeTime: null,
-        status: [],
+        status: null,
         assign_dept: null,
         fault_type: '',
-        child_code: [],
-        area: []
+        // child_code: [],
+        // area: []
       },
+      statusList: [//顺序不能动，回显
+        { label: "生成", value: 0 }, { label: "下发", value: 1 }, { label: "完工", value: 2 }
+      ],
+      faultTypeList: [],
       childList: [],
       areaList: [],
       deptOptions: [],
@@ -232,64 +155,39 @@ export default {
         page_no: 1,
         page_size: 10
       },
-      dict: {
-        fault_type: [],
-        fault_order_type: [],
-        status: []
-      },
       projectList: [],
       tableLoading: false,
       tableData: [],
-      tableHeight: window.innerHeight - 223,
+      tableHeight: window.innerHeight - 230,
       currentData: null,
       presentId: null, // 目前操作的id
       deviceFlag: false,
       addorderFlag: false,
-      distributeFlag: false,
-      changedistributeFlag: false,
-      examineFlag: false,
-      infoFlag: false,
-      submitloading: false,
-      hangFlag: false,
-      isHange: '',
-      hang_remark: '',
-      canDelList: [1, 2, 3, 7],
+      disposeFlag: false,
+      isInfo: false,//工单处理界面的详情点击进去不允许修改东西
       exportLoading: false,
-      currentP: null
+      isEdit: false//新建页面的修改
     }
   },
-  computed: {
-
-  },
   created () {
-    this.getfault_order_status()
+    // this.getfault_order_status()
     this.getfault_type()
-    this.getfault_order_type()
     this.getProjectList()
     this.getDept()
   },
   mounted () {
-    // this.handleQuery()
     this.getTableHeight()
     window.addEventListener('resize', () => this.getTableHeight())
   },
   components: {
     deviceList, // 设备列表
-    addOrder, // 新建工单
-    distributeOrder, // 派发工单
-    changeDistributeOrder, // 改派工单
-    examineOrder, // 接单审核
-    infoOrder // 工单详情
-  },
-  directives: {
-    focus: {
-      inserted (el) {
-        el.querySelector('textarea').focus()
-      }
-    }
+    buildOrder, // 新建工单
+    disposeOrder,//工单处理
+    // infoOrder // 工单详情
   },
   methods: {
     checkPermission,
+    parseTime,
     async getProjectList () {
       try {
         const have = this.checkPermission(['pointAuthorization:project-slt'])
@@ -383,43 +281,6 @@ export default {
         })
       }
     },
-    async sureHang (row) {
-      // this.active = { ...this.active, ...row }
-      this.hangFlag = true
-      this.presentId = row.id
-      this.isHange = row.is_hang === '1' ? '0' : '1'
-    },
-    async hangFn (row) {
-      this.hangFlag = true
-      this.tableLoading = true
-      const params = {
-        is_hang: this.isHange,
-        id: this.presentId,
-        remark: this.hang_remark
-      }
-      const { code } = await this.$pub.post('point/fault/order-hang', params)
-      this.tableLoading = false
-      if (code !== 200) {
-        return this.$message({
-          message: '操作出错了',
-          type: 'error',
-          showClose: true
-        })
-      } else {
-        this.$message({
-          type: 'success',
-          message: '操作成功',
-          showClose: true
-        })
-        this.hangFlag = false
-        this.hang_remark = ''
-        this.handleQuery()
-      }
-    },
-    cancleHangFn () {
-      this.hangFlag = false
-      this.hang_remark = ''
-    },
     // 故障状态
     getfault_order_status () {
       this.$dict(this, 'fault_order_status').then(res => {
@@ -440,31 +301,11 @@ export default {
         }
       })
     },
-    // 故障工单类型
-    getfault_order_type () {
-      this.$dict(this, 'fault_order_type').then(res => {
-        if (res.code === 200) {
-          this.dict.fault_order_type = (res.data || []).map(m => {
-            return {
-              value: Number(m.value),
-              label: m.label
-            }
-          })
-        } else {
-          this.$message({
-            type: 'error',
-            message: '字典获取出错了fault_order_type',
-            showClose: true
-          })
-          this.dict.fault_order_type = []
-        }
-      })
-    },
     // 故障类型
     getfault_type () {
       this.$dict(this, 'fault_type').then(res => {
         if (res.code === 200) {
-          this.dict.fault_type = (res.data || []).map(m => {
+          this.faultTypeList = (res.data || []).map(m => {
             return {
               value: Number(m.value),
               label: m.label
@@ -476,7 +317,7 @@ export default {
             message: '字典获取出错了fault_type',
             showClose: true
           })
-          this.dict.fault_type = []
+          this.faultTypeList = []
         }
       })
     },
@@ -505,8 +346,8 @@ export default {
     handleProjectChange (val) {
       this.form.project_code = val.projectCode
       this.form.project_id = val.id
-      this.form.area = []
-      this.form.child_code = []
+      // this.form.area = []
+      // this.form.child_code = []
       this.childList = []
       this.areaList = []
       this.getAreaList()
@@ -523,25 +364,21 @@ export default {
         })
       }
       this.tableLoading = true
-      const time = this.form.time || []
-      const assignTime = this.form.assignTime || []
       const completeTime = this.form.completeTime || []
       const params = {
         ...this.form,
-        begin_time: time[0] ? time[0] + ' 00:00:00' : null,
-        end_time: time[1] ? time[1] + ' 23:59:59' : null,
-        assign_begin_time: assignTime[0] ? assignTime[0] + ' 00:00:00' : null,
-        assign_end_time: assignTime[1] ? assignTime[1] + ' 23:59:59' : null,
+        status: this.form.status === null ? - 1 : this.form.status,
         complete_begin_time: completeTime[0] ? completeTime[0] + ' 00:00:00' : null,
         complete_end_time: completeTime[1] ? completeTime[1] + ' 23:59:59' : null,
         fault_type: this.form.fault_type ? this.form.fault_type : 0, // 故障类型
-        fault_order_type: this.form.fault_order_type ? this.form.fault_order_type : 0, // 工单类型
         assign_dept: this.form.assign_dept ? this.form.assign_dept : 0, // 派单部门
+
+        project_code: this.form.project_code,
         page_no: this.page.page_no,
         page_size: this.page.page_size
 
       }
-      const { data, code } = await this.$pub.post('point/fault/order-list', params)
+      const { data, code } = await this.$pub.post('/point/order/list', params)
       this.tableLoading = false
       if (code !== 200) {
         this.total = 0
@@ -561,7 +398,7 @@ export default {
         if (el_wrap) {
           const el_form = el_wrap.getElementsByClassName('el-form')[0]
           const el_formh = el_form.offsetHeight
-          this.tableHeight = el_wrap.offsetHeight - (el_formh + 26 + 40)
+          this.tableHeight = el_wrap.offsetHeight - (el_formh + 90)
         }
       })
     },
@@ -584,98 +421,80 @@ export default {
     },
     // 新建
     handleAdd () {
+      if (!this.form.project_code) {
+        return this.$message({
+          message: '先选择一个项目',
+          type: 'error',
+          showClose: true,
+          customClass: 'uploadMessage'
+        })
+      }
       this.currentData = null
+      this.isEdit = false
       this.addorderFlag = true
+    },
+    // 工单编辑
+    handleEdit (row) {
+      this.isEdit = true
+      this.addorderFlag = true
+      this.currentData = { ...row }
+    },
+    // 工单处理
+    handleDispose (row) {
+      this.isInfo = false
+      this.disposeFlag = true
+      this.currentData = { ...row }
     },
     // 详情
     handleInfo (row) {
-      this.infoFlag = true
-      this.presentId = row.id// 当前的id
-      this.currentP = { ...row, lng_lat: row.lng + ',' + row.lat }
-    },
-    handleCommand (command, row) {
-      switch (command) {
-        case 'a':// 工单派单
-          this.handleDistribute(row)
-          break
-        case 'b':// 改派处理
-          this.handleChangeDistribute(row)
-          break
-        case 'c':// 结单审核
-          this.handleToExamine(row)
-          break
-        case 'd':// 工单解除挂起
-          this.sureHang(row)
-          // this.handleHand(row)
-          break
-        case 'e':// 工单删除
-          this.handleDelete(row)
-          break
-        default:
-      }
+      this.isInfo = true
+      this.disposeFlag = true
+      this.currentData = { ...row }
     },
     handleDelete (row) {
       const id = row.id
-      this.$confirm('是否确认删除工单编号："' + row.fault_order_code + '"的工单?', '警告', {
+      this.$confirm('是否确认删除"' + row.fault_order_code + '"的数据?', '警告', {
         confirmButtonText: '确定',
         cancelButtonText: '取消',
         type: 'warning'
       }).then(async () => {
-        const { code } = await this.$pub.post('point/fault/order-del', { id })
+        const { code, message } = await this.$pub.post('/point/order/del', { id })
         if (code === 200) {
-          this.handleQuery()
+          this.getList()
           this.$message({
             type: 'success',
-            message: '删除成功',
+            message: message || '删除成功',
             showClose: true
           })
         } else {
           this.$message({
             type: 'error',
-            message: '删除失败',
+            message: message || '删除失败',
             showClose: true
           })
         }
       }).catch(function () { })
     },
-    // 派单
-    handleDistribute (row) {
-      this.distributeFlag = true
-      this.presentId = row.id// 当前的id
-      // this.$nextTick(() => this.getInfo(row, 'distribute'))
-    },
-    // 改派
-    handleChangeDistribute (row) {
-      this.changedistributeFlag = true
-      this.presentId = row.id// 当前的id
-      // this.$nextTick(() => this.getInfo(row, 'changedistribute'))
-    },
-    // 审核
-    handleToExamine (row) {
-      this.examineFlag = true
-      this.presentId = row.id// 当前的id
-      // this.$nextTick(() => this.getInfo(row, 'examine'))
-    },
-    // 挂起解除
-    async handleHand (row) {
-      this.tableLoading = true
-      const params = {
-        is_hang: row.is_hang === '1' ? '0' : '1',
-        id: row.id,
-        remark: this.hang_remark
-
-      }
-      const { code } = await this.$pub.post('point/fault/order-hang', params)
-      this.tableLoading = false
-      if (code !== 200) {
-        return this.$message({
-          message: '操作出错了',
-          type: 'error',
-          showClose: true
-        })
-      } else {
-        this.handleQuery()
-      }
+    // 打印
+    handlePrint (row) {
+      this.loading = true
+      const params = { order_id: row.id }
+      this.$pub.post(
+        '/point/order/print',
+        params,
+        {
+          responseType: 'arraybuffer' // 一定要设置响应类型，否则页面会是空白pdf
+        }
+      ).then(result => {
+        const binaryData = []
+        binaryData.push(result)
+        // 获取blob链接
+        const pdfUrl = window.URL.createObjectURL(new Blob(binaryData, { type: 'application/pdf' }))
+        window.open(pdfUrl)
+        this.loading = false
+      }).catch(() => {
+        this.loading = false
+      })
     },
     async exportExcel () {
       if (!this.form.project_code) {
@@ -687,19 +506,12 @@ export default {
         })
       }
       this.exportLoading = true
-      const time = this.form.time || []
-      const assignTime = this.form.assignTime || []
       const completeTime = this.form.completeTime || []
       const params = {
         ...this.form,
-        begin_time: time[0] ? time[0] + ' 00:00:00' : null,
-        end_time: time[1] ? time[1] + ' 23:59:59' : null,
-        assign_begin_time: assignTime[0] ? assignTime[0] + ' 00:00:00' : null,
-        assign_end_time: assignTime[1] ? assignTime[1] + ' 23:59:59' : null,
         complete_begin_time: completeTime[0] ? completeTime[0] + ' 00:00:00' : null,
         complete_end_time: completeTime[1] ? completeTime[1] + ' 23:59:59' : null,
         fault_type: this.form.fault_type ? this.form.fault_type : 0, // 故障类型
-        fault_order_type: this.form.fault_order_type ? this.form.fault_order_type : 0, // 工单类型
         assign_dept: this.form.assign_dept ? this.form.assign_dept : 0, // 派单部门
         page_no: this.page.page_no,
         page_size: this.page.page_size
@@ -735,6 +547,12 @@ export default {
     margin-top: 20px;
   }
 
+  .el-table__header th {
+    background-color: #f8f8f9;
+    color: #606266;
+  }
+
+
   .el-form {
     display: flex;
     flex-wrap: wrap;
@@ -745,6 +563,7 @@ export default {
 
   }
 }
+
 
 .pub_fault {
   .el-dialog__header {
@@ -793,5 +612,9 @@ export default {
     height: 80px;
     margin-right: 10px;
   }
+}
+
+.dis_fault_work {
+  margin: 20px auto !important;
 }
 </style>

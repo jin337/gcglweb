@@ -1,62 +1,87 @@
+/*
+ * @Descripttion: your project
+ * @version: 1.0
+ * @Author: Clover_yuan
+ * @Date: 2024-07-24 10:08:39
+ * @LastEditors: yuanyuan
+ * @LastEditTime: 2025-02-05 16:27:35
+ */
+'use strict'
 const path = require('path')
-const CompressionPlugin = require('compression-webpack-plugin')
 const baseUrl = process.env.VUE_APP_BASE_URL
-const down_url = process.env.VUE_APP_BASE_URL_download
-
 function resolve(dir) {
   return path.join(__dirname, dir)
 }
 
-// vue.config.js
+const CompressionPlugin = require('compression-webpack-plugin')
+
+const name = process.env.VUE_APP_TITLE || '管理系统' // 网页标题
+
+const port = process.env.port || process.env.npm_config_port || 80 // 端口
+
+// vue.config.js 配置说明
+//官方vue.config.js 参考文档 https://cli.vuejs.org/zh/config/#css-loaderoptions
+// 这里只列一部分，具体配置参考文档
 module.exports = {
+  // 部署生产环境和开发环境下的URL。
+  // 默认情况下，Vue CLI 会假设你的应用是被部署在一个域名的根路径上
+  publicPath: process.env.NODE_ENV === 'production' ? '/web' : '/',
+  // 在npm run build 或 yarn build 时 ，生成文件的目录名称（要和baseUrl的生产环境路径一致）（默认dist）
+  outputDir: process.env.outputDir,
+  // 用于放置生成的静态资源 (js、css、img、fonts) 的；（项目打包之后，静态资源会放在这个文件夹下）
+  assetsDir: 'static',
+  // 是否开启eslint保存检测，有效值：ture | false | 'error'
+  lintOnSave: process.env.NODE_ENV === 'development',
   // 如果你不需要生产环境的 source map，可以将其设置为 false 以加速生产环境构建。
   productionSourceMap: false,
-  // 打包app时放开该配置
-  publicPath: process.env.NODE_ENV === 'production' ? '/web/' : '/',
-  // publicPath: process.env.NODE_ENV === 'production' ? '/8036d9af97e2/' : '/',
-  outputDir: process.env.outputDir,
-  configureWebpack: config => {
-    // 生产环境取消 console.log
-    if (process.env.NODE_ENV === 'production') {
-      config.optimization.minimizer[0].options.terserOptions.compress.drop_console = true
-
-      config.plugins.push(
-        new CompressionPlugin({
-          algorithm: 'gzip',
-          filename: '[path].gz[query]', // 压缩后的文件名
-          test: /\.js$|\.html$|\.json$|\.css/,
-          threshold: 10240,
-          minRatio: 1,
-          deleteOriginalAssets: false // 删除未压缩的文件，谨慎设置，如果希望提供非gzip的资源，可不设置或者设置为false
-        })
-      )
-
-      // 开启分离js
-      config.optimization = {
-        runtimeChunk: 'single',
-        splitChunks: {
-          chunks: 'all',
-          maxInitialRequests: Infinity,
-          minSize: 20000,
-          cacheGroups: {
-            vendor: {
-              test: /[\\/]node_modules[\\/]/,
-              name(module) {
-                // get the name. E.g. node_modules/packageName/not/this/part.js
-                // or node_modules/packageName
-                const packageName = module.context.match(
-                  /[\\/]node_modules[\\/](.*?)([\\/]|$)/
-                )[1]
-                // npm package names are URL-safe, but some servers don't like @ symbols
-                return `npm.${packageName.replace('@', '')}`
-              }
-            }
-          }
+  // webpack-dev-server 相关配置
+  devServer: {
+    port: 8080,
+    proxy: {
+      '/pub': {
+        target: baseUrl,
+        changeOrigin: true,
+        pathRewrite: {
+          '^/pub': ''
         }
+      },
+      '/webimg': {
+        target: baseUrl,
+        changeOrigin: true,
+        pathRewrite: {
+          '^/webimg': 'webimg'
+        }
+      }
+    },
+    disableHostCheck: true
+  },
+  css: {
+    loaderOptions: {
+      sass: {
+        sassOptions: { outputStyle: 'expanded' }
       }
     }
   },
-  chainWebpack: config => {
+  configureWebpack: {
+    // resolve: {
+    //   alias: {
+    //     "@": resolve("src"),
+    //   },
+    // },
+    plugins: [
+      new CompressionPlugin({
+        cache: false, // 不启用文件缓存
+        test: /\.(js|css|html|jpe?g|png|gif|svg)?$/i, // 压缩文件格式
+        filename: '[path][base].gz[query]', // 压缩后的文件名
+        algorithm: 'gzip', // 使用gzip压缩
+        minRatio: 0.8, // 压缩比例，小于 80% 的文件不会被压缩
+        deleteOriginalAssets: false // 压缩后删除原文件
+      })
+    ]
+  },
+  chainWebpack(config) {
+    config.plugins.delete('preload') // TODO: need test
+    config.plugins.delete('prefetch') // TODO: need test
     config.resolve.alias
       .set('@$', resolve('src'))
       .set('@api', resolve('src/api'))
@@ -64,18 +89,6 @@ module.exports = {
       .set('@comp', resolve('src/components'))
       .set('@views', resolve('src/views'))
       .set('@layout', resolve('src/layout'))
-
-    config.when(process.env.NODE_ENV === 'development', config =>
-      config.devtool('source-map')
-    )
-
-    // 配置 webpack 识别 markdown 为普通的文件
-    config.module
-      .rule('markdown')
-      .test(/\.md$/)
-      .use()
-      .loader('file-loader')
-      .end()
     // set svg-sprite-loader
     config.module
       .rule('svg')
@@ -92,27 +105,43 @@ module.exports = {
         symbolId: 'icon-[name]'
       })
       .end()
-  },
 
-  devServer: {
-    open: true,
-    port: 8034,
-    proxy: {
-      '/pub': {
-        target: baseUrl,
-        changeOrigin: true,
-        pathRewrite: {
-          '^/pub': ''
+    config.when(process.env.NODE_ENV !== 'development', config => {
+      config
+        .plugin('ScriptExtHtmlWebpackPlugin')
+        .after('html')
+        .use('script-ext-html-webpack-plugin', [
+          {
+            // `runtime` must same as runtimeChunk name. default is `runtime`
+            inline: /runtime\..*\.js$/
+          }
+        ])
+        .end()
+
+      config.optimization.splitChunks({
+        chunks: 'all',
+        cacheGroups: {
+          libs: {
+            name: 'chunk-libs',
+            test: /[\\/]node_modules[\\/]/,
+            priority: 10,
+            chunks: 'initial' // only package third parties that are initially dependent
+          },
+          elementUI: {
+            name: 'chunk-elementUI', // split elementUI into a single package
+            test: /[\\/]node_modules[\\/]_?element-ui(.*)/, // in order to adapt to cnpm
+            priority: 20 // the weight needs to be larger than libs and app or it will be packaged into libs or app
+          },
+          commons: {
+            name: 'chunk-commons',
+            test: resolve('src/components'), // can customize your rules
+            minChunks: 3, //  minimum common number
+            priority: 5,
+            reuseExistingChunk: true
+          }
         }
-      },
-      '/webimg': {
-        target: down_url,
-        changeOrigin: true,
-        pathRewrite: {
-          '^/webimg': 'webimg'
-        }
-      }
-    }
-  },
-  lintOnSave: undefined
+      })
+      config.optimization.runtimeChunk('single')
+    })
+  }
 }

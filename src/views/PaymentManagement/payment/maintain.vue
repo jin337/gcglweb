@@ -14,19 +14,20 @@
             </template>
           </el-input>
           <span class="check">
-            <el-tooltip class="item" effect="dark" content="是否只展示未操作过的点位" placement="top-start" v-if="points.length > 0">
+            <el-tooltip class="item" effect="dark" content="是否只展示未操作过的点位" placement="top-start"
+              v-if="points.length > 0">
               <el-checkbox v-model="isAllFlag"></el-checkbox>
             </el-tooltip>
           </span>
         </div>
         <ul class="up_wrap_pay">
           <li v-for="(p, i) in (isAllFlag ? noOpearPoints : points)" :key="p.pay_point_code + p.id" :class="{
-            point: true,
-            isRed: p.type === 2,
-            isBlue: p.type === 1,
-            isActive_tree_item: active && (p.pay_point_code && active.pay_point_code === p.pay_point_code),
-            isKeyUp_active: is_index.length > 0 && is_index[activeIndex] === i
-          }" @click="clickPoint(p)">
+        point: true,
+        isRed: p.type === 2,
+        isBlue: p.type === 1,
+        isActive_tree_item: active && (p.pay_point_code && active.pay_point_code === p.pay_point_code),
+        isKeyUp_active: is_index.length > 0 && is_index[activeIndex] === i
+      }" @click="clickPoint(p)">
             <div class="item">
               <span v-html="p.pay_point_code_hight" class="code"></span>
               <span class="del" @click.stop="delPoint(p)" v-if="!isFiles">
@@ -57,7 +58,8 @@
         <div class="info">
           <div class="info_wrap" v-loading="loading" v-if="active">
             <p style="font-weight: 700;font-size:18px;"><span>点位编码:{{ active.pay_point_code }}</span></p>
-            <p style="font-weight: 700;font-size:18px;margin:10px 0 15px 0;"><span>点位名称:{{ active.pay_point_name }}</span>
+            <p style="font-weight: 700;font-size:18px;margin:10px 0 15px 0;"><span>点位名称:{{ active.pay_point_name
+                }}</span>
             </p>
             <info :deviceList="deviceList" :procLists="oneProcLists" :statusOptions="statusOptions"></info>
             <!-- 选择年份，月份  -->
@@ -90,7 +92,8 @@
                   icon="el-icon-minus" @click="delTime(i)"></el-button>
                 <el-row :class="{ mon: true, yesYear: year.year }">
                   <el-col :span="4" v-for="mon in year.monthlist" :key="mon.value"
-                    @click.native="selectMonth(year.year, mon)" :class="{ bluemonth: mon.check, redmonth: mon.unchange }">
+                    @click.native="selectMonth(year.year, mon)"
+                    :class="{ bluemonth: mon.check, redmonth: mon.unchange }">
                     <div>{{ mon.value }}月</div>
                   </el-col>
                 </el-row>
@@ -207,14 +210,6 @@ export default {
       } else {
         return false
       }
-    }
-  },
-  watch: {
-    active: {
-      handler () {
-
-      },
-      deep: true
     }
   },
   created () {
