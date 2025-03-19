@@ -74,7 +74,7 @@
         </template>
       </el-table-column>
       <el-table-column prop="fault_order_desc" label="备注" align="center"></el-table-column>
-      <el-table-column label="操作" width="140px">
+      <el-table-column label="操作" width="160px">
         <template slot-scope="scope">
           <el-button size="mini" type="text" @click="handleEdit(scope.row)" v-if="scope.row.status !== 2">编辑</el-button>
           <el-button size="mini" type="text" @click="handleDispose(scope.row)"
@@ -83,6 +83,7 @@
           <el-button size="small" type="text" @click="handleDelete(scope.row)">删除</el-button>
           <el-button size="mini" type="text" @click="handlePrint(scope.row)"
             v-if="scope.row.status === 2">打印</el-button>
+          <el-button size="mini" type="text" @click="handleExport(scope.row)">导出</el-button>
         </template>
       </el-table-column>
     </el-table>
@@ -493,6 +494,23 @@ export default {
       }).catch(() => {
         this.loading = false
       })
+    },
+    // 导出
+    async handleExport (row) {
+      const params = { order_id: row.id }
+      const result = await this.$pub.post(
+        '/point/order/export',
+        params,
+        {
+          headers: {
+            'Content-Type': 'application/x-download'
+          },
+          responseType: 'blob'
+        }
+      )
+      const title = '工单编号' + row.fault_order_code
+      downloadFile(result, title, 'xlsx')
+      this.exportLoading = false
     },
     async exportExcel () {
       if (!this.form.project_code) {
