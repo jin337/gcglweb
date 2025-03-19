@@ -60,7 +60,7 @@
         <template slot-scope="scope">
           <span style="cursor:pointer;" @click="showdevice(scope.row)">{{ scope.row.device_count }}</span>
         </template>
-      </el-table-column> -->
+</el-table-column> -->
       <el-table-column prop="fault_dept_name" label="接单部门" show-overflow-tooltip></el-table-column>
       <el-table-column prop="create_user_name" label="派发人" align="center"></el-table-column>
       <el-table-column prop="create_time" label="派单时间" align="center">
@@ -80,9 +80,9 @@
           <el-button size="mini" type="text" @click="handleDispose(scope.row)"
             v-if="scope.row.status === 1">处理</el-button>
           <el-button size="mini" type="text" @click="handleInfo(scope.row)"> 详情</el-button>
-          <el-button size="small" type="text" @click="handleDelete(scope.row)"
-            v-if="scope.row.status === 0">删除</el-button>
-          <el-button size="mini" type="text" @click="handlePrint(scope.row)" v-if="scope.row.status === 2">打印</el-button>
+          <el-button size="small" type="text" @click="handleDelete(scope.row)">删除</el-button>
+          <el-button size="mini" type="text" @click="handlePrint(scope.row)"
+            v-if="scope.row.status === 2">打印</el-button>
         </template>
       </el-table-column>
     </el-table>
@@ -90,8 +90,8 @@
     <div style="display:flex;justify-content:space-between;">
       <span style="color:#999;font-size:14px;">共 {{ total }} 条记录</span>
       <el-pagination layout="prev, pager, next,sizes" :total="total" :page-size.sync="page.page_size"
-        @current-change="pageChange" @size-change="sizeChange" :current-page.sync="page.page_no" class="pagination" small
-        background>
+        @current-change="pageChange" @size-change="sizeChange" :current-page.sync="page.page_no" class="pagination"
+        small background>
       </el-pagination>
     </div>
 
@@ -124,8 +124,6 @@ import deviceList from './deviceList.vue'
 import buildOrder from './buildOrder.vue'
 import disposeOrder from './disposeOrder.vue'
 
-
-
 export default {
   name: 'faultoperaworkorder',
   data () {
@@ -139,12 +137,12 @@ export default {
         completeTime: null,
         status: null,
         assign_dept: null,
-        fault_type: '',
+        fault_type: ''
         // child_code: [],
         // area: []
       },
-      statusList: [//顺序不能动，回显
-        { label: "生成", value: 0 }, { label: "下发", value: 1 }, { label: "完工", value: 2 }
+      statusList: [// 顺序不能动，回显
+        { label: '生成', value: 0 }, { label: '下发', value: 1 }, { label: '完工', value: 2 }
       ],
       faultTypeList: [],
       childList: [],
@@ -164,9 +162,9 @@ export default {
       deviceFlag: false,
       addorderFlag: false,
       disposeFlag: false,
-      isInfo: false,//工单处理界面的详情点击进去不允许修改东西
+      isInfo: false, // 工单处理界面的详情点击进去不允许修改东西
       exportLoading: false,
-      isEdit: false//新建页面的修改
+      isEdit: false// 新建页面的修改
     }
   },
   created () {
@@ -182,7 +180,7 @@ export default {
   components: {
     deviceList, // 设备列表
     buildOrder, // 新建工单
-    disposeOrder,//工单处理
+    disposeOrder// 工单处理
     // infoOrder // 工单详情
   },
   methods: {
@@ -367,7 +365,7 @@ export default {
       const completeTime = this.form.completeTime || []
       const params = {
         ...this.form,
-        status: this.form.status === null ? - 1 : this.form.status,
+        status: this.form.status === null ? -1 : this.form.status,
         complete_begin_time: completeTime[0] ? completeTime[0] + ' 00:00:00' : null,
         complete_end_time: completeTime[1] ? completeTime[1] + ' 23:59:59' : null,
         fault_type: this.form.fault_type ? this.form.fault_type : 0, // 故障类型
@@ -552,7 +550,6 @@ export default {
     color: #606266;
   }
 
-
   .el-form {
     display: flex;
     flex-wrap: wrap;
@@ -563,7 +560,6 @@ export default {
 
   }
 }
-
 
 .pub_fault {
   .el-dialog__header {

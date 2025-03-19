@@ -31,7 +31,7 @@
               <el-form-item :prop="`tableData.${rowIndex}.handle_count`" v-if="row.checked && row.status === 0"
                 :rules="rules.movePoint">
                 <el-input v-model.number="row.handle_count" placeholder="输入数量" size="mini" style="width: 60px"
-                  :disabled="!isOpear" />
+                  :disabled="!isOpear" @change="changehandle_count(row)" />
               </el-form-item>
               <span>{{ row.handle_count }}</span>
             </template>
@@ -50,7 +50,8 @@
           </vxe-column>
           <vxe-column field="photo_list" title="维修照片" width="70px" align="center">
             <template v-slot="{ row }">
-              <div style="cursor:pointer" @click="handlePreview(row)">{{ row.photo_list.length > 0 ? row.photo_list.length
+              <div style="cursor:pointer" @click="handlePreview(row)">{{ row.photo_list.length > 0 ?
+                row.photo_list.length
                 :
                 0 }}</div>
             </template>
@@ -85,7 +86,7 @@
                     <el-form-item prop="selectedWorkers">
                       <el-select v-model="form.selectedWorkers" multiple placeholder="请选择工种" style="width: 255px"
                         :disabled="!isOpear">
-                        <el-option v-for=" worker  in  workerList " :key="worker.value" :label="worker.fullName"
+                        <el-option v-for="worker in workerList" :key="worker.value" :label="worker.fullName"
                           :value="worker.value">
                           <span>{{ worker.fullName }}</span>
                         </el-option>
@@ -97,7 +98,7 @@
                   <div class="vux-flexbox" v-if="form.selectedWorkers.length > 0">
                     <span class="label">人力数量</span>
                     <div class="xunhuanbox">
-                      <el-form-item v-for=" worker  in  form.selectedWorkers " :key="worker"
+                      <el-form-item v-for="worker in form.selectedWorkers" :key="worker"
                         :prop="`workerQuantities[${worker}]`" :rules="workerQuantityRules">
                         <el-tag style="margin-right:4px;">
                           <span>{{ getWorkerName(worker) }}：</span>
@@ -119,7 +120,7 @@
                     <el-form-item prop="selectedCars">
                       <el-select v-model="form.selectedCars" multiple placeholder="请选择车辆" style="width: 255px"
                         :disabled="!isOpear">
-                        <el-option v-for=" car  in  carList " :key="car.value" :label="car.fullName" :value="car.value">
+                        <el-option v-for="car in carList" :key="car.value" :label="car.fullName" :value="car.value">
                           <span>{{ car.fullName }}</span>
                         </el-option>
                       </el-select>
@@ -130,12 +131,13 @@
                   <div class="vux-flexbox" v-if="form.selectedCars.length > 0">
                     <span class="label">车辆数量</span>
                     <div class="xunhuanbox">
-                      <el-form-item v-for=" car  in  form.selectedCars " :key="car" :prop="`carQuantities[${car}]`"
+                      <el-form-item v-for="car in form.selectedCars" :key="car" :prop="`carQuantities[${car}]`"
                         :rules="carQuantityRules">
                         <el-tag style="margin-right:4px;">
                           <span>{{ getCarName(car) }}：</span>
                           <el-input-number v-model="form.carQuantities[car]" placeholder="请输入数量" style="width: 86px"
-                            :disabled="!isOpear" size="mini" :min="1" :step="1" step-strictly controls-position="right" />
+                            :disabled="!isOpear" size="mini" :min="1" :step="1" step-strictly
+                            controls-position="right" />
                         </el-tag>
                       </el-form-item>
                     </div>
@@ -155,7 +157,8 @@
                 <div class="hesuanwrap vux-flexbox">
                   <span class="label">调价</span>
                   <el-form-item prop="numberMoney">
-                    <el-input v-model="form.numberMoney" placeholder="请输入价格" style="width: 255px" :disabled="!isOpear" />
+                    <el-input v-model="form.numberMoney" placeholder="请输入价格" style="width: 255px"
+                      :disabled="!isOpear" />
                   </el-form-item>
                 </div>
 
@@ -206,8 +209,8 @@
               <p class="rowcls">
                 <strong>移交运营商</strong>
                 <el-form-item prop="movePoint">
-                  <el-input v-model="form.movePoint" @blur="handlefinishBlur" :disabled="!isOpear" class="underline-input"
-                    placeholder="请输入数字"></el-input>
+                  <el-input v-model="form.movePoint" @blur="handlefinishBlur" :disabled="!isOpear"
+                    class="underline-input" placeholder="请输入数字"></el-input>
                 </el-form-item>
                 <span>个点位,</span>
                 <el-form-item prop="moveDevice" :rules="rules.movePoint">
@@ -228,7 +231,7 @@
 
     <!-- 图片预览 -->
     <viewer :images="previewImages" ref="viewer">
-      <img v-for="( img, index ) in  previewImages " :src="img.filePath" :key="index" style="display: none;" />
+      <img v-for="(img, index) in previewImages" :src="img.filePath" :key="index" style="display: none;" />
     </viewer>
   </div>
 </template>
@@ -255,7 +258,7 @@ export default {
     faultTypeList: {
       type: Array,
       default: () => []
-    },
+    }
   },
   data () {
     // 自定义校验规则
@@ -264,20 +267,20 @@ export default {
         callback()
       }
       // 正则表达式：支持正负数、小数点和最多两位小数
-      const reg = /^-?\d+(\.\d{1,2})?$/;
+      const reg = /^-?\d+(\.\d{1,2})?$/
       if (reg.test(value)) {
-        callback(); // 校验通过
+        callback() // 校验通过
       } else {
-        callback(new Error('请输入有效数（正负数，小数点最多两位）'));
+        callback(new Error('请输入有效数（正负数，小数点最多两位）'))
       }
-    };
+    }
     const validateRemark = (rule, value, callback) => {
       if (this.form.numberMoney > 0 && !value) {
-        callback(new Error('请输入核算备注'));
+        callback(new Error('请输入核算备注'))
       } else {
-        callback(); // 校验通过
+        callback() // 校验通过
       }
-    };
+    }
     return {
       loading: false,
       form: {
@@ -287,47 +290,47 @@ export default {
         workerQuantities: {}, // 人力数量
         selectedCars: [], // 车辆选择  选中的
         carQuantities: {}, // 车辆数量
-        numberMoney: 0,//调价
+        numberMoney: 0, // 调价
         price_remark: '', // 核算备注
 
-        //系统结论
+        // 系统结论
         nowDate: moment().format('YYYY-MM-DD'),
-        pPoint: 0,//派单点位数
-        pDevice: 0,//派单相机数
-        finishPoint: 0,//完成修复点位数
-        finishDevice: 0,//完成修复相机数
-        movePoint: 0,//移交运营商点位数
-        moveDevice: 0,//移交运营相机数
+        pPoint: 0, // 派单点位数
+        pDevice: 0, // 派单相机数
+        finishPoint: 0, // 完成修复点位数
+        finishDevice: 0, // 完成修复相机数
+        movePoint: 0, // 移交运营商点位数
+        moveDevice: 0, // 移交运营相机数
         remark: ''
       },
       // 校验规则
       rules: {
         selectedWorkers: [
-          { required: true, message: '请选择人力', trigger: 'change' },
+          { required: true, message: '请选择人力', trigger: 'change' }
         ],
-        selectedCars: [
-          { required: true, message: '请选择车辆', trigger: 'change' },
-        ],
+        // selectedCars: [
+        //   { required: true, message: '请选择车辆', trigger: 'change' },
+        // ],
         numberMoney: [
-          { validator: validateNumber, trigger: 'blur' }, // 自定义校验规则
+          { validator: validateNumber, trigger: 'blur' } // 自定义校验规则
         ],
         price_remark: [
-          { validator: validateRemark, trigger: 'blur' }, // 自定义校验规则
+          { validator: validateRemark, trigger: 'blur' } // 自定义校验规则
         ],
         remark: [
-          { required: true, message: '请输入备注', trigger: 'blur' },
+          { required: true, message: '请输入备注', trigger: 'blur' }
         ],
         movePoint: [
-          { required: true, message: "请输入数字", trigger: "blur" },
+          { required: true, message: '请输入数字', trigger: 'blur' },
           {
             pattern: /^(0|[1-9]\d*)$/,
-            message: "请输入大于等于 0 的正整数",
-            trigger: "blur",
-          },
+            message: '请输入大于等于 0 的正整数',
+            trigger: 'blur'
+          }
         ],
         handle_remark: [
           { required: true, message: '必填', trigger: 'blur' }
-        ],
+        ]
       },
       sumMsg: '',
       // 预览的图片数组
@@ -336,35 +339,35 @@ export default {
       checkboxConfig: {
         checkField: 'checked', // 绑定选中状态的字段
         checkMethod: ({ row }) => {
-          return row.status === 0 && this.isOpear;
+          return row.status === 0 && this.isOpear
         }
       }
-    };
+    }
   },
   computed: {
     // 计算金额合计
     sumPrice () {
-      const numberMoney = parseFloat(this.form.numberMoney) || 0;
-      const totalAmount = this.carpersonPrice + numberMoney;
+      const numberMoney = parseFloat(this.form.numberMoney) || 0
+      const totalAmount = this.carpersonPrice + numberMoney
       return totalAmount
     },
     carpersonPrice () {
       const workertotalAmount = this.form.selectedWorkers.reduce((total, worker) => {
-        const workerInfo = this.workerList.find((w) => w.value === worker);
+        const workerInfo = this.workerList.find((w) => w.value === worker)
         if (workerInfo) {
-          return total + (this.form.workerQuantities[worker] || 0) * workerInfo.price;
+          return total + (this.form.workerQuantities[worker] || 0) * workerInfo.price
         }
-        return total;
-      }, 0);
+        return total
+      }, 0)
       const cartotalAmount = this.form.selectedCars.reduce((total, car) => {
-        const carInfo = this.carList.find((w) => w.value === car);
+        const carInfo = this.carList.find((w) => w.value === car)
         if (carInfo) {
-          return total + (this.form.carQuantities[car] || 0) * carInfo.price;
+          return total + (this.form.carQuantities[car] || 0) * carInfo.price
         }
-        return total;
-      }, 0);
+        return total
+      }, 0)
 
-      const totalAmount = workertotalAmount + cartotalAmount;
+      const totalAmount = workertotalAmount + cartotalAmount
       // const formattedTotal = totalAmount.toLocaleString('zh-CN', {
       //   style: 'currency',
       //   currency: 'CNY', // 人民币
@@ -381,16 +384,16 @@ export default {
           this.sumMsg = ''
         }
       },
-      deep: true, // 深度监听
+      deep: true // 深度监听
     },
     'form.tableData': {
       handler (newVal) {
-        //系统结论: 完成修复
-        const tempArr = newVal.filter(f => f.checked);
-        this.form.finishPoint = tempArr.length;
-        this.form.finishDevice = tempArr.reduce((sum, item) => sum + item.handle_count, 0);
+        // 系统结论: 完成修复
+        const tempArr = newVal.filter(f => f.checked)
+        this.form.finishPoint = tempArr.length
+        this.form.finishDevice = tempArr.reduce((sum, item) => sum + item.handle_count, 0)
       },
-      deep: true, // 深度监听
+      deep: true // 深度监听
     }
   },
   mounted () {
@@ -399,6 +402,12 @@ export default {
   methods: {
     parseTime,
     moment,
+    // 维修数量不可大于保障数量
+    changehandle_count (row) {
+      if (row.handle_count > row.count) {
+        row.handle_count = row.count
+      }
+    },
     async getList () {
       this.loading = true
       const params = {
@@ -429,13 +438,13 @@ export default {
         return {
           ...m, checked: m.status != 0
         }
-      });
+      })
 
-      const tiao = data.price_list_confirm.find(m => m.type === 3);
-      this.form.numberMoney = tiao?.price;//调价
+      const tiao = data.price_list_confirm.find(m => m.type === 3)
+      this.form.numberMoney = tiao?.price// 调价
 
       /**
-       * 
+       *
        * 预估estimate
        * eg: this.form.estimate = '大工（350），数量：2人，大车（200），数量：2辆，合计：900元';
        */
@@ -445,32 +454,32 @@ export default {
         // if (m.type === 3) {//type为3是调价
         //   return; // 跳过本次迭代
         // }
-        this.form.estimate += `${m.name}(${m.price})，数量：${m.count}${type[m.type]}，`;
+        this.form.estimate += `${m.name}(${m.price})，数量：${m.count}${type[m.type]}，`
       })
-      this.form.estimate += `合计：${data.price_first}元`;
+      this.form.estimate += `合计：${data.price_first}元`
 
-      /** 
+      /**
        * 核算回填
        */
-      const workList = data.price_list_confirm.filter(m => m.type === 1);
-      const carList = data.price_list_confirm.filter(m => m.type === 2);
-      const workInfo = this.parseQuantities(workList);
+      const workList = data.price_list_confirm.filter(m => m.type === 1)
+      const carList = data.price_list_confirm.filter(m => m.type === 2)
+      const workInfo = this.parseQuantities(workList)
       const carInfo = this.parseQuantities(carList)
 
-      this.form.selectedWorkers = workInfo.keys;// 人力选择 选中的键value
-      this.form.workerQuantities = workInfo.Quantities; // 人力数量 {value:count}
-      this.form.selectedCars = carInfo.keys; // 车辆选择  选中的
-      this.form.carQuantities = carInfo.Quantities;//  车辆数量
+      this.form.selectedWorkers = workInfo.keys// 人力选择 选中的键value
+      this.form.workerQuantities = workInfo.Quantities // 人力数量 {value:count}
+      this.form.selectedCars = carInfo.keys // 车辆选择  选中的
+      this.form.carQuantities = carInfo.Quantities//  车辆数量
 
-      this.form.price_remark = data.price_remark; // 核算备注
+      this.form.price_remark = data.price_remark // 核算备注
 
-      /** 
+      /**
        * 系统结论
        */
-      this.form.remark = data.remark; // 系统结论备注
-      this.form.pPoint = this.form.tableData.length;//移交运营商点位数和相机数
-      this.form.pDevice = this.form.tableData.reduce((sum, item) => sum + item.count, 0);
-      const tempnum = this.extractNumbersFromSubstring(data.sys_result);
+      this.form.remark = data.remark // 系统结论备注
+      this.form.pPoint = this.form.tableData.length// 移交运营商点位数和相机数
+      this.form.pDevice = this.form.tableData.reduce((sum, item) => sum + item.count, 0)
+      const tempnum = this.extractNumbersFromSubstring(data.sys_result)
 
       if (tempnum.length > 1) {
         this.form.movePoint = tempnum[0]
@@ -479,65 +488,64 @@ export default {
     },
     // 失去焦点时，自动填充 0
     handlefinishBlur () {
-      if (this.form.moveDevice === "" || this.form.moveDevice === null) {
-        this.form.moveDevice = 0;
+      if (this.form.moveDevice === '' || this.form.moveDevice === null) {
+        this.form.moveDevice = 0
       }
-      if (this.form.movePoint === "" || this.form.movePoint === null) {
-        this.form.movePoint = 0;
+      if (this.form.movePoint === '' || this.form.movePoint === null) {
+        this.form.movePoint = 0
       }
     },
     extractNumbersFromSubstring (str) {
       // 找到 "移交运营商" 的起始位置
-      const startIndex = str.indexOf("移交运营商");
+      const startIndex = str.indexOf('移交运营商')
 
       // 如果找到 "移交运营商"，则截取从该位置开始的子字符串
       if (startIndex !== -1) {
-        const substring = str.slice(startIndex);
+        const substring = str.slice(startIndex)
 
         // 使用正则表达式提取子字符串中的所有数字
-        const numbers = substring.match(/\d+/g);
+        const numbers = substring.match(/\d+/g)
 
         // 如果匹配到数字，则返回数字数组，否则返回空数组
-        return numbers ? numbers.map(Number) : [];
+        return numbers ? numbers.map(Number) : []
       }
 
       // 如果未找到 "移交运营商"，返回空数组
-      return [];
+      return []
     },
     handleRowDblClick ({ row }) {
-      const table = this.$refs.xTable;
+      const table = this.$refs.xTable
       // 切换当前行的选中状态
-      table.toggleCheckboxRow(row);
+      table.toggleCheckboxRow(row)
     },
     // 点击处理记录按钮
     handlePreview (row) {
       if (row.photo_list && row.photo_list.length > 0) {
-        this.previewImages = row.photo_list;
+        this.previewImages = row.photo_list
         this.$nextTick(() => {
-          this.$refs.viewer.$viewer.show();
-        });
+          this.$refs.viewer.$viewer.show()
+        })
       } else {
-        this.$message.warning('没有可预览的图片');
+        this.$message.warning('没有可预览的图片')
       }
     },
     async handleSubmit () {
-
-      const selectedData = this.$refs.xTable.getCheckboxRecords(); // 获取选中的数据
+      const selectedData = this.$refs.xTable.getCheckboxRecords() // 获取选中的数据
       this.$refs.formRef.validate(async (valid) => {
         if (this.sumPrice <= 0) {
           return
         }
         if (selectedData.length <= 0) {
-          this.$message.error('没有选择点位');
+          this.$message.error('没有选择点位')
           return
         }
         if (valid) {
-          console.log('表单数据：', this.form);
-          const workPrice = this.assignWorker(this.form.workerQuantities, this.workerList);
-          const carPrice = this.assignWorker(this.form.carQuantities, this.carList);
+          console.log('表单数据：', this.form)
+          const workPrice = this.assignWorker(this.form.workerQuantities, this.workerList)
+          const carPrice = this.assignWorker(this.form.carQuantities, this.carList)
           console.log(workPrice, carPrice)
 
-          const tiao = { type: 3, count: 1, name: '调价', value: 0, price: Number(this.form.numberMoney) };
+          const tiao = { type: 3, count: 1, name: '调价', value: 0, price: Number(this.form.numberMoney) }
 
           const sys_result = `${this.form.nowDate} 派单${this.form.pPoint}个点位，${this.form.pDevice}台相机；完成修复 ${this.form.finishPoint}个点位，${this.form.finishDevice}台相机；移交运营商 ${this.form.movePoint}个点位，${this.form.moveDevice}台相机；`
           const tempobj = {
@@ -551,8 +559,8 @@ export default {
           }
           const { code, message } = await this.$pub.post('/point/order/handle', tempobj)
           if (code === 200) {
-            this.$message.success('处理成功！');
-            this.$emit('update:disposeFlag', false);
+            this.$message.success('处理成功！')
+            this.$emit('update:disposeFlag', false)
           } else {
             this.$notify.error({
               title: '处理失败',
@@ -560,13 +568,13 @@ export default {
             })
           }
         } else {
-          this.$message.error('请填写完整表单');
+          this.$message.error('请填写完整表单')
         }
-      });
+      })
     }
   }
 
-};
+}
 </script>
 
 <style lang="scss">

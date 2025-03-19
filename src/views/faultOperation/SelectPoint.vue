@@ -32,9 +32,9 @@
       </el-form-item>
       <el-button type="primary" @click="handleQuery" style="margin-left:auto;" size="mini">查询</el-button>
     </el-form>
-    <el-table ref="selTable" @selection-change="handleSelectionChange" v-loading="loading" :data="tableData" :height="400"
-      border style="width: 100%" row-key="id" :header-row-style="{ height: '36px' }" :row-style="{ height: '36px' }"
-      :cell-style="{ padding: '0px' }">
+    <el-table ref="selTable" @selection-change="handleSelectionChange" v-loading="loading" :data="tableData"
+      :height="400" border style="width: 100%" row-key="id" :header-row-style="{ height: '36px' }"
+      :row-style="{ height: '36px' }" :cell-style="{ padding: '0px' }">
       <el-table-column type="selection" width="60" align="center" />
       <el-table-column prop="area" label="区域" width="100" align="center"></el-table-column>
       <el-table-column prop="child_name" label="子系统" width="100" header-align="center"></el-table-column>
@@ -46,8 +46,8 @@
     <div style="display:flex;justify-content:space-between;">
       <span style="color:#999;font-size:14px;">共 {{ total }} 条记录</span>
       <el-pagination layout="prev, pager, next,sizes" :total="total" :page-size.sync="page.page_size"
-        @current-change="pageChange" @size-change="sizeChange" :current-page.sync="page.page_no" class="pagination" small
-        background>
+        @current-change="pageChange" @size-change="sizeChange" :current-page.sync="page.page_no" class="pagination"
+        small background>
       </el-pagination>
     </div>
     <div class="btns">
@@ -79,10 +79,10 @@ export default {
         child_code: '',
         area: '',
         key_name: '', // 关键字
-        online: -1, // 是否掉线
+        online: -1 // 是否掉线
       },
       lineList: [
-        { key: -1, value: '全部' }, { key: 0, value: '在线' }, { key: 1, value: '掉线' }
+        { key: -1, value: '全部' }, { key: 1, value: '在线' }, { key: 0, value: '掉线' }
       ],
       loading: false,
       tableData: [],
@@ -93,8 +93,8 @@ export default {
         page_size: 50
       },
       // 选中的数据
-      selectedData: [],
-    };
+      selectedData: []
+    }
   },
   mounted () {
     this.getList()
@@ -132,10 +132,10 @@ export default {
       this.$nextTick(() => {
         this.tableData.forEach((row) => {
           if (this.selectedData.some((selected) => selected.id === row.id)) {
-            this.$refs.selTable.toggleRowSelection(row, true);
+            this.$refs.selTable.toggleRowSelection(row, true)
           }
-        });
-      });
+        })
+      })
     },
     handleQuery () {
       this.tableData = []
@@ -154,24 +154,23 @@ export default {
     // 处理表格选中事件
     handleSelectionChange (selection) {
       // 合并当前页选中的数据
-      const currentPageSelectedIds = selection.map((row) => row.id);
+      const currentPageSelectedIds = selection.map((row) => row.id)
       // 过滤掉当前页未选中的数据
       this.selectedData = [
         ...this.selectedData.filter((selected) => !currentPageSelectedIds.includes(selected.id)),
-        ...selection,
-      ];
+        ...selection
+      ]
     },
     // 确认按钮点击事件
     handleConfirm () {
       // console.log('选中的数据：', this.selectedData);
       this.selectedData.forEach(f => {
-        f.fault_type = 1;
+        f.fault_type = 1
       })
       this.$emit('initTableData', this.selectedData)
-
     }
   }
-};
+}
 </script>
 
 <style scoped>

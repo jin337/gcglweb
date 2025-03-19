@@ -102,8 +102,8 @@
                 :rules="carQuantityRules">
                 <el-tag style="margin-right:10px;">
                   <span>{{ getCarName(car) }}：</span>
-                  <el-input-number v-model="form.carQuantities[car]" placeholder="请输入数量" style="width: 100px" size="mini"
-                    :min="1" :step="1" step-strictly controls-position="right" />
+                  <el-input-number v-model="form.carQuantities[car]" placeholder="请输入数量" style="width: 100px"
+                    size="mini" :min="1" :step="1" step-strictly controls-position="right" />
                 </el-tag>
               </el-form-item>
             </div>
@@ -149,11 +149,11 @@ export default {
       type: Boolean,
       default: false
     },
-    currentData: {//点位不是工单哦，用于故障列表单个点位生成工单的
+    currentData: { // 点位不是工单哦，用于故障列表单个点位生成工单的
       type: Array,
       default: () => []
     },
-    currentOrder: {//当前选择的工单哦
+    currentOrder: { // 当前选择的工单哦
       type: Object,
       default: () => { }
     },
@@ -177,7 +177,7 @@ export default {
       type: Array,
       default: () => []
     },
-    isEdit: {//编辑工单
+    isEdit: { // 编辑工单
       type: Boolean,
       default: false
     }
@@ -194,30 +194,30 @@ export default {
         workerQuantities: {}, // 人力数量
         selectedCars: [], // 车辆选择  选中的
         carQuantities: {}, // 车辆数量
-        remark: '', // 备注
+        remark: '' // 备注
       },
       // 校验规则
       rules: {
         dept_id: [
-          { required: true, message: '请选择派发单位', trigger: 'change' },
+          { required: true, message: '请选择派发单位', trigger: 'change' }
         ],
         selectedWorkers: [
-          { required: true, message: '请选择人力', trigger: 'change' },
+          { required: true, message: '请选择人力', trigger: 'change' }
         ],
-        selectedCars: [
-          { required: true, message: '请选择车辆', trigger: 'change' },
-        ],
+        // selectedCars: [
+        //   { required: true, message: '请选择车辆', trigger: 'change' }
+        // ],
         remark: [
-          { required: true, message: '请输入备注', trigger: 'blur' },
-        ],
+          { required: true, message: '请输入备注', trigger: 'blur' }
+        ]
       },
-      //选择点位
+      // 选择点位
       selectFlag: false
     }
   },
   mounted () {
-    this.getDept();
-    this.init();
+    this.getDept()
+    this.init()
   },
   components: {
     selectPointBox
@@ -226,19 +226,19 @@ export default {
     // 计算金额合计
     sumPrice () {
       const workertotalAmount = this.form.selectedWorkers.reduce((total, worker) => {
-        const workerInfo = this.workerList.find((w) => w.value === worker);
+        const workerInfo = this.workerList.find((w) => w.value === worker)
         if (workerInfo) {
-          return total + (this.form.workerQuantities[worker] || 0) * workerInfo.price;
+          return total + (this.form.workerQuantities[worker] || 0) * workerInfo.price
         }
-        return total;
-      }, 0);
+        return total
+      }, 0)
       const cartotalAmount = this.form.selectedCars.reduce((total, car) => {
-        const carInfo = this.carList.find((w) => w.value === car);
+        const carInfo = this.carList.find((w) => w.value === car)
         if (carInfo) {
-          return total + (this.form.carQuantities[car] || 0) * carInfo.price;
+          return total + (this.form.carQuantities[car] || 0) * carInfo.price
         }
-        return total;
-      }, 0);
+        return total
+      }, 0)
       return workertotalAmount + cartotalAmount
     }
   },
@@ -246,19 +246,19 @@ export default {
     async init () {
       // 故障列表=》生成工单
       this.tableData = Object.values(this.currentData.reduce((acc, item) => {
-        const { point_code } = item;
-        item.fault_type = 1;
-        item.ips = item.device_ip;
+        const { point_code } = item
+        item.fault_type = 1
+        item.ips = item.device_ip
         if (!acc[point_code]) {
-          acc[point_code] = { ...item, count: 1, faultReason: '设备不在线' };
+          acc[point_code] = { ...item, count: 1, faultReason: '设备不在线' }
         } else {
-          acc[point_code].count += 1;
+          acc[point_code].count += 1
         }
 
-        return acc;
-      }, {}));
+        return acc
+      }, {}))
 
-      // 工单列表编辑回显  
+      // 工单列表编辑回显
       if (this.isEdit) {
         this.loading = true
         const params = {
@@ -279,20 +279,19 @@ export default {
         this.tableData = data.point_list
         this.form.remark = data.fault_order_desc
 
-        /** 
+        /**
          *已选回填
          */
-        const workList = data.price_list_first.filter(m => m.type === 1);
-        const carList = data.price_list_first.filter(m => m.type === 2);
-        const workInfo = this.parseQuantities(workList);
+        const workList = data.price_list_first.filter(m => m.type === 1)
+        const carList = data.price_list_first.filter(m => m.type === 2)
+        const workInfo = this.parseQuantities(workList)
         const carInfo = this.parseQuantities(carList)
 
-        this.form.selectedWorkers = workInfo.keys;// 人力选择 选中的键value
-        this.form.workerQuantities = workInfo.Quantities; // 人力数量 {value:count}
-        this.form.selectedCars = carInfo.keys; // 车辆选择  选中的
-        this.form.carQuantities = carInfo.Quantities;//  车辆数量
+        this.form.selectedWorkers = workInfo.keys// 人力选择 选中的键value
+        this.form.workerQuantities = workInfo.Quantities // 人力数量 {value:count}
+        this.form.selectedCars = carInfo.keys // 车辆选择  选中的
+        this.form.carQuantities = carInfo.Quantities//  车辆数量
       }
-
     },
     async getDept () {
       const { data, code } = await this.$pub.post('/sys/dept/list-tree', { mc: '' })
@@ -328,24 +327,24 @@ export default {
     // 选择点位后回调
     initTableData (arr) {
       console.log(arr)
-      const arrMap = new Map(arr.map(item => [item.point_code, item]));
+      const arrMap = new Map(arr.map(item => [item.point_code, item]))
       const mergedData = this.tableData.map(item => {
         // 如果 point_code 在 arr 中存在，则使用 arr 中的数据
         if (arrMap.has(item.point_code)) {
-          return arrMap.get(item.point_code);
+          return arrMap.get(item.point_code)
         }
         // 否则保留 tableData 中的数据
-        return item;
-      });
+        return item
+      })
 
       // 将 arr 中新增的数据（point_code 不在 tableData 中的数据）追加到结果中
-      const newDataFromArr = arr.filter(item => !this.tableData.some(t => t.point_code === item.point_code));
-      this.tableData = [...mergedData, ...newDataFromArr];
-      this.selectFlag = false;
+      const newDataFromArr = arr.filter(item => !this.tableData.some(t => t.point_code === item.point_code))
+      this.tableData = [...mergedData, ...newDataFromArr]
+      this.selectFlag = false
     },
     // 改变故障类型实时界面切换显示
     handleSelect (row) {
-      this.$set(this.tableData, this.tableData.indexOf(row), { ...row });
+      this.$set(this.tableData, this.tableData.indexOf(row), { ...row })
     },
     // 删除当前行
     handleDelete (row) {
@@ -357,12 +356,12 @@ export default {
       })
         .then(() => {
           // 从表格数据中移除当前行
-          this.tableData = this.tableData.filter(item => item.id !== row.id);
-          this.$message.success('删除成功');
+          this.tableData = this.tableData.filter(item => item.id !== row.id)
+          this.$message.success('删除成功')
         })
         .catch(() => {
-          this.$message.info('已取消删除');
-        });
+          this.$message.info('已取消删除')
+        })
     },
     async handleSubmit () {
       this.$refs.formRef.validate(async (valid) => {
@@ -370,13 +369,13 @@ export default {
           return
         }
         if (this.tableData.length <= 0) {
-          this.$message.error('没有选择点位');
+          this.$message.error('没有选择点位')
           return
         }
         if (valid) {
-          console.log('表单数据：', this.form);
-          const workPrice = this.assignWorker(this.form.workerQuantities, this.workerList);
-          const carPrice = this.assignWorker(this.form.carQuantities, this.carList);
+          console.log('表单数据：', this.form)
+          const workPrice = this.assignWorker(this.form.workerQuantities, this.workerList)
+          const carPrice = this.assignWorker(this.form.carQuantities, this.carList)
           console.log(workPrice, carPrice)
           const tempobj = {
             id: this.isEdit ? this.currentOrder.id : null,
@@ -398,8 +397,8 @@ export default {
           const url = this.isEdit ? '/point/order/edit' : '/point/order/add'
           const { code, message } = await this.$pub.post(url, tempobj)
           if (code === 200) {
-            this.$message.success(message);
-            this.$emit('update:buildFlag', false);
+            this.$message.success(message)
+            this.$emit('update:buildFlag', false)
           } else {
             this.$notify.error({
               title: '生成失败',
@@ -407,10 +406,9 @@ export default {
             })
           }
         } else {
-          this.$message.error('请填写完整表单');
+          this.$message.error('请填写完整表单')
         }
-      });
-
+      })
     }
   }
 }
