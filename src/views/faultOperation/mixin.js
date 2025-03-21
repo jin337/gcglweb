@@ -1,7 +1,7 @@
 /*
- * @Author: yuanyuan
+ * @Author: y
  * @Date: 2025-03-07 13:45:22
- * @LastEditors: yuanyuan
+ * @LastEditors: y
  * @LastEditTime: 2025-03-12 14:24:32
  * @FilePath: \gcgl_web\src\views\faultOperation\mixin.js
  */
@@ -99,7 +99,7 @@ export default {
     },
     /**
    * List 中解析出 Quantities，并将其键提取到一个数组
-   * @param {Array} List - List 数组  
+   * @param {Array} List - List 数组
    * @returns {Object} - 解析出的 Quantities 对象   to:拿到后端数据整理一下前端用
    */
     parseQuantities (List) {

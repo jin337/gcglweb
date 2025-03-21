@@ -1,7 +1,7 @@
 <!--
- * @Author: yuanyuan
+ * @Author: y
  * @Date: 2025-03-07 12:46:09
- * @LastEditors: yuanyuan
+ * @LastEditors: y
  * @LastEditTime: 2025-03-17 14:13:30
  * @FilePath: \gcgl_web\src\views\faultOperation\disposeOrder.vue
  * @des:工单处理 工单详情
@@ -28,16 +28,17 @@
           <vxe-column title="点位名称" field="point_name" header-align="center" />
           <vxe-column title="修复数量" field="handle_count" width="80px" align="center">
             <template v-slot="{ row, rowIndex }">
-              <el-form-item :prop="`tableData.${rowIndex}.handle_count`" v-if="row.checked && row.status === 0"
+              <!-- <el-form-item :prop="`tableData.${rowIndex}.handle_count`" v-if="row.checked && row.status === 0"
                 :rules="rules.movePoint">
                 <el-input v-model.number="row.handle_count" placeholder="输入数量" size="mini" style="width: 60px"
-                  :disabled="!isOpear" @change="changehandle_count(row)" />
-              </el-form-item>
-              <span>{{ row.handle_count }}</span>
+                  :disabled="!isOpear"  />
+              </el-form-item> -->
+              <span class="curp" @click="openFaultInfo(row, rowIndex)">{{ row.handle_count }}</span>
             </template>
           </vxe-column>
           <vxe-column title="报障数量" field="count" width="70px" align="center" />
           <vxe-column title="故障类型" field="fault_type_name" header-align="center" width="110px" />
+          <vxe-column title="故障类别" field="fault_category_name" header-align="center" width="110px" />
           <vxe-column field="handle_remark" title="故障原因" width="130px" align="center">
             <template v-slot="{ row, rowIndex }">
               <el-form-item :prop="`tableData.${rowIndex}.handle_remark`" v-if="row.checked && row.status === 0"
@@ -76,10 +77,10 @@
               <div class="flexwidth"> {{ form.estimate }}</div>
             </div>
             <div class="hesuanbox">
-              <strong style="padding-top:6px;">核算:</strong>
+              <strong>核算:</strong>
               <div class="flexwidth">
                 <!-- 人力 -->
-                <div class="hesuanwrap">
+                <div class="hesuanwrap" v-if="false">
                   <!-- 下拉框 -->
                   <div class="vux-flexbox" v-if="isOpear">
                     <span class="label">人力选择</span>
@@ -113,7 +114,7 @@
                 </div>
 
                 <!-- 车辆 -->
-                <div class="hesuanwrap">
+                <div class="hesuanwrap" v-if="false">
                   <!-- 下拉框 -->
                   <div class="vux-flexbox" v-if="isOpear">
                     <span class="label">车辆选择</span>
@@ -145,7 +146,7 @@
                 </div>
 
                 <!-- 人车合计 -->
-                <div class="hesuanwrap vux-flexbox">
+                <div class="hesuanwrap vux-flexbox" v-if="false">
                   <span class="label">人车合计</span>
                   <el-form-item prop="carpersonPrice">
                     <el-input v-model="carpersonPrice" style="width: 255px" readonly :disabled="!isOpear" />
@@ -233,6 +234,44 @@
     <viewer :images="previewImages" ref="viewer">
       <img v-for="(img, index) in previewImages" :src="img.filePath" :key="index" style="display: none;" />
     </viewer>
+
+    <!-- 修复数量 -->
+    <el-dialog append-to-body title="修复数量" :visible.sync="faultModel">
+      <div class="faultbtns" v-if="isOpear && deviceList.length">
+        <el-button size="mini" type="primary" @click="saveFault">确定</el-button>
+      </div>
+
+      <el-table ref="faultTable" :data="deviceList" border style="width: 100%" row-key="id"
+        :header-row-style="{ height: '36px' }" :row-style="{ height: '36px' }" :cell-style="{ padding: '0px' }">
+        <el-table-column type="index" label="序号" width="60" align="center" />
+        <el-table-column prop="ip" label="IP" header-align="center"></el-table-column>
+        <el-table-column prop="fault_type" label="处理" align="center">
+          <template v-slot="{ row }">
+            <el-select size="mini" :disabled="!isOpear" v-model="row.status" placeholder="请选择">
+              <el-option v-for="item in [{
+                value: 0,
+                label: '未修复'
+              }, {
+                value: 1,
+                label: '修复'
+              }, {
+                value: 2,
+                label: '挂起'
+              }, {
+                value: 3,
+                label: '移交供应商'
+              }]" :key="item.value" :label="item.label" :value="item.value">
+              </el-option>
+            </el-select>
+          </template>
+        </el-table-column>
+        <el-table-column prop="remark" label="备注" header-align="center">
+          <template v-slot="{ row }">
+            <el-input v-model="row.remark" :disabled="!isOpear" size="mini" />
+          </template>
+        </el-table-column>
+      </el-table>
+    </el-dialog>
   </div>
 </template>
 <script>
@@ -283,6 +322,7 @@ export default {
     }
     return {
       loading: false,
+      detail: {},
       form: {
         tableData: [],
         estimate: '大工（350），数量：2人，大车（200），数量：2辆，合计：900元',
@@ -305,9 +345,9 @@ export default {
       },
       // 校验规则
       rules: {
-        selectedWorkers: [
-          { required: true, message: '请选择人力', trigger: 'change' }
-        ],
+        // selectedWorkers: [
+        //   { required: true, message: '请选择人力', trigger: 'change' }
+        // ],
         // selectedCars: [
         //   { required: true, message: '请选择车辆', trigger: 'change' },
         // ],
@@ -341,14 +381,17 @@ export default {
         checkMethod: ({ row }) => {
           return row.status === 0 && this.isOpear
         }
-      }
+      },
+      faultModel: false,
+      faultIndex: null,
+      deviceList: []
     }
   },
   computed: {
     // 计算金额合计
     sumPrice () {
       const numberMoney = parseFloat(this.form.numberMoney) || 0
-      const totalAmount = this.carpersonPrice + numberMoney
+      const totalAmount = this.detail.price_first + numberMoney
       return totalAmount
     },
     carpersonPrice () {
@@ -402,16 +445,10 @@ export default {
   methods: {
     parseTime,
     moment,
-    // 维修数量不可大于保障数量
-    changehandle_count (row) {
-      if (row.handle_count > row.count) {
-        row.handle_count = row.count
-      }
-    },
     async getList () {
       this.loading = true
       const params = {
-        order_id: this.currentData.id + ''
+        order_id: this.currentData.id
       }
       const { data, code } = await this.$pub.post('/point/order/detail', params)
       this.loading = false
@@ -433,7 +470,7 @@ export default {
       //     ]
       //   }
       // })
-
+      this.detail = data
       this.form.tableData = (data.point_list || []).map(m => {
         return {
           ...m, checked: m.status != 0
@@ -543,7 +580,6 @@ export default {
           console.log('表单数据：', this.form)
           const workPrice = this.assignWorker(this.form.workerQuantities, this.workerList)
           const carPrice = this.assignWorker(this.form.carQuantities, this.carList)
-          console.log(workPrice, carPrice)
 
           const tiao = { type: 3, count: 1, name: '调价', value: 0, price: Number(this.form.numberMoney) }
 
@@ -571,6 +607,16 @@ export default {
           this.$message.error('请填写完整表单')
         }
       })
+    },
+    openFaultInfo (row, rowIndex) {
+      this.faultModel = true
+      this.faultIndex = rowIndex
+      this.deviceList = row?.device_list || []
+    },
+    saveFault () {
+      this.form.tableData[this.faultIndex].device_list = this.deviceList
+      this.form.tableData[this.faultIndex].handle_count = this.deviceList.filter((item) => item.status === 1).length
+      this.faultModel = false
     }
   }
 
@@ -735,5 +781,13 @@ export default {
 
 .vxe-table--tooltip-wrapper {
   z-index: 9999999 !important;
+}
+
+.faultbtns {
+  text-align: right;
+}
+
+.curp {
+  cursor: pointer;
 }
 </style>

@@ -1,7 +1,7 @@
 <!--
- * @Author: yuanyuan
+ * @Author: y
  * @Date: 2024-08-30 09:38:13
- * @LastEditors: yuanyuan
+ * @LastEditors: y
  * @LastEditTime: 2025-03-17 14:21:41
  * @FilePath: \gcgl_web\src\views\faultOperation\buildOrder.vue
  * @des:工单生成 新建工单
@@ -203,13 +203,13 @@ export default {
         ],
         selectedWorkers: [
           { required: true, message: '请选择人力', trigger: 'change' }
-        ],
+        ]
         // selectedCars: [
         //   { required: true, message: '请选择车辆', trigger: 'change' }
         // ],
-        remark: [
-          { required: true, message: '请输入备注', trigger: 'blur' }
-        ]
+        // remark: [
+        //   { required: true, message: '请输入备注', trigger: 'blur' }
+        // ]
       },
       // 选择点位
       selectFlag: false
@@ -262,7 +262,7 @@ export default {
       if (this.isEdit) {
         this.loading = true
         const params = {
-          order_id: this.currentOrder.id + ''
+          order_id: this.currentOrder.id
         }
         const { data, code } = await this.$pub.post('/point/order/detail', params)
         this.loading = false
@@ -376,7 +376,6 @@ export default {
           console.log('表单数据：', this.form)
           const workPrice = this.assignWorker(this.form.workerQuantities, this.workerList)
           const carPrice = this.assignWorker(this.form.carQuantities, this.carList)
-          console.log(workPrice, carPrice)
           const tempobj = {
             id: this.isEdit ? this.currentOrder.id : null,
             project_code: this.project_code,

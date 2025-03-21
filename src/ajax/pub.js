@@ -1,7 +1,7 @@
 /*
- * @Author: yuanyuan
+ * @Author: y
  * @Date: 2024-07-24 13:30:04
- * @LastEditors: yuanyuan
+ * @LastEditors: y
  * @LastEditTime: 2024-08-29 09:47:30
  * @FilePath: \gcgl_web\src\ajax\pub.js
  */

@@ -1,7 +1,7 @@
 <!--
- * @Author: yuanyuan
+ * @Author: y
  * @Date: 2025-03-06 15:05:35
- * @LastEditors: yuanyuan
+ * @LastEditors: y
  * @LastEditTime: 2025-03-14 09:04:59
  * @FilePath: \gcgl_web\src\views\faultOperation\SelectPoint.vue
 -->
@@ -9,7 +9,8 @@
   <div class="selectpoint_box">
     <el-form size="small" inline label-width="60px">
       <el-form-item label="区域">
-        <el-select v-model="form.area" clearable style="width: 140px" placeholder="默认所有区域" @clear="handleQuery">
+        <el-select v-model="form.area" multiple clearable style="width: 140px" placeholder="默认所有区域"
+          @clear="handleQuery">
           <el-option v-for="item in areaList" :key="item.key" :label="item.value" :value="item.key">
           </el-option>
         </el-select>
@@ -77,7 +78,7 @@ export default {
     return {
       form: {
         child_code: '',
-        area: '',
+        area: [],
         key_name: '', // 关键字
         online: -1 // 是否掉线
       },

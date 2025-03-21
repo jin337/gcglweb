@@ -74,16 +74,27 @@
         </template>
       </el-table-column>
       <el-table-column prop="fault_order_desc" label="备注" align="center"></el-table-column>
-      <el-table-column label="操作" width="160px">
+      <el-table-column label="操作" width="120px">
         <template slot-scope="scope">
-          <el-button size="mini" type="text" @click="handleEdit(scope.row)" v-if="scope.row.status !== 2">编辑</el-button>
           <el-button size="mini" type="text" @click="handleDispose(scope.row)"
             v-if="scope.row.status === 1">处理</el-button>
-          <el-button size="mini" type="text" @click="handleInfo(scope.row)"> 详情</el-button>
+          <el-button size="mini" type="text" @click="handleInfo(scope.row)">详情</el-button>
+
+          <el-dropdown class="more-box" size="small" @command="handleCommand($event, scope.row)">
+            <el-button size="mini" type="text">更多</el-button>
+            <el-dropdown-menu slot="dropdown">
+              <el-dropdown-item v-if="scope.row.status !== 2" command="handleEdit">编辑</el-dropdown-item>
+              <el-dropdown-item command="handleDelete">删除</el-dropdown-item>
+              <el-dropdown-item command="handlePrint" v-if="scope.row.status === 2">打印</el-dropdown-item>
+              <el-dropdown-item command="handleExport">导出</el-dropdown-item>
+            </el-dropdown-menu>
+          </el-dropdown>
+
+          <!-- <el-button size="mini" type="text" @click="handleEdit(scope.row)" v-if="scope.row.status !== 2">编辑</el-button>
           <el-button size="small" type="text" @click="handleDelete(scope.row)">删除</el-button>
           <el-button size="mini" type="text" @click="handlePrint(scope.row)"
             v-if="scope.row.status === 2">打印</el-button>
-          <el-button size="mini" type="text" @click="handleExport(scope.row)">导出</el-button>
+          <el-button size="mini" type="text" @click="handleExport(scope.row)">导出</el-button> -->
         </template>
       </el-table-column>
     </el-table>
@@ -432,6 +443,10 @@ export default {
       this.isEdit = false
       this.addorderFlag = true
     },
+    // 操作更多下触发事件
+    handleCommand (e, row) {
+      this[e](row)
+    },
     // 工单编辑
     handleEdit (row) {
       this.isEdit = true
@@ -630,5 +645,9 @@ export default {
 
 .dis_fault_work {
   margin: 20px auto !important;
+}
+
+.more-box {
+  margin-left: 10px;
 }
 </style>
