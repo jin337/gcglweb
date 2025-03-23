@@ -615,7 +615,9 @@ export default {
     },
     saveFault () {
       this.form.tableData[this.faultIndex].device_list = this.deviceList
-      this.form.tableData[this.faultIndex].handle_count = this.deviceList.filter((item) => item.status === 1).length
+      const len = this.deviceList.filter((item) => item.status === 1).length
+      this.form.tableData[this.faultIndex].handle_count = len
+      this.form.tableData[this.faultIndex].checked = len > 0
       this.faultModel = false
     }
   }
