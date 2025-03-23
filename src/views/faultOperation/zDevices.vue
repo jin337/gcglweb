@@ -1,7 +1,7 @@
 <template>
   <div class="faultOperationFault">
     <el-form size="small" inline>
-      <el-form-item label="项目列表">
+      <el-form-item label="项目编码">
         <el-select v-model="form.project" placeholder="请选择" clearable style="width:250px;" size="small"
           @clear="handleQuery" @change="handleProjectChange" value-key="id">
           <el-option v-for="item in projectList" :key="item.id" :label="item.projectName" :value="item"></el-option>
@@ -112,7 +112,7 @@ export default {
     }
   },
   created () {
-    this.oper_status()
+    this.getpoint_status()
     this.getProjectList()
   },
   mounted () {
@@ -217,7 +217,7 @@ export default {
       }
     },
     // 故障类型
-    getoper_status () {
+    getpoint_status () {
       this.$dict(this, 'oper_status').then(res => {
         if (res.code === 200) {
           this.faultTypeList = (res.data || []).map(m => {
@@ -229,7 +229,7 @@ export default {
         } else {
           this.$message({
             type: 'error',
-            message: '字典获取出错了oper_status',
+            message: '字典获取出错了point_status',
             showClose: true
           })
           this.faultTypeList = []
@@ -310,7 +310,7 @@ export default {
     },
     // 编辑
     handleEdit (row) {
-      this.rowInfo = { ...row }
+      this.rowInfo = { ...row, oper_status: Number(row.oper_status) }
       this.editFlag = true
     },
     async submitOper () {
