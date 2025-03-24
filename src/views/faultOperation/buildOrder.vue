@@ -17,13 +17,14 @@
         </el-form-item>
         <el-button type="primary" style="margin-left:auto;" size="medium" @click="selectPoint">选择点位</el-button>
       </div>
+
       <vxe-table show-overflow max-height="250" :data="tableData" :row-config="{ height: 30, isHover: true }"
         highlight-current-row border>
         <vxe-column type=seq title="序号" width="50px" align="center"></vxe-column>
         <vxe-column title="区域" field="area" width="100px" align="center" />
         <vxe-column title="子系统" field="child_name" width="100px" header-align="center" />
         <vxe-column title="点位编码" field="point_code" header-align="center" />
-        <vxe-column title="点位名称" field="point_name" header-align="center" />
+        <vxe-column title="点位名称" field="point_name" header-align="center"></vxe-column>
         <vxe-column title="故障数量" field="count" width="80px" align="center">
           <template v-slot="{ row }">
             <div>
@@ -44,7 +45,7 @@
         </vxe-column>
         <vxe-column title="操作" align="center" width="60px">
           <template v-slot="{ row }">
-            <el-button size="mini" type="text" @click="handleDelete(row)" v-if="row.status === 0">删除</el-button>
+            <el-button size="mini" type="text" @click="handleDelete(row)">删除</el-button>
           </template>
         </vxe-column>
       </vxe-table>

@@ -357,9 +357,9 @@ export default {
         price_remark: [
           { validator: validateRemark, trigger: 'blur' } // 自定义校验规则
         ],
-        remark: [
-          { required: true, message: '请输入备注', trigger: 'blur' }
-        ],
+        // remark: [
+        //   { required: true, message: '请输入备注', trigger: 'blur' }
+        // ],
         movePoint: [
           { required: true, message: '请输入数字', trigger: 'blur' },
           {
@@ -367,10 +367,10 @@ export default {
             message: '请输入大于等于 0 的正整数',
             trigger: 'blur'
           }
-        ],
-        handle_remark: [
-          { required: true, message: '必填', trigger: 'blur' }
         ]
+        // handle_remark: [
+        //   { required: true, message: '必填', trigger: 'blur' }
+        // ]
       },
       sumMsg: '',
       // 预览的图片数组
@@ -433,7 +433,11 @@ export default {
       handler (newVal) {
         // 系统结论: 完成修复
         const tempArr = newVal.filter(f => f.checked)
-        this.form.finishPoint = tempArr.length
+        // finishPoint：完成修复点位数
+        // finishDevice：完成修复相机数
+        // movePoint：移交运营商点位数
+        // moveDevice：移交运营相机数
+        this.form.finishPoint = tempArr.filter(f => f.handle_count > 0).length
         this.form.finishDevice = tempArr.reduce((sum, item) => sum + item.handle_count, 0)
       },
       deep: true // 深度监听
@@ -512,12 +516,15 @@ export default {
 
       /**
        * 系统结论
+       *  finishPoint：完成修复点位数
+      *  finishDevice：完成修复相机数
+      *  movePoint：移交运营商点位数
+      *  moveDevice：移交运营相机数
        */
       this.form.remark = data.remark // 系统结论备注
       this.form.pPoint = this.form.tableData.length// 移交运营商点位数和相机数
       this.form.pDevice = this.form.tableData.reduce((sum, item) => sum + item.count, 0)
       const tempnum = this.extractNumbersFromSubstring(data.sys_result)
-
       if (tempnum.length > 1) {
         this.form.movePoint = tempnum[0]
         this.form.moveDevice = tempnum[1]
@@ -615,9 +622,17 @@ export default {
     },
     saveFault () {
       this.form.tableData[this.faultIndex].device_list = this.deviceList
-      const len = this.deviceList.filter((item) => item.status === 1).length
-      this.form.tableData[this.faultIndex].handle_count = len
-      this.form.tableData[this.faultIndex].checked = len > 0
+      const over = this.deviceList.filter((item) => item.status === 1).length
+      const operator = this.deviceList.filter((item) => item.status === 3).length
+      this.form.tableData[this.faultIndex].handle_count = over
+      this.form.tableData[this.faultIndex].move_count = operator
+
+      this.form.tableData[this.faultIndex].checked = over > 0 || operator > 0
+
+      this.form.movePoint = this.form.tableData.filter(f => f.move_count > 0).length
+      this.form.moveDevice = this.form.tableData.reduce((total, item) => {
+        return total + (item.device_list?.filter(d => d.status === 3).length || 0)
+      }, 0)
       this.faultModel = false
     }
   }

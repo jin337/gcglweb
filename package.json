@@ -49,8 +49,7 @@
     "vuedraggable": "^2.24.3",
     "vuex": "^3.4.0",
     "vuex-persistedstate": "^3.0.1",
-    "vxe-table": "^3.4.11",
-    "xe-utils": "^3.4.3"
+    "vxe-table": "^3.4.11"
   },
   "devDependencies": {
     "@riophae/vue-treeselect": "^0.4.0",
@@ -70,6 +69,7 @@
     "node-sass": "^4.14.1",
     "sass-loader": "^8.0.2",
     "script-ext-html-webpack-plugin": "^2.1.5",
-    "vue-template-compiler": "^2.6.11"
+    "vue-template-compiler": "^2.6.11",
+    "xe-utils": "^3.7.4"
   }
 }

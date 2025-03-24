@@ -91,6 +91,7 @@ export default {
         content: null,
         is_build: 0,
         child_code: null,
+        oper_status: null,
         area: []
       },
       childList: [],
@@ -229,7 +230,7 @@ export default {
         } else {
           this.$message({
             type: 'error',
-            message: '字典获取出错了point_status',
+            message: '字典获取出错了oper_status',
             showClose: true
           })
           this.faultTypeList = []
@@ -296,6 +297,9 @@ export default {
       this.handleQuery()
     },
     handleQuery () {
+      if (['', 'null', 'undefined'].includes(this?.form?.oper_status)) {
+        this.form.oper_status = null
+      }
       this.tableData = []
       this.page.page_no = 1
       this.getList()
@@ -310,7 +314,7 @@ export default {
     },
     // 编辑
     handleEdit (row) {
-      this.rowInfo = { ...row, oper_status: Number(row.oper_status) }
+      this.rowInfo = { ...row }
       this.editFlag = true
     },
     async submitOper () {
