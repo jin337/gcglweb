@@ -69,6 +69,10 @@ export default {
       type: Array,
       require: true
     },
+    points: {
+      type: Array,
+      require: true
+    },
     areaList: {
       type: Array,
       require: true
@@ -128,6 +132,12 @@ export default {
           id: m.point_code + m.project_code
         }
       })
+
+      // 已经选中
+      const filteredData = this.tableData.filter(item =>
+        this.points.some(p => p.point_code === item.point_code)
+      )
+      this.selectedData = filteredData
 
       // 初始化选中状态
       this.$nextTick(() => {

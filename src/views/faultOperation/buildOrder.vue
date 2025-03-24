@@ -132,9 +132,10 @@
       <el-button size="mini" type="primary" @click="handleSubmit">生成</el-button>
     </div>
 
+    <!-- 选择点位 -->
     <el-dialog title="选择点位" :visible.sync="selectFlag" width="1000px" append-to-body :lock-scroll="false">
       <selectPointBox v-if="selectFlag" :project_code="project_code" :childList="childList" :areaList="areaList"
-        :selectFlag.sync="selectFlag" @initTableData="initTableData"></selectPointBox>
+        :points="tableData" :selectFlag.sync="selectFlag" @initTableData="initTableData"></selectPointBox>
     </el-dialog>
   </div>
 </template>
