@@ -78,6 +78,7 @@
 
 <script>
 import { checkPermission } from '@/utils/tool'
+import { number } from 'echarts'
 
 export default {
   name: 'faultOperationDevices',
@@ -314,7 +315,7 @@ export default {
     },
     // 编辑
     handleEdit (row) {
-      this.rowInfo = { ...row }
+      this.rowInfo = { ...row, oper_status: Number(row.oper_status) }
       this.editFlag = true
     },
     async submitOper () {

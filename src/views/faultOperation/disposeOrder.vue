@@ -41,10 +41,9 @@
           <vxe-column title="故障类别" field="fault_category_name" header-align="center" width="110px" />
           <vxe-column field="handle_remark" title="故障原因" width="130px" align="center">
             <template v-slot="{ row, rowIndex }">
-              <el-form-item :prop="`tableData.${rowIndex}.handle_remark`" v-if="row.checked && row.status === 0"
-                :rules="rules.handle_remark">
-                <el-input v-model="row.handle_remark" placeholder="输入故障原因" size="mini" style="width: 110px"
-                  :disabled="!isOpear" />
+              <el-form-item class="handle_remark" :prop="`tableData.${rowIndex}.handle_remark`"
+                v-if="row.checked && row.status === 0" :rules="rules.handle_remark">
+                <el-input v-model="row.handle_remark" placeholder="输入故障原因" size="mini" :disabled="!isOpear" />
               </el-form-item>
               <span>{{ row.handle_remark }}</span>
             </template>
@@ -241,11 +240,12 @@
         <el-button size="mini" type="primary" @click="saveFault">确定</el-button>
       </div>
 
-      <el-table ref="faultTable" :data="deviceList" border style="width: 100%" row-key="id"
-        :header-row-style="{ height: '36px' }" :row-style="{ height: '36px' }" :cell-style="{ padding: '0px' }">
-        <el-table-column type="index" label="序号" width="60" align="center" />
-        <el-table-column prop="ip" label="IP" header-align="center"></el-table-column>
-        <el-table-column prop="fault_type" label="处理" align="center">
+      <vxe-table size="small" max-height="350" :row-config="{ isHover: true }" ref="faultTable" :data="deviceList"
+        border style="width: 100%" :header-row-style="{ height: '36px' }" :row-style="{ height: '36px' }"
+        :cell-style="{ padding: '0px' }">
+        <vxe-column type="seq" width="60" title="序号" align="center"></vxe-column>
+        <vxe-column field="ip" title="IP" header-align="center"></vxe-column>
+        <vxe-column field="fault_type" title="处理" align="center">
           <template v-slot="{ row }">
             <el-select size="mini" :disabled="!isOpear" v-model="row.status" placeholder="请选择">
               <el-option v-for="item in [{
@@ -264,13 +264,13 @@
               </el-option>
             </el-select>
           </template>
-        </el-table-column>
-        <el-table-column prop="remark" label="备注" header-align="center">
+        </vxe-column>
+        <vxe-column field="remark" title="备注" header-align="center">
           <template v-slot="{ row }">
             <el-input v-model="row.remark" :disabled="!isOpear" size="mini" />
           </template>
-        </el-table-column>
-      </el-table>
+        </vxe-column>
+      </vxe-table>
     </el-dialog>
   </div>
 </template>
@@ -806,5 +806,9 @@ export default {
 
 .curp {
   cursor: pointer;
+}
+
+.handle_remark {
+  margin-bottom: 2px !important;
 }
 </style>

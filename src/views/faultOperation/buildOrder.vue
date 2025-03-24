@@ -18,13 +18,22 @@
         <el-button type="primary" style="margin-left:auto;" size="medium" @click="selectPoint">选择点位</el-button>
       </div>
 
-      <vxe-table show-overflow max-height="250" :data="tableData" :row-config="{ height: 30, isHover: true }"
-        highlight-current-row border>
+      <vxe-table ref="tableRefbuildOrder" show-overflow max-height="250" :data="tableData"
+        :row-config="{ height: 30, isHover: true }" highlight-current-row border :filter-config="{ showIcon: false }">
         <vxe-column type=seq title="序号" width="50px" align="center"></vxe-column>
-        <vxe-column title="区域" field="area" width="100px" align="center" />
-        <vxe-column title="子系统" field="child_name" width="100px" header-align="center" />
-        <vxe-column title="点位编码" field="point_code" header-align="center" />
-        <vxe-column title="点位名称" field="point_name" header-align="center"></vxe-column>
+        <vxe-column title="区域" field="area" width="80px" align="center" />
+        <vxe-column title="子系统" field="child_name" width="100px" align="center" />
+        <vxe-column title="点位编码" field="point_code" width="100px" header-align="center" />
+        <vxe-colgroup title="点位名称" header-align="center">
+          <vxe-column field="point_name" :filters="nameOptions" :filter-method="nameFilterMethod">
+            <template #header="{ column }">
+              <div v-for="(option, index) in column.filters" :key="index">
+                <el-input v-model="option.data" clearable placeholder="请输入点位名称" size="mini"
+                  @input="confirmFilterEvent(option)" style="width: 100%;"></el-input>
+              </div>
+            </template>
+          </vxe-column>
+        </vxe-colgroup>
         <vxe-column title="故障数量" field="count" width="80px" align="center">
           <template v-slot="{ row }">
             <div>
@@ -141,6 +150,7 @@
 </template>
 
 <script>
+import XEUtils from 'xe-utils'
 import mixin from './mixin.js'
 import selectPointBox from './SelectPoint.vue'
 export default {
@@ -185,7 +195,23 @@ export default {
     }
   },
   data () {
+    const nameFilterMethod = ({ option, row, column }) => {
+      if (option.data) {
+        return XEUtils.toValueString(row[column.field]).toLowerCase().indexOf(option.data) > -1
+      }
+      return true
+    }
     return {
+      tableData111: [
+        { id: 10001, name: 'Test10', role: 'Develop', sex: '0', date: '2021-11-14', age: 28, amount: 888, address: 'test abc' },
+        { id: 10002, name: 'Test12', role: 'Test', sex: '1', date: '2021-01-20', age: 22, amount: 666, address: 'Guangzhou' },
+        { id: 10003, name: 'Test34', role: 'PM', sex: '1', date: '2020-09-17', age: 32, amount: 89, address: 'Shanghai' },
+        { id: 10004, name: 'Test24', role: 'Designer', sex: '0', date: '2020-10-25', age: 23, amount: 1000, address: 'test abc' },
+        { id: 10005, name: 'Test15', role: 'Develop', sex: '0', date: '2020-12-12', age: 30, amount: 999, address: 'Shanghai' },
+        { id: 10006, name: 'Test36', role: 'Designer', sex: '0', date: '2020-08-21', age: 21, amount: 998, address: 'test abc' },
+        { id: 10007, name: 'Test27', role: 'Test', sex: '1', date: '2021-01-01', age: 29, amount: 2000, address: 'test abc' },
+        { id: 10008, name: 'Test48', role: 'Develop', sex: '1', date: '2021-02-06', age: 35, amount: 999, address: 'test abc' }
+      ],
       loading: false,
       deptOptions: [],
       tableData: [],
@@ -214,7 +240,11 @@ export default {
         // ]
       },
       // 选择点位
-      selectFlag: false
+      selectFlag: false,
+      nameOptions: [
+        { data: '' }
+      ],
+      nameFilterMethod
     }
   },
   mounted () {
@@ -328,7 +358,6 @@ export default {
     },
     // 选择点位后回调
     initTableData (arr) {
-      console.log(arr)
       const arrMap = new Map(arr.map(item => [item.point_code, item]))
       const mergedData = this.tableData.map(item => {
         // 如果 point_code 在 arr 中存在，则使用 arr 中的数据
@@ -410,6 +439,13 @@ export default {
           this.$message.error('请填写完整表单')
         }
       })
+    },
+    confirmFilterEvent (option) {
+      const $table = this.$refs.tableRefbuildOrder
+      if ($table) {
+        $table.updateFilterOptionStatus(option, !!option.data)
+        $table.updateData()
+      }
     }
   }
 }
