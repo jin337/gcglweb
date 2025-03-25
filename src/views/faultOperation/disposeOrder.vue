@@ -18,11 +18,11 @@
         <div slot="header" class="clearfix">
           <span>点位</span>
         </div>
-        <vxe-table ref="xTable" show-overflow max-height="250" :data="form.tableData"
-          :row-config="{ height: 34, isHover: true, keyField: 'id' }" :checkbox-config="checkboxConfig"
-          highlight-current-row border @cell-dblclick="handleRowDblClick">
+        <vxe-table ref="xTable" max-height="250" :data="form.tableData" :row-config="{ isHover: true, keyField: 'id' }"
+          :checkbox-config="checkboxConfig" highlight-current-row border @cell-dblclick="handleRowDblClick">
           <vxe-column type="checkbox" width="40px" align="center" />
-          <vxe-column title="区域" field="area" width="60px" align="center" />
+          <vxe-column title="项目" field="project_name" align="center" />
+          <vxe-column title="区域" field="area" width="80px" align="center" />
           <vxe-column title="子系统" field="child_name" width="80px" header-align="center" />
           <vxe-column title="点位编码" field="point_code" header-align="center" />
           <vxe-column title="点位名称" field="point_name" header-align="center" />

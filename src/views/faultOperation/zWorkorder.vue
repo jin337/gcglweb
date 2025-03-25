@@ -54,6 +54,7 @@
 
     <el-table ref="table" v-loading="tableLoading" :data="tableData" :height="tableHeight" style="width: 100%"
       :header-row-style="{ height: '36px' }" :row-style="{ height: '36px' }" :cell-style="{ padding: '0px' }" border>
+      <el-table-column prop="project_name" label="项目" align="center" />
       <el-table-column prop="fault_order_code" label="工单编号" align="center" />
       <!-- <el-table-column prop="faultCount" label="报障点位数量" align="center" width="120" />
       <el-table-column prop="device_count" label="报障设备数量" width="120px" align="center">
@@ -62,13 +63,13 @@
         </template>
 </el-table-column> -->
       <el-table-column prop="fault_dept_name" label="接单部门" show-overflow-tooltip></el-table-column>
-      <el-table-column prop="create_user_name" label="派发人" align="center"></el-table-column>
-      <el-table-column prop="create_time" label="派单时间" align="center">
+      <el-table-column prop="create_user_name" label="派发人" align="center" width="100px"></el-table-column>
+      <el-table-column prop="create_time" label="派单时间" align="center" width="160px">
         <template slot-scope="scope">
           <span>{{ scope.row.create_time ? parseTime(scope.row.create_time) : '' }}</span>
         </template>
       </el-table-column>
-      <el-table-column prop="status_name" label="状态" align="center">
+      <el-table-column prop="status_name" label="状态" align="center" width="80px">
         <template slot-scope="scope">
           <span>{{ statusList[scope.row.status].label }}</span>
         </template>
@@ -113,15 +114,14 @@
     </el-dialog>
 
     <!-- 新建工单 -->
-    <el-dialog :title="isEdit ? '编辑工单' : '新建工单'" @close="getList" :visible.sync="addorderFlag" width="900px"
+    <el-dialog :title="isEdit ? '编辑工单' : '新建工单'" @close="getList" :visible.sync="addorderFlag" width="1200px"
       append-to-body custom-class="dis_fault_work">
-      <build-order v-if="addorderFlag" :buildFlag.sync="addorderFlag" :projectList="projectList"
-        :project_code="form.project_code" :childList="childList" :areaList="areaList" :faultTypeList="faultTypeList"
-        :isEdit="isEdit" :currentOrder="currentData"></build-order>
+      <build-order v-if="addorderFlag" :buildFlag.sync="addorderFlag" :projectList="projectList" :childList="childList"
+        :areaList="areaList" :faultTypeList="faultTypeList" :isEdit="isEdit" :currentOrder="currentData"></build-order>
     </el-dialog>
 
     <!-- 工单处理  工单详情 -->
-    <el-dialog :title="isInfo ? '工单处理详情' : '工单处理'" @close="getList" :visible.sync="disposeFlag" width="1200px"
+    <el-dialog :title="isInfo ? '工单处理详情' : '工单处理'" @close="getList" :visible.sync="disposeFlag" width="1400px"
       append-to-body custom-class="dis_fault_work">
       <dispose-order v-if="disposeFlag" :disposeFlag.sync="disposeFlag" :isOpear="!isInfo" :currentData="currentData"
         :faultTypeList="faultTypeList"></dispose-order>
@@ -184,6 +184,7 @@ export default {
     this.getfault_type()
     this.getProjectList()
     this.getDept()
+    this.handleQuery()
   },
   mounted () {
     this.getTableHeight()
@@ -365,14 +366,6 @@ export default {
       this.handleQuery()
     },
     async getList () {
-      if (!this.form.project_code) {
-        return this.$message({
-          message: '必须选择一个项目进行查询',
-          type: 'error',
-          showClose: true,
-          customClass: 'uploadMessage'
-        })
-      }
       this.tableLoading = true
       const completeTime = this.form.completeTime || []
       const params = {
@@ -431,14 +424,6 @@ export default {
     },
     // 新建
     handleAdd () {
-      if (!this.form.project_code) {
-        return this.$message({
-          message: '先选择一个项目',
-          type: 'error',
-          showClose: true,
-          customClass: 'uploadMessage'
-        })
-      }
       this.currentData = null
       this.isEdit = false
       this.addorderFlag = true

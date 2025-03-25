@@ -18,18 +18,58 @@
         <el-button type="primary" style="margin-left:auto;" size="medium" @click="selectPoint">选择点位</el-button>
       </div>
 
-      <vxe-table ref="tableRefbuildOrder" show-overflow max-height="250" :data="tableData"
-        :row-config="{ height: 30, isHover: true }" highlight-current-row border :filter-config="{ showIcon: false }">
+      <vxe-table ref="tableRefbuildOrder" max-height="250" :data="tableData" :row-config="{ isHover: true }"
+        highlight-current-row border :filter-config="{ showIcon: false }">
         <vxe-column type=seq title="序号" width="50px" align="center"></vxe-column>
-        <vxe-column title="区域" field="area" width="80px" align="center" />
-        <vxe-column title="子系统" field="child_name" width="100px" align="center" />
-        <vxe-column title="点位编码" field="point_code" width="100px" header-align="center" />
-        <vxe-colgroup title="点位名称" header-align="center">
-          <vxe-column field="point_name" :filters="nameOptions" :filter-method="nameFilterMethod">
+        <vxe-colgroup title="项目" header-align="center">
+          <vxe-column field="project_name" :filters="project_nameOptions" :filter-method="project_nameFilterMethod">
             <template #header="{ column }">
               <div v-for="(option, index) in column.filters" :key="index">
-                <el-input v-model="option.data" clearable placeholder="请输入点位名称" size="mini"
-                  @input="confirmFilterEvent(option)" style="width: 100%;"></el-input>
+                <el-input v-model="option.data" clearable size="mini" @input="confirmFilterEvent(option)"
+                  style="width: 100%;"></el-input>
+              </div>
+            </template>
+          </vxe-column>
+        </vxe-colgroup>
+        <vxe-colgroup title="区域" header-align="center">
+          <vxe-column field="area" :filters="areaOptions" :filter-method="areaFilterMethod" width="110px">
+            <template #header="{ column }">
+              <div v-for="(option, index) in column.filters" :key="index">
+                <el-input v-model="option.data" clearable size="mini" @input="confirmFilterEvent(option)"
+                  style="width: 100%;"></el-input>
+              </div>
+            </template>
+          </vxe-column>
+        </vxe-colgroup>
+        <vxe-colgroup title="子系统" header-align="center">
+          <vxe-column field="child_name" :filters="child_nameOptions" :filter-method="child_nameFilterMethod"
+            width="150px">
+            <template #header="{ column }">
+              <div v-for="(option, index) in column.filters" :key="index">
+                <el-input v-model="option.data" clearable size="mini" @input="confirmFilterEvent(option)"
+                  style="width: 100%;"></el-input>
+              </div>
+            </template>
+          </vxe-column>
+        </vxe-colgroup>
+        <vxe-colgroup title="点位编码" header-align="center">
+          <vxe-column field="point_code" :filters="point_codeOptions" :filter-method="point_codeFilterMethod"
+            width="150px">
+            <template #header="{ column }">
+              <div v-for="(option, index) in column.filters" :key="index">
+                <el-input v-model="option.data" clearable size="mini" @input="confirmFilterEvent(option)"
+                  style="width: 100%;"></el-input>
+              </div>
+            </template>
+          </vxe-column>
+        </vxe-colgroup>
+        <vxe-colgroup title="点位名称" header-align="center">
+          <vxe-column field="point_name" :filters="point_nameOptions" :filter-method="point_nameFilterMethod"
+            width="150px">
+            <template #header="{ column }">
+              <div v-for="(option, index) in column.filters" :key="index">
+                <el-input v-model="option.data" clearable size="mini" @input="confirmFilterEvent(option)"
+                  style="width: 100%;"></el-input>
               </div>
             </template>
           </vxe-column>
@@ -142,8 +182,8 @@
     </div>
 
     <!-- 选择点位 -->
-    <el-dialog title="选择点位" :visible.sync="selectFlag" width="1000px" append-to-body :lock-scroll="false">
-      <selectPointBox v-if="selectFlag" :project_code="project_code" :childList="childList" :areaList="areaList"
+    <el-dialog title="选择点位" :visible.sync="selectFlag" width="1200px" append-to-body :lock-scroll="false">
+      <selectPointBox v-if="selectFlag" :projectList="projectList" :childList="childList" :areaList="areaList"
         :points="tableData" :selectFlag.sync="selectFlag" @initTableData="initTableData"></selectPointBox>
     </el-dialog>
   </div>
@@ -169,10 +209,6 @@ export default {
       type: Object,
       default: () => { }
     },
-    project_code: {
-      type: String,
-      require: true
-    },
     projectList: {
       type: Array,
       require: true
@@ -195,7 +231,31 @@ export default {
     }
   },
   data () {
-    const nameFilterMethod = ({ option, row, column }) => {
+    const project_nameFilterMethod = ({ option, row, column }) => {
+      if (option.data) {
+        return XEUtils.toValueString(row[column.field]).toLowerCase().indexOf(option.data) > -1
+      }
+      return true
+    }
+    const child_nameFilterMethod = ({ option, row, column }) => {
+      if (option.data) {
+        return XEUtils.toValueString(row[column.field]).toLowerCase().indexOf(option.data) > -1
+      }
+      return true
+    }
+    const areaFilterMethod = ({ option, row, column }) => {
+      if (option.data) {
+        return XEUtils.toValueString(row[column.field]).toLowerCase().indexOf(option.data) > -1
+      }
+      return true
+    }
+    const point_codeFilterMethod = ({ option, row, column }) => {
+      if (option.data) {
+        return XEUtils.toValueString(row[column.field]).toLowerCase().indexOf(option.data) > -1
+      }
+      return true
+    }
+    const point_nameFilterMethod = ({ option, row, column }) => {
       if (option.data) {
         return XEUtils.toValueString(row[column.field]).toLowerCase().indexOf(option.data) > -1
       }
@@ -241,10 +301,26 @@ export default {
       },
       // 选择点位
       selectFlag: false,
-      nameOptions: [
+      project_nameOptions: [
         { data: '' }
       ],
-      nameFilterMethod
+      child_nameOptions: [
+        { data: '' }
+      ],
+      areaOptions: [
+        { data: '' }
+      ],
+      point_codeOptions: [
+        { data: '' }
+      ],
+      point_nameOptions: [
+        { data: '' }
+      ],
+      project_nameFilterMethod,
+      child_nameFilterMethod,
+      areaFilterMethod,
+      point_codeFilterMethod,
+      point_nameFilterMethod
     }
   },
   mounted () {
@@ -409,7 +485,6 @@ export default {
           const carPrice = this.assignWorker(this.form.carQuantities, this.carList)
           const tempobj = {
             id: this.isEdit ? this.currentOrder.id : null,
-            project_code: this.project_code,
             fault_order_desc: this.form.remark,
             fault_dept: this.form.dept_id,
             // fault_order_type: 1,
@@ -419,7 +494,8 @@ export default {
                 ips: m.ips,
                 status: this.isEdit ? 0 : 1,
                 count: m.count,
-                fault_type: m.fault_type
+                fault_type: m.fault_type,
+                project_code: m.project_code
               }
             }),
             price_list_first: [...workPrice, ...carPrice]

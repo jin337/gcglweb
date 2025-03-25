@@ -8,6 +8,12 @@
 <template>
   <div class="selectpoint_box">
     <el-form size="small" inline label-width="60px">
+      <el-form-item label="项目">
+        <el-select v-model="form.project" placeholder="请选择" clearable style="width:190px;" size="small"
+          @clear="handleQuery" @change="handleProjectChange" value-key="id">
+          <el-option v-for="item in projectList" :key="item.id" :label="item.projectName" :value="item"></el-option>
+        </el-select>
+      </el-form-item>
       <el-form-item label="区域">
         <el-select v-model="form.area" multiple clearable style="width: 140px" placeholder="默认所有区域"
           @clear="handleQuery">
@@ -37,6 +43,7 @@
       :height="400" border style="width: 100%" row-key="id" :header-row-style="{ height: '36px' }"
       :row-style="{ height: '36px' }" :cell-style="{ padding: '0px' }">
       <el-table-column type="selection" width="60" align="center" />
+      <el-table-column prop="project_name" label="项目" align="center"></el-table-column>
       <el-table-column prop="area" label="区域" width="100" align="center"></el-table-column>
       <el-table-column prop="child_name" label="子系统" width="100" header-align="center"></el-table-column>
       <el-table-column prop="point_code" label="点位编码" align="center"></el-table-column>
@@ -61,26 +68,23 @@
 export default {
   name: 'faultselectPoint',
   props: {
-    project_code: {
-      type: String,
-      require: true
-    },
-    childList: {
+    projectList: {
       type: Array,
       require: true
     },
     points: {
       type: Array,
       require: true
-    },
-    areaList: {
-      type: Array,
-      require: true
     }
   },
   data () {
     return {
+      childList: [],
+      areaList: [],
       form: {
+        project: null,
+        project_id: null,
+        project_code: null,
         child_code: '',
         area: [],
         key_name: '', // 关键字
@@ -102,9 +106,22 @@ export default {
     }
   },
   mounted () {
-    this.getList()
   },
   methods: {
+    handleProjectChange (val) {
+      this.form.project_code = val.projectCode
+      this.form.project_id = val.id
+      if (val) {
+        this.form.area = null
+        this.form.child_code = null
+        this.form.key_name = null
+        this.form.online = -1
+
+        this.getChildList()
+        this.getAreaList()
+        this.getList()
+      }
+    },
     async getList () {
       this.loading = true
       const params = {
@@ -112,7 +129,7 @@ export default {
         online: this.form.online,
         page_no: this.page.page_no,
         page_size: this.page.page_size,
-        project_code: this.project_code
+        project_code: this.form.project_code
       }
       const { data, code } = await this.$pub.post('point/order/point-list', params)
       this.loading = false
@@ -149,6 +166,18 @@ export default {
       })
     },
     handleQuery () {
+      if (!this.form.project_code) {
+        this.form.area = null
+        this.form.child_code = null
+        this.form.key_name = null
+        this.form.online = -1
+        return this.$message({
+          message: '必须选择一个项目进行查询',
+          type: 'error',
+          showClose: true,
+          customClass: 'uploadMessage'
+        })
+      }
       this.tableData = []
       this.selectedData = []
       this.page.page_no = 1
@@ -161,6 +190,44 @@ export default {
     sizeChange (val) {
       this.page.page_size = val
       this.getList()
+    },
+    async getChildList () {
+      try {
+        const { data, code, message } = await this.$pub.post('project/child-list', { project_id: this.form.project_id })
+        if (code === 200) {
+          this.childList = data || []
+        } else {
+          this.childList = []
+          this.$notify.error({
+            title: '查询失败',
+            message: message
+          })
+        }
+      } catch (e) {
+        this.$notify.error({
+          title: '服务器请求失败',
+          message: e.message
+        })
+      }
+    },
+    async getAreaList () {
+      try {
+        const { data, code, message } = await this.$pub.post('/project/area-list', { project_id: this.form.project_id })
+        if (code === 200) {
+          this.areaList = data || []
+        } else {
+          this.areaList = []
+          this.$notify.error({
+            title: '查询失败',
+            message: message
+          })
+        }
+      } catch (e) {
+        this.$notify.error({
+          title: '服务器请求失败',
+          message: e.message
+        })
+      }
     },
     // 处理表格选中事件
     handleSelectionChange (selection) {
