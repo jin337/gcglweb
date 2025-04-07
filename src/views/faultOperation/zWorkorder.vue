@@ -62,7 +62,8 @@
           <span style="cursor:pointer;" @click="showdevice(scope.row)">{{ scope.row.device_count }}</span>
         </template>
 </el-table-column> -->
-      <el-table-column prop="fault_dept_name" label="接单部门" show-overflow-tooltip></el-table-column>
+      <el-table-column prop="fault_dept_name" label="接单部门" show-overflow-tooltip width="200px"
+        align="center"></el-table-column>
       <el-table-column prop="create_user_name" label="派发人" align="center" width="100px"></el-table-column>
       <el-table-column prop="create_time" label="派单时间" align="center" width="160px">
         <template slot-scope="scope">
@@ -121,7 +122,7 @@
     </el-dialog>
 
     <!-- 工单处理  工单详情 -->
-    <el-dialog :title="isInfo ? '工单处理详情' : '工单处理'" @close="getList" :visible.sync="disposeFlag" width="1400px"
+    <el-dialog :title="isInfo ? '工单处理详情' : '工单处理'" @close="getList" :visible.sync="disposeFlag" width="100%"
       append-to-body custom-class="dis_fault_work">
       <dispose-order v-if="disposeFlag" :disposeFlag.sync="disposeFlag" :isOpear="!isInfo" :currentData="currentData"
         :faultTypeList="faultTypeList"></dispose-order>

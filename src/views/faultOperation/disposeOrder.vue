@@ -21,12 +21,12 @@
         <vxe-table ref="xTable" max-height="250" :data="form.tableData" :row-config="{ isHover: true, keyField: 'id' }"
           :checkbox-config="checkboxConfig" highlight-current-row border @cell-dblclick="handleRowDblClick">
           <vxe-column type="checkbox" width="40px" align="center" />
-          <vxe-column title="项目" field="project_name" align="center" />
+          <vxe-column title="项目" field="project_name" align="center" width="400px" />
           <vxe-column title="区域" field="area" width="80px" align="center" />
-          <vxe-column title="子系统" field="child_name" width="80px" header-align="center" />
-          <vxe-column title="点位编码" field="point_code" header-align="center" />
-          <vxe-column title="点位名称" field="point_name" header-align="center" />
-          <vxe-column title="修复数量" field="handle_count" width="80px" align="center">
+          <vxe-column title="子系统" field="child_name" width="120px" header-align="center" />
+          <vxe-column title="点位编码" field="point_code" width="130px" header-align="center" />
+          <vxe-column title="点位名称" field="point_name" header-align="center" width="300px" />
+          <vxe-column title="修复数量" field="handle_count" width="40px" align="center">
             <template v-slot="{ row, rowIndex }">
               <!-- <el-form-item :prop="`tableData.${rowIndex}.handle_count`" v-if="row.checked && row.status === 0"
                 :rules="rules.movePoint">
@@ -36,10 +36,10 @@
               <span class="curp" @click="openFaultInfo(row, rowIndex)">{{ row.handle_count }}</span>
             </template>
           </vxe-column>
-          <vxe-column title="报障数量" field="count" width="70px" align="center" />
+          <vxe-column title="报障数量" field="count" width="40px" align="center" />
           <vxe-column title="故障类型" field="fault_type_name" header-align="center" width="110px" />
           <vxe-column title="故障类别" field="fault_category_name" header-align="center" width="110px" />
-          <vxe-column field="handle_remark" title="故障原因" width="130px" align="center">
+          <vxe-column field="handle_remark" title="故障原因" width="200px" align="center">
             <template v-slot="{ row, rowIndex }">
               <el-form-item class="handle_remark" :prop="`tableData.${rowIndex}.handle_remark`"
                 v-if="row.checked && row.status === 0" :rules="rules.handle_remark">
@@ -48,7 +48,7 @@
               <span>{{ row.handle_remark }}</span>
             </template>
           </vxe-column>
-          <vxe-column field="photo_list" title="维修照片" width="70px" align="center">
+          <vxe-column field="photo_list" title="维修照片" width="40px" align="center">
             <template v-slot="{ row }">
               <div style="cursor:pointer" @click="handlePreview(row)">{{ row.photo_list.length > 0 ?
                 row.photo_list.length
@@ -56,7 +56,7 @@
                 0 }}</div>
             </template>
           </vxe-column>
-          <vxe-column field="handle_time" title="处理时间" width="150px" align="center">
+          <vxe-column field="handle_time" title="处理时间" align="center">
             <template v-slot="{ row }">
               <span>{{ row.handle_time ? parseTime(row.handle_time) : '' }}</span>
             </template>
