@@ -15,7 +15,15 @@
           <treeselect class="n-content" v-model="form.dept_id" :normalizer="normalizer" placeholder="输入搜索词查询派发单位"
             :options="deptOptions" :flat="true" style="width:250px;" />
         </el-form-item>
-        <el-button type="primary" style="margin-left:auto;" size="medium" @click="selectPoint">选择点位</el-button>
+        <div class="right-btn">
+          <el-upload v-if="!isEdit" class="upload-demo" ref="upload" action="#" :multiple="false"
+            :show-file-list="false" name="files" :file-list="fileList" :before-upload="beforeUpload"
+            :http-request="httpRequest" :on-exceed="handleExceed" :on-change="handleChanged" accept=".xlsx" :limit="1">
+            <el-button type="primary" size="medium">点位导入</el-button>
+          </el-upload>
+
+          <el-button type="primary" size="medium" @click="selectPoint">选择点位</el-button>
+        </div>
       </div>
 
       <vxe-table ref="tableRefbuildOrder" max-height="250" :data="tableData" :row-config="{ isHover: true }"
@@ -261,6 +269,13 @@ export default {
       }
       return true
     }
+    const uploadValid = (rule, value, callback) => {
+      if (this.fileList.length > 0) {
+        callback()
+      } else {
+        callback(new Error('必须上传文件'))
+      }
+    }
     return {
       tableData111: [
         { id: 10001, name: 'Test10', role: 'Develop', sex: '0', date: '2021-11-14', age: 28, amount: 888, address: 'test abc' },
@@ -291,13 +306,16 @@ export default {
         ],
         selectedWorkers: [
           { required: true, message: '请选择人力', trigger: 'change' }
-        ]
+        ],
         // selectedCars: [
         //   { required: true, message: '请选择车辆', trigger: 'change' }
         // ],
         // remark: [
         //   { required: true, message: '请输入备注', trigger: 'blur' }
         // ]
+        upload: [
+          { validator: uploadValid, trigger: 'change' }
+        ]
       },
       // 选择点位
       selectFlag: false,
@@ -320,7 +338,9 @@ export default {
       child_nameFilterMethod,
       areaFilterMethod,
       point_codeFilterMethod,
-      point_nameFilterMethod
+      point_nameFilterMethod,
+      fileList: [],
+      file: []
     }
   },
   mounted () {
@@ -522,6 +542,91 @@ export default {
         $table.updateFilterOptionStatus(option, !!option.data)
         $table.updateData()
       }
+    },
+
+    // 上传
+    handleChanged (file, fileList) {
+      // 如果只需要保留最新上传的文件
+      if (fileList.length > 1) {
+        this.fileList = [fileList[fileList.length - 1]] // 只保留最后一个文件
+      }
+    },
+    handleExceed (file, fileList) {
+      this.fileList = fileList
+    },
+    // 上传文件前的钩子函数
+    beforeUpload (file) {
+      if (file.size / 1024 / 1024 > 50) {
+        this.$message({
+          type: 'error',
+          message: '上传文件不超过50M',
+          showClose: true
+        })
+        return false
+      }
+      var ext = file.name.substring(file.name.lastIndexOf('.') + 1)
+      const extension =
+        ext === 'xlsx'
+      if (!extension) {
+        this.$message({
+          type: 'error',
+          message: '上传文件格式只能为xlsx',
+          showClose: true
+        })
+        return false
+      }
+      this.fileList = [] // 清空已上传的文件列表
+      return true
+    },
+    // 上传
+    async httpRequest (opt) {
+      this.file = [opt.file]
+      const upData = new FormData()
+      this.file.some((file) => {
+        upData.append('file', file, file.name)
+        const fileType = file.name.substring(file.name.lastIndexOf('.') + 1)
+        const isvsdx = fileType === 'xlsx'
+        if (!isvsdx) {
+          this.$message({
+            type: 'error',
+            message: '文件格式目前仅支持XLSX!',
+            showClose: true
+          })
+          return true
+        }
+      })
+      const { data, code } = await this.$pub.post('/point/order/import-point', upData)
+      if (code === 200) {
+        // 合并数据
+        const arr = data.list.map(e => ({
+          ...e,
+          fault_type: 1,
+          id: this.isEdit ? this.currentOrder.id : null
+        }))
+
+        this.tableData.push(...arr)
+        const uniqueArray = [...new Map(
+          this.tableData.map(item => [
+            `${item.project_code}_${item.point_code}`, // 唯一键
+            item
+          ])
+        ).values()]
+        const isSame = this.tableData.length === uniqueArray.length
+        if (!isSame) {
+          this.tableData = uniqueArray
+        }
+
+        this.$alert(`<div><div>导入点位数量:${data.point_count}</div><div>导入设备数量:${data.ip_count}</div></div>`, '导入成功', {
+          dangerouslyUseHTMLString: true,
+          showConfirmButton: false
+        })
+      } else {
+        this.$message({
+          type: 'error',
+          message: '上传失败',
+          showClose: true
+        })
+      }
     }
   }
 }
@@ -549,6 +654,15 @@ export default {
       display: flex;
       flex-wrap: wrap;
       flex: 1;
+    }
+  }
+
+  .right-btn {
+    margin-left: auto;
+
+    .upload-demo {
+      display: inline-block;
+      margin-right: 10px;
     }
   }
 

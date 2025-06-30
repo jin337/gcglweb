@@ -223,6 +223,9 @@
               <el-form-item prop="remark" label="备注">
                 <el-input size="mini" v-model="form.remark" type="textarea" :disabled="!isOpear" :rows="4" />
               </el-form-item>
+              <el-form-item prop="remark" label="施工人员">
+                <el-input size="mini" v-model="form.build_user" type="textarea" :disabled="!isOpear" :rows="4" />
+              </el-form-item>
             </div>
           </div>
         </el-card>
@@ -275,9 +278,9 @@
   </div>
 </template>
 <script>
-import mixin from './mixin.js'
 import { parseTime } from '@/utils/tool'
 import moment from 'moment'
+import mixin from './mixin.js'
 export default {
   name: 'disposeOrder',
   mixins: [mixin],
@@ -341,7 +344,8 @@ export default {
         finishDevice: 0, // 完成修复相机数
         movePoint: 0, // 移交运营商点位数
         moveDevice: 0, // 移交运营相机数
-        remark: ''
+        remark: '',
+        build_user: '' // 施工人员
       },
       // 校验规则
       rules: {
@@ -477,7 +481,7 @@ export default {
       this.detail = data
       this.form.tableData = (data.point_list || []).map(m => {
         return {
-          ...m, checked: m.status != 0
+          ...m, checked: m.status !== 0
         }
       })
 
@@ -521,6 +525,7 @@ export default {
       *  movePoint：移交运营商点位数
       *  moveDevice：移交运营相机数
        */
+      this.form.build_user = data.build_user // 施工人员
       this.form.remark = data.remark // 系统结论备注
       this.form.pPoint = this.form.tableData.length// 移交运营商点位数和相机数
       this.form.pDevice = this.form.tableData.reduce((sum, item) => sum + item.count, 0)
@@ -598,7 +603,8 @@ export default {
             point_list: selectedData,
             price_list_confirm: [...workPrice, ...carPrice, tiao],
             sys_result,
-            remark: this.form.remark
+            remark: this.form.remark,
+            build_user: this.form.build_user
           }
           const { code, message } = await this.$pub.post('/point/order/handle', tempobj)
           if (code === 200) {
