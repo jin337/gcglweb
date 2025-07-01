@@ -17,7 +17,7 @@
       <el-card class="box-card">
         <div slot="header" class="clearfix">
           <span>点位列表</span>
-          <span>派发单位：{{ currentData.fault_dept_name }}</span>
+          <span class="firm">派发单位：{{ currentData.fault_dept_name }}</span>
         </div>
         <vxe-table ref="xTable" max-height="250" :data="form.tableData" :row-config="{ isHover: true, keyField: 'id' }"
           :checkbox-config="checkboxConfig" highlight-current-row border @cell-dblclick="handleRowDblClick">
@@ -656,12 +656,16 @@ export default {
     font-weight: bold;
     display: flex;
     justify-content: space-between;
+
+    .firm {
+      margin-right: 70px;
+    }
   }
 
   .btns {
     position: absolute;
     right: 20px;
-    top: 34px;
+    top: 18px;
   }
 
   .box-card {
