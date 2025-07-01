@@ -51,7 +51,7 @@
             @change="(val) => handleCheckAllChange(val, 'origin')">全选</el-checkbox>
           <el-checkbox-group v-model="origin.checkedList" @change="(val) => handleCheckedCitiesChange(val, 'origin')">
             <el-checkbox v-for="item in origin.list" :label="item.origin" :key="item.origin">{{ item.origin_name
-              }}</el-checkbox>
+            }}</el-checkbox>
           </el-checkbox-group>
         </div>
       </div>
@@ -62,7 +62,19 @@
             @change="(val) => handleCheckAllChange(val, 'status')">全选</el-checkbox>
           <el-checkbox-group v-model="status.checkedList" @change="(val) => handleCheckedCitiesChange(val, 'status')">
             <el-checkbox v-for="item in status.list" :label="item.status" :key="item.status">{{ item.status_name
-              }}</el-checkbox>
+            }}</el-checkbox>
+          </el-checkbox-group>
+        </div>
+      </div>
+      <div class="wrap">
+        <h5>运维状态:</h5>
+        <div class="aside">
+          <el-checkbox :indeterminate="opers.isIndeterminate" v-model="opers.checkAll"
+            @change="(val) => handleCheckAllChange(val, 'opers')">全选</el-checkbox>
+          <el-checkbox-group v-model="opers.checkedList" @change="(val) => handleCheckedCitiesChange(val, 'opers')">
+            <el-checkbox v-for="item in opers.list" :label="item.oper_status" :key="item.oper_status">{{
+              item.oper_status_name
+            }}</el-checkbox>
           </el-checkbox-group>
         </div>
       </div>
@@ -122,15 +134,15 @@
 
         <template slot-scope="scope">
           <span :style="{ color: scope.row.distance >= 500 ? '#D9001B' : '' }">{{ scope.row.distance >= 500 ?
-      (scope.row.distance / 1000) + '公里'
-      : scope.row.distance + '米' }}</span>
+            (scope.row.distance / 1000) + '公里'
+            : scope.row.distance + '米' }}</span>
         </template>
       </el-table-column>
       <el-table-column prop="relation_count" label="方向数" width="80px" align="center">
 
         <template slot-scope="scope">
           <span class="cursor" style="padding:4px;" @click="directNumClick(scope.row)">{{ scope.row.relation_count
-            }}</span>
+          }}</span>
         </template>
       </el-table-column>
       <el-table-column prop="child_name" label="子系统" width="120px" header-align="center">
@@ -150,7 +162,7 @@
         <template slot-scope="scope">
           <span class="cursor" @click="manyClick(scope.row, 'origin')"
             :style="{ color: originColor(scope.row.origin), padding: '4px' }">{{ selectOriginLabel(origin.list,
-      scope.row.origin) }}</span>
+              scope.row.origin) }}</span>
         </template>
       </el-table-column>
       <el-table-column prop="status" label="状态" align="center" width="120px">
@@ -158,14 +170,19 @@
         <template slot-scope="scope">
           <span class="cursor" @click="manyClick(scope.row, 'status')"
             :style="{ color: statusColor(scope.row.status), padding: '4px' }">{{ selectDictLabel(status.list,
-      scope.row.status) }}</span>
+              scope.row.status) }}</span>
+        </template>
+      </el-table-column>
+      <el-table-column prop="oper_status" label="运维状态" width="120px" align="center">
+        <template slot-scope="scope">
+          <span class="cursor" @click="manyClick(scope.row, 'oper_status')">{{ scope.row.oper_status_name }}</span>
         </template>
       </el-table-column>
       <el-table-column prop="is_lock" label="锁定" align="center" width="80px">
 
         <template slot-scope="scope">
           <span :style="{ color: scope.row.is_lock === 1 ? '#D9001B' : '' }">{{ scope.row.is_lock === 1 ? '已锁定' : '未锁定'
-            }}</span>
+          }}</span>
         </template>
       </el-table-column>
       <el-table-column label="操作" width="100px" header-align="center">
@@ -175,7 +192,7 @@
             v-hasPermi="['points:del']">删除</span> -->
           <span class="cursor" style="margin-right:10px;" @click="showInfoDrawer(scope.row)">详情</span>
           <span class="cursor" v-hasPermi="['points:lock']" @click="changeLock(scope.row)">{{ scope.row.is_lock === 0 ?
-      '锁定' : '解锁' }}</span>
+            '锁定' : '解锁' }}</span>
         </template>
       </el-table-column>
     </el-table>
@@ -214,7 +231,7 @@
       <direct :pointInfo="currentp" v-if="showdirectNums" :project_code="form.project_code" :is_lock="isLock(currentp)">
       </direct>
     </el-dialog>
-    <!-- 点击子系统 来源 状态 -->
+    <!-- 点击子系统 来源 状态 运维状态-->
     <el-dialog :visible.sync="showMany" :footer="false" :title="click.title" width="40%" :lock-scroll="false">
       <pubContainer ref="pubcontainer" v-if="showMany" :title="click.title" :pointInfo="currentp" :list="click.list"
         :project_code="form.project_code" :label="click.label" :value="click.value" :type="click.type"
@@ -297,6 +314,12 @@ export default {
         page_size: 10
       },
       isGJsearch: false,
+      opers: {
+        isIndeterminate: false,
+        checkAll: false,
+        list: [],
+        checkedList: []
+      },
       child: {
         isIndeterminate: false,
         checkAll: false,
@@ -387,6 +410,7 @@ export default {
       this.form.project_code = val.projectCode
       this.form.project_id = val.id
 
+      this.opers.list = []
       this.child.list = []
       this.area.list = []
       this.tag.list = []
@@ -394,12 +418,14 @@ export default {
 
       this.resetSearch()
 
+      this.getOpersList()
       this.getChildList()
       this.getAreaList()
       this.getTagList()
     },
     resetSearch () {
       this.form.point_code = ''
+      Object.assign(this.opers, { isIndeterminate: false, checkAll: false, checkedList: [] })
       Object.assign(this.child, { isIndeterminate: false, checkAll: false, checkedList: [] })
       Object.assign(this.area, { isIndeterminate: false, checkAll: false, checkedList: [] })
       Object.assign(this.status, { isIndeterminate: false, checkAll: false, checkedList: [] })
@@ -423,6 +449,7 @@ export default {
       this.tableLoading = true
       const params = {
         child_array: this.child.checkedList,
+        opers_array: this.opers.checkedList,
         area_array: this.area.checkedList,
         status_array: this.status.checkedList,
         origin_array: this.origin.checkedList,
@@ -493,6 +520,30 @@ export default {
           } else {
             this.popoverStyle = {}
           }
+        } else {
+          this.$notify.error({
+            title: '查询失败',
+            message: message
+          })
+        }
+      } catch (e) {
+        this.$notify.error({
+          title: '服务器请求失败',
+          message: e.message
+        })
+      }
+    },
+    async getOpersList () {
+      try {
+        const req = { dict_label: 'point_oper_status' }
+        const { data, code, message } = await this.$pub.post('/sys/dict/list-slt', req)
+        if (Number(code) === 200) {
+          this.opers.list = (data || []).map(m => {
+            return {
+              oper_status: Number(m.value),
+              oper_status_name: m.label
+            }
+          })
         } else {
           this.$notify.error({
             title: '查询失败',
@@ -639,6 +690,9 @@ export default {
         switch (item) {
           case 'child':
             type = 'key'
+            break
+          case 'opers':
+            type = 'oper_status'
             break
           case 'status':
             type = 'status'

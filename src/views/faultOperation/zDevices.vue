@@ -253,7 +253,7 @@ export default {
         content: this.form.content,
         area: this.form.area,
         child_code: this.form.child_code,
-        oper_status: this.form.oper_status,
+        oper_status: this.form.oper_status === null ? -1 : this.form.oper_status,
 
         page_no: this.page.page_no,
         page_size: this.page.page_size
