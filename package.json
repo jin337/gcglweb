@@ -7,6 +7,7 @@
   "scripts": {
     "dev": "vue-cli-service serve",
     "build": "vue-cli-service build",
+    "build:all": "npm run build:47 && npm run build:211",
     "build:47": "vue-cli-service build --mode 47",
     "build:211": "vue-cli-service build --mode 211",
     "test": "vue-cli-service build --mode test",

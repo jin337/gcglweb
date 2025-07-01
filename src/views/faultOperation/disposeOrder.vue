@@ -16,7 +16,8 @@
 
       <el-card class="box-card">
         <div slot="header" class="clearfix">
-          <span>点位</span>
+          <span>点位列表</span>
+          <span>派发单位：{{ currentData.fault_dept_name }}</span>
         </div>
         <vxe-table ref="xTable" max-height="250" :data="form.tableData" :row-config="{ isHover: true, keyField: 'id' }"
           :checkbox-config="checkboxConfig" highlight-current-row border @cell-dblclick="handleRowDblClick">
@@ -175,7 +176,7 @@
                 <div style="margin-top: 13px;" class="vux-flexbox">
                   <span class="label">核算备注</span>
                   <el-form-item prop="price_remark" style="width:calc(100% - 70px);">
-                    <el-input size="mini" v-model="form.price_remark" type="textarea" :disabled="!isOpear" />
+                    <el-input size="mini" v-model="form.price_remark" type="textarea" :rows="9" :disabled="!isOpear" />
                   </el-form-item>
                 </div>
                 <!-- 核算end -->
@@ -653,6 +654,8 @@ export default {
   .clearfix {
     font-size: 18px;
     font-weight: bold;
+    display: flex;
+    justify-content: space-between;
   }
 
   .btns {
