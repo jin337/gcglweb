@@ -25,7 +25,11 @@
           <vxe-column title="项目" field="project_name" align="center" width="400px" />
           <vxe-column title="区域" field="area" width="80px" align="center" />
           <vxe-column title="子系统" field="child_name" width="120px" header-align="center" />
-          <vxe-column title="点位编码" field="point_code" width="130px" header-align="center" />
+          <vxe-column title="点位编码" field="point_code" width="130px" header-align="center">
+            <template v-slot="{ row, rowIndex }">
+              <div class="curp blue" @click="openPoint(row, rowIndex)">{{ row.point_code }}</div>
+            </template>
+          </vxe-column>
           <vxe-column title="点位名称" field="point_name" header-align="center" width="300px" />
           <vxe-column title="修复数量" field="handle_count" width="40px" align="center">
             <template v-slot="{ row, rowIndex }">
@@ -276,9 +280,18 @@
         </vxe-column>
       </vxe-table>
     </el-dialog>
+
+    <!-- 点位编码 -->
+    <el-drawer v-if="pointModel" title="点位建设详情" :visible.sync="pointModel" :append-to-body="true"
+      custom-class="showInfo_wrap" size="90%" :destroy-on-close="true">
+      <point-info :pointInfo="pointDetail" :project_id="pointDetail.project_id"
+        :project_code="pointDetail.project_code"></point-info>
+    </el-drawer>
   </div>
 </template>
 <script>
+import pointInfo from './pointInfo'
+
 import { parseTime } from '@/utils/tool'
 import moment from 'moment'
 import mixin from './mixin.js'
@@ -302,6 +315,9 @@ export default {
       type: Array,
       default: () => []
     }
+  },
+  components: {
+    pointInfo
   },
   data () {
     // 自定义校验规则
@@ -389,7 +405,10 @@ export default {
       },
       faultModel: false,
       faultIndex: null,
-      deviceList: []
+      deviceList: [],
+      pointModel: false,
+      pointIndex: null,
+      pointDetail: {}
     }
   },
   computed: {
@@ -564,9 +583,11 @@ export default {
       return []
     },
     handleRowDblClick ({ row }) {
-      const table = this.$refs.xTable
-      // 切换当前行的选中状态
-      table.toggleCheckboxRow(row)
+      if (this.isOpear) {
+        const table = this.$refs.xTable
+        // 切换当前行的选中状态
+        table.toggleCheckboxRow(row)
+      }
     },
     // 点击处理记录按钮
     handlePreview (row) {
@@ -626,6 +647,11 @@ export default {
       this.faultModel = true
       this.faultIndex = rowIndex
       this.deviceList = row?.device_list || []
+    },
+    openPoint (row, rowIndex) {
+      this.pointModel = true
+      this.pointIndex = rowIndex
+      this.pointDetail = row || {}
     },
     saveFault () {
       this.form.tableData[this.faultIndex].device_list = this.deviceList
@@ -819,6 +845,10 @@ export default {
 
 .curp {
   cursor: pointer;
+}
+
+.blue {
+  color: #409EFF;
 }
 
 .handle_remark {
