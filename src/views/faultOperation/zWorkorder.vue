@@ -79,7 +79,7 @@
       <el-table-column label="操作" width="120px">
         <template slot-scope="scope">
           <el-button size="mini" type="text" @click="handleDispose(scope.row)"
-            v-if="scope.row.status === 1">处理</el-button>
+            v-if="scope.row.status === 1 || scope.row.status === 3">处理</el-button>
           <el-button size="mini" type="text" @click="handleInfo(scope.row)">详情</el-button>
 
           <el-dropdown class="more-box" size="small" @command="handleCommand($event, scope.row)">
@@ -133,8 +133,8 @@
 
 <script>
 import { checkPermission, downloadFile, parseTime } from '@/utils/tool'
-import deviceList from './deviceList.vue'
 import buildOrder from './buildOrder.vue'
+import deviceList from './deviceList.vue'
 import disposeOrder from './disposeOrder.vue'
 
 export default {
@@ -155,7 +155,7 @@ export default {
         // area: []
       },
       statusList: [// 顺序不能动，回显
-        { label: '生成', value: 0 }, { label: '下发', value: 1 }, { label: '完工', value: 2 }
+        { label: '生成', value: 0 }, { label: '下发', value: 1 }, { label: '完工', value: 2 }, { label: '暂存', value: 3 }
       ],
       faultTypeList: [],
       childList: [],

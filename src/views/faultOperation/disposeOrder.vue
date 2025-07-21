@@ -10,14 +10,17 @@
   <div v-loading="loading" class="disposeOrderBox">
     <el-form :model="form" :rules="rules" ref="formRef" size="small">
       <!-- 工单处理 -->
-      <div class="btns" v-if="isOpear">
-        <el-button size="mini" type="primary" @click="handleSubmit">确定</el-button>
+      <div class="topwrap">
+        <span class="firm">派发单位：{{ currentData.fault_dept_name }}</span>
+        <div class="btns" v-if="isOpear">
+          <el-button size="mini" type="primary" @click="handleSubmit('temp')">暂存</el-button>
+          <el-button size="mini" type="primary" @click="handleSubmit">确定</el-button>
+        </div>
       </div>
 
       <el-card class="box-card">
         <div slot="header" class="clearfix">
           <span>点位列表</span>
-          <span class="firm">派发单位：{{ currentData.fault_dept_name }}</span>
         </div>
         <vxe-table ref="xTable" max-height="250" :data="form.tableData" :row-config="{ isHover: true, keyField: 'id' }"
           :checkbox-config="checkboxConfig" highlight-current-row border @cell-dblclick="handleRowDblClick">
@@ -600,7 +603,7 @@ export default {
         this.$message.warning('没有可预览的图片')
       }
     },
-    async handleSubmit () {
+    async handleSubmit (name) {
       const selectedData = this.$refs.xTable.getCheckboxRecords() // 获取选中的数据
       this.$refs.formRef.validate(async (valid) => {
         if (this.sumPrice <= 0) {
@@ -628,7 +631,11 @@ export default {
             remark: this.form.remark,
             build_user: this.form.build_user
           }
-          const { code, message } = await this.$pub.post('/point/order/handle', tempobj)
+          let url = '/point/order/handle'
+          if (name === 'temp') {
+            url = '/point/order/handle-temp'
+          }
+          const { code, message } = await this.$pub.post(url, tempobj)
           if (code === 200) {
             this.$message.success('处理成功！')
             this.$emit('update:disposeFlag', false)
@@ -682,16 +689,23 @@ export default {
     font-weight: bold;
     display: flex;
     justify-content: space-between;
-
-    .firm {
-      margin-right: 70px;
-    }
   }
 
-  .btns {
+  .topwrap {
     position: absolute;
     right: 20px;
     top: 18px;
+
+    .btns {
+      display: inline-block;
+      margin-left: 10px;
+    }
+
+    .firm {
+      vertical-align: middle;
+      font-size: 18px;
+      font-weight: bold;
+    }
   }
 
   .box-card {
