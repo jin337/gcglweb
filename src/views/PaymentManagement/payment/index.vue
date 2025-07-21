@@ -49,8 +49,9 @@
       <!-- <el-table-column prop="status" label="状态" width="80" align="center"></el-table-column> -->
       <el-table-column prop="opera" label="操作" width="220px" align="center">
         <template slot-scope="scope">
-          <el-button type="text" @click="handleMaintain(scope.row)" v-hasPermi="['payment:opera']">{{ scope.row.pay_status
-            === '9' ? '详情' : '审核' }}</el-button>
+          <el-button type="text" @click="handleMaintain(scope.row)" v-hasPermi="['payment:opera']">{{
+            scope.row.pay_status
+              === '9' ? '详情' : '审核' }}</el-button>
           <el-button type="text" v-if="scope.row.pay_status != '9' && checkPermission(['payment:opera'])"
             @click="handleEdit(scope.row)">编辑</el-button>
           <el-button type="text" v-if="scope.row.pay_status != '9' && checkPermission(['payment:opera'])"
@@ -94,9 +95,9 @@
 </template>
 
 <script>
-import opera from './opera.vue'
+import { checkPermission, downloadFile, parseTime } from '@/utils/tool'
 import maintain from './maintain.vue'
-import { parseTime, checkPermission, downloadFile } from '@/utils/tool'
+import opera from './opera.vue'
 export default {
   name: 'PaymentManagement_payment',
   data () {

@@ -47,7 +47,7 @@
 
       <el-form-item class="add">
         <el-button type="primary" @click="handleQuery">查询</el-button>
-        <el-button @click="handleAdd">新建</el-button>
+        <el-button v-if="checkPermission(['workorder:create'])" @click="handleAdd">新建</el-button>
         <!-- <el-button type="primary" @click="exportExcel" :loading="exportLoading" v-if="form.project_code">导出</el-button> -->
       </el-form-item>
     </el-form>
@@ -79,16 +79,17 @@
       <el-table-column label="操作" width="120px">
         <template slot-scope="scope">
           <el-button size="mini" type="text" @click="handleDispose(scope.row)"
-            v-if="scope.row.status === 1 || scope.row.status === 3">处理</el-button>
+            v-if="(scope.row.status === 1 || scope.row.status === 3) && checkPermission(['workorder:dispose'])">处理</el-button>
           <el-button size="mini" type="text" @click="handleFinish(scope.row)"
-            v-if="scope.row.status === 2">归档</el-button>
+            v-if="scope.row.status === 2 && checkPermission(['workorder:finish'])">归档</el-button>
           <el-button size="mini" type="text" @click="handleInfo(scope.row)">详情</el-button>
 
           <el-dropdown class="more-box" size="small" @command="handleCommand($event, scope.row)">
             <el-button size="mini" type="text">更多</el-button>
             <el-dropdown-menu slot="dropdown">
               <el-dropdown-item v-if="scope.row.status !== 2" command="handleEdit">编辑</el-dropdown-item>
-              <el-dropdown-item command="handleDelete" v-if="scope.row.status !== 4">删除</el-dropdown-item>
+              <el-dropdown-item command="handleDelete"
+                v-if="scope.row.status !== 4 && checkPermission(['workorder:delete'])">删除</el-dropdown-item>
               <el-dropdown-item command="handlePrint" v-if="scope.row.status === 2">打印</el-dropdown-item>
               <el-dropdown-item command="handleExport">导出</el-dropdown-item>
             </el-dropdown-menu>
