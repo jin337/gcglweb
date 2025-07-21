@@ -80,13 +80,15 @@
         <template slot-scope="scope">
           <el-button size="mini" type="text" @click="handleDispose(scope.row)"
             v-if="scope.row.status === 1 || scope.row.status === 3">处理</el-button>
+          <el-button size="mini" type="text" @click="handleFinish(scope.row)"
+            v-if="scope.row.status === 2">归档</el-button>
           <el-button size="mini" type="text" @click="handleInfo(scope.row)">详情</el-button>
 
           <el-dropdown class="more-box" size="small" @command="handleCommand($event, scope.row)">
             <el-button size="mini" type="text">更多</el-button>
             <el-dropdown-menu slot="dropdown">
               <el-dropdown-item v-if="scope.row.status !== 2" command="handleEdit">编辑</el-dropdown-item>
-              <el-dropdown-item command="handleDelete">删除</el-dropdown-item>
+              <el-dropdown-item command="handleDelete" v-if="scope.row.status !== 4">删除</el-dropdown-item>
               <el-dropdown-item command="handlePrint" v-if="scope.row.status === 2">打印</el-dropdown-item>
               <el-dropdown-item command="handleExport">导出</el-dropdown-item>
             </el-dropdown-menu>
@@ -155,7 +157,7 @@ export default {
         // area: []
       },
       statusList: [// 顺序不能动，回显
-        { label: '生成', value: 0 }, { label: '下发', value: 1 }, { label: '完工', value: 2 }, { label: '暂存', value: 3 }
+        { label: '生成', value: 0 }, { label: '下发', value: 1 }, { label: '完工', value: 2 }, { label: '暂存', value: 3 }, { label: '归档', value: 4 }
       ],
       faultTypeList: [],
       childList: [],
@@ -546,6 +548,24 @@ export default {
       const title = this.form.project_code + '工单列表'
       downloadFile(result, title, 'xlsx')
       this.exportLoading = false
+    },
+    // 归档
+    async handleFinish (row) {
+      const { code, message } = await this.$pub.post('/point/order/finish', { id: row.id })
+      if (code === 200) {
+        this.getList()
+        this.$message({
+          type: 'success',
+          message: message || '归档成功',
+          showClose: true
+        })
+      } else {
+        this.$message({
+          type: 'error',
+          message: message || '归档失败',
+          showClose: true
+        })
+      }
     }
   }
 }
