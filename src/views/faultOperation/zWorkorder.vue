@@ -17,7 +17,8 @@
         </el-select>
       </el-form-item>
       <el-form-item label="处理状态">
-        <el-select v-model="form.status" clearable placeholder="请选择" style="width:220px;" @clear="handleQuery">
+        <el-select v-model="form.status" clearable placeholder="请选择" style="width:220px;"
+          @clear="handleQuery('status')">
           <el-option v-for="item in statusList" :key="item.value" :label="item.label" :value="item.value" />
         </el-select>
       </el-form-item>
@@ -409,7 +410,10 @@ export default {
         }
       })
     },
-    handleQuery () {
+    handleQuery (name) {
+      if (name === 'status') {
+        this.form.status = null
+      }
       this.page.page_no = 1
       this.getList()
     },
