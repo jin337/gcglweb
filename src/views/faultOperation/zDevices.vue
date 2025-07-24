@@ -43,6 +43,11 @@
       <el-table-column prop="area" label="区域" width="80px" align="center"></el-table-column>
       <el-table-column prop="child_name" label="子系统" width="120px" align="center"></el-table-column>
       <el-table-column prop="device_name" label="设备名称" align="center"></el-table-column>
+      <el-table-column prop="today_on_line" label="是否在线" width="80px" align="center">
+        <template slot-scope="scope">
+          <div>{{ onlineList[scope.row.today_on_line].label }}</div>
+        </template>
+      </el-table-column>
       <el-table-column prop="ip" label="IP" width="120px" align="center"></el-table-column>
       <el-table-column prop="oper_status_name" label="运维状态" width="100px" align="center"></el-table-column>
       <el-table-column label="操作" width="60px">
@@ -78,7 +83,6 @@
 
 <script>
 import { checkPermission } from '@/utils/tool'
-import { number } from 'echarts'
 
 export default {
   name: 'faultOperationDevices',
@@ -95,6 +99,7 @@ export default {
         oper_status: null,
         area: []
       },
+      onlineList: [{ label: '离线', value: 0 }, { label: '在线', value: 1 }],
       childList: [],
       areaList: [],
       faultTypeList: [],
