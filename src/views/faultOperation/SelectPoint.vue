@@ -37,34 +37,42 @@
           </el-option>
         </el-select>
       </el-form-item>
-      <el-button type="primary" @click="handleQuery" style="margin-left:auto;" size="mini">查询</el-button>
+      <el-button type="primary" @click="handleQuery" style="margin-left:auto;" size="small">查询</el-button>
     </el-form>
-    <el-table ref="selTable" @selection-change="handleSelectionChange" v-loading="loading" :data="tableData"
-      :height="400" border style="width: 100%" row-key="id" :header-row-style="{ height: '36px' }"
-      :row-style="{ height: '36px' }" :cell-style="{ padding: '0px' }">
-      <el-table-column type="selection" width="60" align="center" />
-      <el-table-column prop="project_name" label="项目" align="center"></el-table-column>
-      <el-table-column prop="area" label="区域" width="100" align="center"></el-table-column>
-      <el-table-column prop="child_name" label="子系统" width="100" header-align="center"></el-table-column>
-      <el-table-column prop="point_code" label="点位编码" align="center"></el-table-column>
-      <el-table-column prop="point_name" label="点位名称" header-align="center"></el-table-column>
-      <el-table-column prop="count" label="故障数量" width="100" align="center"></el-table-column>
-    </el-table>
+    <div class="table_box">
+      <div class="table_content">
+        <el-table ref="selTable" @selection-change="handleSelectionChange" v-loading="loading" :data="tableData"
+          :height="'calc(100% - 30px)'" border row-key="id" :header-row-style="{ height: '36px' }"
+          :row-style="{ height: '36px' }" :cell-style="{ padding: '0px' }">
+          <el-table-column type="selection" width="60" align="center" />
+          <el-table-column prop="project_name" label="项目" align="center"></el-table-column>
+          <el-table-column prop="area" label="区域" width="100" align="center"></el-table-column>
+          <el-table-column prop="child_name" label="子系统" width="100" header-align="center"></el-table-column>
+          <el-table-column prop="point_code" label="点位编码" align="center"></el-table-column>
+          <el-table-column prop="point_name" label="点位名称" header-align="center"></el-table-column>
+          <el-table-column prop="count" label="故障数量" width="100" align="center"></el-table-column>
+        </el-table>
 
-    <div style="display:flex;justify-content:space-between;">
-      <span style="color:#999;font-size:14px;">共 {{ total }} 条记录</span>
-      <el-pagination layout="prev, pager, next,sizes" :total="total" :page-size.sync="page.page_size"
-        @current-change="pageChange" @size-change="sizeChange" :current-page.sync="page.page_no" class="pagination"
-        small background>
-      </el-pagination>
+        <div style="display:flex;justify-content:space-between;">
+          <span style="color:#999;font-size:14px;">共 {{ total }} 条记录</span>
+          <el-pagination layout="prev, pager, next,sizes" :total="total" :page-size.sync="page.page_size"
+            @current-change="pageChange" @size-change="sizeChange" :current-page.sync="page.page_no" class="pagination"
+            small background>
+          </el-pagination>
+        </div>
+      </div>
+      <div class="map_content">
+        <PointMap :currentData="form?.project" :list="tableData" v-loading="loading" @drawPolygon="drawPolygon" />
+      </div>
     </div>
     <div class="btns">
-      <el-button size="mini" type="primary" @click="handleConfirm">确认</el-button>
+      <el-button size="small" type="primary" @click="handleConfirm">确认</el-button>
     </div>
   </div>
 </template>
 
 <script>
+import PointMap from './selectPointMap.vue'
 export default {
   name: 'faultselectPoint',
   props: {
@@ -104,6 +112,9 @@ export default {
       // 选中的数据
       selectedData: []
     }
+  },
+  components: {
+    PointMap
   },
   mounted () {
   },
@@ -246,12 +257,53 @@ export default {
         f.fault_type = 1
       })
       this.$emit('initTableData', this.selectedData)
+    },
+    // 地图选中
+    drawPolygon (markers) {
+      const points = this.tableData.filter(item => markers.some(m => m.point_code === item.point_code))
+      this.handleSelectionChange(points)
+      // 初始化选中状态
+      this.$nextTick(() => {
+        this.tableData.forEach((row) => {
+          if (points.some((selected) => selected.point_code === row.point_code)) {
+            this.$refs.selTable.toggleRowSelection(row, true)
+          } else {
+            this.$refs.selTable.toggleRowSelection(row, false)
+          }
+        })
+      })
     }
   }
 }
 </script>
 
 <style scoped>
+.selectpoint_box {
+  height: 100%;
+}
+
+.table_box {
+  display: flex;
+  flex-direction: row;
+  height: calc(100% - 100px);
+}
+
+.table_content {
+  width: 616px;
+  height: 100%;
+}
+
+.map_content {
+  flex: 1;
+  height: 100%;
+  margin-left: 10px;
+  background-color: #f8f8f9;
+}
+
+.table_content>>>.el-pagination__sizes {
+  margin-right: -10px;
+}
+
 .btns {
   text-align: right;
   margin-top: 20px;
