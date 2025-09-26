@@ -190,8 +190,7 @@
     </div>
 
     <!-- 选择点位 -->
-    <el-dialog class="selectPointBox" title="选择点位" :visible.sync="selectFlag" append-to-body :lock-scroll="false"
-      :fullscreen="true">
+    <el-dialog title="选择点位" :visible.sync="selectFlag" width="1200px" append-to-body :lock-scroll="false">
       <selectPointBox v-if="selectFlag" :projectList="projectList" :childList="childList" :areaList="areaList"
         :points="tableData" :selectFlag.sync="selectFlag" @initTableData="initTableData"></selectPointBox>
     </el-dialog>
@@ -691,11 +690,5 @@ export default {
     }
   }
 
-}
-
-.el-dialog__wrapper {
-  .el-dialog__body {
-    height: calc(100% - 94px);
-  }
 }
 </style>

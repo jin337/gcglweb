@@ -28,7 +28,7 @@ export const loadMap = (
       resolve(window.AMap)
     }
   })
-  const mpUI = mp.then(AMap => {
+  const mpUI = mp.then((AMap) => {
     return new Promise((resolve, reject) => {
       const hasLoaded2 = document.getElementById('amapUI')
       if (hasLoaded2) {
@@ -41,7 +41,7 @@ export const loadMap = (
       script2.src = '//webapi.amap.com/ui/1.1/main.js'
       script2.id = 'amapUI'
       script2.onerror = reject
-      script2.onload = function() {
+      script2.onload = function () {
         console.log(window)
         resolve({ AMap, AMapUI })
       }
@@ -59,7 +59,7 @@ export const loadMap = (
  * @returns
  */
 export const loadJScript = (
-  ak = '5bcy34kgPHEH19yekVfl3WMsQwUaT2kn',
+  ak = 'T077zTpSHp9MYNzq11PUgZfcmajVwMKn',
   v = '1.0'
 ) => {
   const mp = new Promise((resolve, reject) => {
