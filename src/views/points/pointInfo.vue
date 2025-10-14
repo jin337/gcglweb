@@ -20,7 +20,8 @@
             <el-button type="primary" size="mini" icon="el-icon-s-grid" @click="handleShowIPList"
               v-if="checkPermission(['points:ipList'])">IP列表</el-button>
             <el-button type="primary" size="mini" icon="el-icon-circle-plus-outline" @click.native="handleShowAddInfo"
-              v-if="haveaddPhoto && checkPermission(['points:proPhotoImp'])">添加工序照片</el-button>
+              v-if="haveaddPhoto && checkPermission(['points:proPhotoImp'])">添加工序文件</el-button>
+            <!--添加工序照片 改为 添加工序文件  -->
             <el-button size="mini" icon="el-icon-male" @click.native="showMap">地图查看</el-button>
           </div>
         </div>
@@ -61,24 +62,36 @@
                         <div class="block" v-for="imageitem in pointDirect.attachmentList" :key="imageitem.id">
                           <el-tooltip effect="dark" :content="imageitem.remark" placement="top-start"
                             v-if="imageitem.remark">
-                            <!--  有备注信息的  照片or全场景照片  -->
-                            <img :src="imageitem.filePathThumb" :data-source="imageitem.filePathTrans"
-                              style="width: 100px; height:  100px" :key="imageitem.filePath"
-                              v-if="imageitem.is360 === 0" />
-                            <img :src="imageitem.filePathThumb" style="width: 100px; height: 100px"
-                              :key="imageitem.filePath" v-if="imageitem.is360 === 1"
-                              @click="initPhotoSphere(procitem.procName, imageitem.filePathTrans)" />
+                            <img v-if="imageitem.file_suffix === '.pdf'" src="@/assets/images/pdf.png"
+                              style="width: 100px; height: 100px" :key="imageitem.filePathThumb"
+                              @click="previewPdf(imageitem)" />
+                            <template v-else>
+                              <!--  有备注信息的  照片or全场景照片  -->
+                              <img :src="imageitem.filePathThumb" :data-source="imageitem.filePathTrans"
+                                style="width: 100px; height:  100px" :key="imageitem.filePath"
+                                v-if="imageitem.is360 === 0" />
+                              <img :src="imageitem.filePathThumb" style="width: 100px; height: 100px"
+                                :key="imageitem.filePath" v-if="imageitem.is360 === 1"
+                                @click="initPhotoSphere(procitem.procName, imageitem.filePathTrans)" />
+                            </template>
                           </el-tooltip>
                           <!-- 无备注信息的 照片or全场景照片-->
 
                           <template v-else>
-                            <img :src="imageitem.filePathThumb" :data-source="imageitem.filePathTrans"
-                              style="width: 100px; height: 100px" :key="imageitem.filePath"
-                              v-if="imageitem.is360 === 0" />
-                            <img :src="imageitem.filePathThumb" style="width: 100px; height: 100px"
-                              :key="imageitem.filePath" v-if="imageitem.is360 === 1"
-                              @click="initPhotoSphere(procitem.procName, imageitem.filePathTrans)" />
+                            <img v-if="imageitem.file_suffix === '.pdf'" src="@/assets/images/pdf.png"
+                              style="width: 100px; height: 100px" :key="imageitem.filePathThumb"
+                              @click="previewPdf(imageitem)" />
+                            <template v-else>
+                              <img :src="imageitem.filePathThumb" :data-source="imageitem.filePathTrans"
+                                style="width: 100px; height: 100px" :key="imageitem.filePath"
+                                v-if="imageitem.is360 === 0" />
+                              <img :src="imageitem.filePathThumb" style="width: 100px; height: 100px"
+                                :key="imageitem.filePath" v-if="imageitem.is360 === 1"
+                                @click="initPhotoSphere(procitem.procName, imageitem.filePathTrans)" />
+                            </template>
+
                           </template>
+
                           <div class="submit-info"
                             :style="{ color: imageitem.audit === 0 ? '#888' : (imageitem.audit === 2 || imageitem.audit === 4) ? 'red' : (imageitem.audit === 1 || imageitem.audit === 3) ? 'green' : '' }">
                             {{ selectDictLabel(statusOptions, imageitem.audit) }}
@@ -211,6 +224,7 @@
                         v-if="imageitem.is360 === 1"
                         @click="initPhotoSphere(procitem.procName, imageitem.filePathTrans)" />
                     </template>
+
                     <div class="submit-info"
                       :style="{ color: imageitem.audit === 0 ? '#888' : (imageitem.audit === 2 || imageitem.audit === 4) ? 'red' : (imageitem.audit === 1 || imageitem.audit === 3) ? 'green' : '' }">
                       {{ selectDictLabel(statusOptions, imageitem.audit) }}
@@ -277,8 +291,8 @@
       </div>
     </div>
 
-    <!-- 添加工序照片 -->
-    <el-drawer title="添加工序照片" :visible.sync="drawer" size="40%" :append-to-body="true" :destroy-on-close="true">
+    <!-- 添加工序照片 改 添加工序文件 -->
+    <el-drawer title="添加工序文件" :visible.sync="drawer" size="40%" :append-to-body="true" :destroy-on-close="true">
       <div class="drawer-image" style="overflow: auto; height: 100%" v-loading="loading">
         <el-form ref="form" size="small" :model="form" :rules="rules" style="height: 200px" :label-width="labelWidth">
           <el-form-item label="点位编码">
@@ -305,8 +319,8 @@
           <el-form-item label="备注">
             <el-input type="textarea" style="width: 90%" v-model="form.txtRemark"></el-input>
           </el-form-item>
-          <el-form-item label="照片上传">
-            <el-upload action="#" class="upload-demo" style="width: 90%" accept="image/png, image/jpeg,image/jpg"
+          <el-form-item label="文件上传">
+            <el-upload action="#" class="upload-demo" style="width: 90%" accept="image/png, image/jpeg,image/jpg, .pdf"
               :multiple="true" :on-change="handleChange" :on-remove="handleChange" :auto-upload="false"
               :file-list="fileList" :limit="limit" :disabled="!proccode">
               <el-button size="small" type="primary" plain>添加文件</el-button>
@@ -386,15 +400,15 @@
 <script>
 import gcoord from '@/utils/gcoord.js'
 // import GdMap from '../pointSearch/GdMap.vue'
-import BdMap from '../pointSearch/BdMap.vue'
-import { Viewer } from 'photo-sphere-viewer'
-import 'photo-sphere-viewer/dist/photo-sphere-viewer.css'
 import { checkPermission } from '@/utils/tool'
 import { validateIP } from '@/utils/validate'
-import IpList from './IP/LpList.vue'
-import memoList from './memo/list.vue'
 import LinkInformation from '@/views/logisticsRegister/LinkInformation.vue'
 import PowerCessInformation from '@/views/logisticsRegister/PowerCessInformation.vue'
+import { Viewer } from 'photo-sphere-viewer'
+import 'photo-sphere-viewer/dist/photo-sphere-viewer.css'
+import BdMap from '../pointSearch/BdMap.vue'
+import IpList from './IP/LpList.vue'
+import memoList from './memo/list.vue'
 
 export default {
   name: 'pointInfo_index',
@@ -1254,6 +1268,10 @@ export default {
           }
         })
       })
+    },
+    // 预览pdf
+    previewPdf (key) {
+      key?.filePath && window.open(key.filePath)
     },
     async savewgym () {
       const req = {
