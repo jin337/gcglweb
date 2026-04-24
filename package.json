@@ -2,8 +2,8 @@
   "name": "gcglweb",
   "version": "3.8.8",
   "description": "A Vue.js project",
-  "author": "cloveryuan<750363796@qq.com>",
-  "license": "MIT",
+  "author": "",
+  "license": "",
   "scripts": {
     "dev": "vue-cli-service serve",
     "build:prod": "vue-cli-service build",
