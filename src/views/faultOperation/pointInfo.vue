@@ -33,9 +33,9 @@
               :title="procmain.className" :name="procmain.className" class="do-jump" :id="procmain.uuid">
               <div slot="title">
                 <h3>{{ procmain.className }}
-                  <i style="font-size:18px;" :class="complate.isEdit ? 'el-icon-folder-delete' : 'el-icon-edit'"
+                  <!-- <i style="font-size:18px;" :class="complate.isEdit ? 'el-icon-folder-delete' : 'el-icon-edit'"
                     @click.stop="changeComplateEdit" v-if="procmain.uuid === 'complate'"
-                    v-hasPermi="['points:editIp']"></i>
+                    v-hasPermi="['points:editIp']"></i> -->
                 </h3>
               </div>
               <div style="display:flex;align-items:top;justify-content:flex-start" v-if="procmain.uuid !== 'complate'">

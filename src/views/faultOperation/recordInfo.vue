@@ -8,9 +8,11 @@
       <el-descriptions-item label="点位名称">{{
         info.point_name
       }}</el-descriptions-item>
-      <el-descriptions-item label="点位编码">{{
-        info.point_code
-      }}</el-descriptions-item>
+      <el-descriptions-item label="点位编码"
+        ><span class="hand" @click="openPoint">{{
+          info.point_code
+        }}</span></el-descriptions-item
+      >
     </el-descriptions>
     <div class="num">报修次数：{{ baseTable?.length }}</div>
     <el-table border :data="baseTable">
@@ -98,12 +100,32 @@
         style="display: none"
       />
     </viewer>
+
+    <!-- 点位编码 -->
+    <el-drawer
+      v-if="pointModel"
+      title="点位建设详情"
+      :visible.sync="pointModel"
+      :append-to-body="true"
+      custom-class="showInfo_wrap"
+      size="90%"
+      :destroy-on-close="true"
+    >
+      <point-info
+        :pointInfo="info"
+        :project_id="info?.project_id"
+        :project_code="info?.project_code"
+      ></point-info>
+    </el-drawer>
   </div>
 </template>
 
 <script>
 import { parseTime } from "@/utils/tool";
 import * as echarts from "echarts";
+
+import pointInfo from "./pointInfo";
+
 export default {
   name: "record_info",
   props: {
@@ -159,9 +181,13 @@ export default {
       chartInstance3: null,
       // 预览的图片数组
       previewImages: [],
+      pointModel: false,
     };
   },
   computed: {},
+  components: {
+    pointInfo,
+  },
   mounted() {},
   // 组件销毁时释放资源
   beforeDestroy() {
@@ -181,6 +207,9 @@ export default {
   },
   methods: {
     parseTime,
+    openPoint() {
+      this.pointModel = true;
+    },
     async init() {
       this.leftActive = 0;
       this.rightActive = 0;
@@ -377,9 +406,9 @@ export default {
   .num {
     margin-bottom: 12px;
   }
-  .hand{
+  .hand {
     cursor: pointer;
-    color:#409EFF;
+    color: #409eff;
   }
   .echart-wrap {
     margin-top: 12px;
