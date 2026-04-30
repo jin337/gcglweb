@@ -29,7 +29,7 @@
         <vxe-table
           size="mini"
           ref="xTable"
-          max-height="360px"
+          :max-height="tableHeight"
           :data="form.tableData"
           :row-config="{ isHover: true, keyField: 'id' }"
           :checkbox-config="checkboxConfig"
@@ -551,6 +551,7 @@ export default {
     return {
       loading: false,
       detail: {},
+      tableHeight:'360px',
       form: {
         tableData: [],
         estimate: "大工（350），数量：2人，大车（200），数量：2辆，合计：900元",
@@ -688,12 +689,22 @@ export default {
     },
   },
   mounted() {
+    this.getTableHeight()
+    window.addEventListener('resize', () => this.getTableHeight())
     this.getList();
     this.getDictData();
   },
   methods: {
     parseTime,
     moment,
+        getTableHeight () {
+      this.$nextTick(() => {
+        const el_wrap = document.getElementsByClassName('faultoperaworkorder_dialog')[0]
+        if (el_wrap) {
+          this.tableHeight = el_wrap.offsetHeight - 460
+        }
+      })
+    },
     async getDictData() {
       const { data, code, message } = await this.$pub.post(
         "/sys/dict/list-slt",

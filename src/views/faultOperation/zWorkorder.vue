@@ -126,8 +126,8 @@
     </el-dialog>
 
     <!-- 工单处理  工单详情 -->
-    <el-dialog :title="isInfo ? '工单处理详情' : '工单处理'" @close="getList" :visible.sync="disposeFlag" width="100%"
-      append-to-body custom-class="dis_fault_work">
+    <el-dialog :title="isInfo ? '工单处理详情' : '工单处理'" @close="getList" :visible.sync="disposeFlag" fullscreen
+      append-to-body custom-class="faultoperaworkorder_dialog">
       <dispose-order v-if="disposeFlag" :disposeFlag.sync="disposeFlag" :isOpear="!isInfo" :currentData="currentData"
         :faultTypeList="faultTypeList"></dispose-order>
     </el-dialog>
@@ -136,10 +136,10 @@
 </template>
 
 <script>
-import { checkPermission, downloadFile, parseTime } from '@/utils/tool'
-import buildOrder from './buildOrder.vue'
-import deviceList from './deviceList.vue'
-import disposeOrder from './disposeOrder.vue'
+import { checkPermission, downloadFile, parseTime } from '@/utils/tool';
+import buildOrder from './buildOrder.vue';
+import deviceList from './deviceList.vue';
+import disposeOrder from './disposeOrder.vue';
 
 export default {
   name: 'faultoperaworkorder',
