@@ -56,9 +56,9 @@
     </el-table>
     <div class="echart-wrap">
       <el-card shadow="never" class="left">
-        <div slot="header">
+        <div class="header-solt" slot="header">
           <span>故障类型统计（{{ leftmenu[leftActive]?.name }}）</span>
-          <el-button style="float: right" type="text" @click="switchType"
+          <el-button type="text" @click="switchType"
             >切换</el-button
           >
         </div>
@@ -81,9 +81,9 @@
         <div class="echart-box" ref="chartBox2" v-show="leftActive == 2"></div>
       </el-card>
       <el-card shadow="never" class="right">
-        <div slot="header">
+        <div class="header-solt" slot="header">
           <span>报修趋势图</span>
-          <!-- <el-button style="float: right" type="text" @click="switchTime">{{
+          <!-- <el-button type="text" @click="switchTime">{{
             rightmenu[rightActive]?.name
           }}</el-button> -->
         </div>
@@ -423,6 +423,14 @@ export default {
     .echart-box {
       width: 100%;
       height: 400px;
+    }
+  }
+  .header-solt{
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    .el-button{
+      padding: 0;
     }
   }
 }
