@@ -701,7 +701,7 @@ export default {
       this.$nextTick(() => {
         const el_wrap = document.getElementsByClassName('faultoperaworkorder_dialog')[0]
         if (el_wrap) {
-          this.tableHeight = el_wrap.offsetHeight - 460
+          this.tableHeight = el_wrap.offsetHeight - 440
         }
       })
     },

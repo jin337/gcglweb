@@ -661,4 +661,9 @@ export default {
 .more-box {
   margin-left: 10px;
 }
+.faultoperaworkorder_dialog{
+  .el-dialog__body{
+    padding: 10px 20px;
+  }
+}
 </style>
