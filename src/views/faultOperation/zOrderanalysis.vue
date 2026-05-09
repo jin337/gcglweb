@@ -1,5 +1,5 @@
 <template>
-  <div class="faultoperastatisticalpoint" v-loading="loading">
+  <div class="faultOperationOrderanalysis" v-loading="loading">
     <el-form size="small" inline label-width="80px">
       <el-form-item label="项目">
         <el-select
@@ -30,7 +30,7 @@
           @clear="handleQuery"
         >
           <el-option
-            v-for="item in areaList"
+            v-for="item in List"
             :key="item.key"
             :label="item.value"
             :value="item.key"
@@ -120,13 +120,48 @@
     <el-table border :data="tableData">
       <el-table-column type="index" label="序号" width="50"> </el-table-column>
       <el-table-column prop="name1" label="项目名称"></el-table-column>
-      <el-table-column prop="name2" label="派单数量" width="100" align="center"></el-table-column>
-      <el-table-column prop="name3" label="结单数量" width="100" align="center"></el-table-column>
-      <el-table-column prop="name4" label="用工数量" width="100" align="center"></el-table-column>
-      <el-table-column prop="name5" label="用车数量" width="100" align="center"></el-table-column>
-      <el-table-column prop="name6" label="维护费用" width="100" align="center"></el-table-column>
-      <el-table-column prop="name7" label="修复设备数" width="100" align="center"></el-table-column>
-      <el-table-column prop="name8" label="修复点位数" width="100" align="center"></el-table-column>
+      <el-table-column
+        prop="name2"
+        label="派单数量"
+        width="100"
+        align="center"
+      ></el-table-column>
+      <el-table-column
+        prop="name3"
+        label="结单数量"
+        width="100"
+        align="center"
+      ></el-table-column>
+      <el-table-column
+        prop="name4"
+        label="用工数量"
+        width="100"
+        align="center"
+      ></el-table-column>
+      <el-table-column
+        prop="name5"
+        label="用车数量"
+        width="100"
+        align="center"
+      ></el-table-column>
+      <el-table-column
+        prop="name6"
+        label="维护费用"
+        width="100"
+        align="center"
+      ></el-table-column>
+      <el-table-column
+        prop="name7"
+        label="修复设备数"
+        width="100"
+        align="center"
+      ></el-table-column>
+      <el-table-column
+        prop="name8"
+        label="修复点位数"
+        width="100"
+        align="center"
+      ></el-table-column>
     </el-table>
   </div>
 </template>
@@ -139,22 +174,9 @@ export default {
     return {
       loading: false,
       projectList: [],
-      areaList: [],
+      List: [],
       childList: [],
-      form: {
-        name81: 1,
-        project: null,
-        project_id: null,
-        project_code: null,
-        project_name: "",
-        child_code: null,
-        area: [],
-      },
-      rangeList: [
-        { value: 1, label: ">=" },
-        { value: 2, label: "=" },
-        { value: 3, label: "<=" },
-      ],
+      form: {},
       tableData: [],
     };
   },
@@ -236,58 +258,28 @@ export default {
         });
       }
     },
-    async getAreaList() {
-      if (!this.form.project_code) {
-        return this.$message({
-          message: "必须选择一个项目进行查询",
-          type: "error",
-          showClose: true,
-          customClass: "uploadMessage",
-        });
-      }
-      try {
-        const { data, code, message } = await this.$pub.post(
-          "/project/area-list",
-          { project_id: this.form.project_id }
-        );
-        if (code === 200) {
-          this.areaList = data || [];
-        } else {
-          this.areaList = [];
-          this.$notify.error({
-            title: "查询失败",
-            message: message,
-          });
-        }
-      } catch (e) {
-        this.$notify.error({
-          title: "服务器请求失败",
-          message: e.message,
-        });
-      }
-    },
     // 监控项目变更
     handleProjectChange(val) {
-      this.form.project_code = val.projectCode;
-      this.form.project_id = val.id;
-      this.form.project_name = val.projectName;
-      this.form.area = [];
-      this.form.child_code = "";
+      this.form = {
+        project_code: val.projectCode,
+        project_id: val.id,
+        project_name: val.projectName,
+      };
+      this.List = [];
       this.childList = [];
-      this.areaList = [];
       this.getAreaList();
       this.getChildList();
     },
     // 点击搜索
     handleQuery() {
-      console.log(this.form)
+      console.log(this.form);
     },
   },
 };
 </script>
 
 <style lang="scss">
-.faultoperastatisticalpoint {
+.faultOperationOrderanalysis {
   padding: 20px;
   height: 100%;
   width: 100%;

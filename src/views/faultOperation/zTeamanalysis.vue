@@ -1,5 +1,5 @@
 <template>
-  <div class="faultoperastatisticalpoint" v-loading="loading">
+  <div class="faultOperationTeamanalysis" v-loading="loading">
     <el-form size="small" inline label-width="80px">
       <el-form-item label="项目">
         <el-select
@@ -30,7 +30,7 @@
           @clear="handleQuery"
         >
           <el-option
-            v-for="item in areaList"
+            v-for="item in List"
             :key="item.key"
             :label="item.value"
             :value="item.key"
@@ -62,20 +62,50 @@
     <el-table border :data="tableData">
       <el-table-column type="index" label="序号" width="50"> </el-table-column>
       <el-table-column prop="name1" label="项目名称"></el-table-column>
-      <el-table-column prop="name2" label="修复点位数量" align="center" width="110"></el-table-column>
-      <el-table-column prop="name3" label="修复设备数量" align="center" width="110"></el-table-column>
+      <el-table-column
+        prop="name2"
+        label="修复点位数量"
+        align="center"
+        width="110"
+      ></el-table-column>
+      <el-table-column
+        prop="name3"
+        label="修复设备数量"
+        align="center"
+        width="110"
+      ></el-table-column>
       <el-table-column prop="name4" align="center" width="150">
-        <template  slot="header" slot-scope="scope">
+        <template slot="header" slot-scope="scope">
           <div>维修效率</div>
           <div>（点位、设备）</div>
         </template>
       </el-table-column>
-      <el-table-column prop="name5" label="总工作时长（小时）" align="center" width="100"></el-table-column>
-      <el-table-column prop="name6" label="日均工作时长（小时）" align="center" width="110"></el-table-column>
-      <el-table-column prop="name7" label="用工人数" align="center" width="100"></el-table-column>
-      <el-table-column prop="name8" label="用车数" align="center" width="100"></el-table-column>
+      <el-table-column
+        prop="name5"
+        label="总工作时长（小时）"
+        align="center"
+        width="100"
+      ></el-table-column>
+      <el-table-column
+        prop="name6"
+        label="日均工作时长（小时）"
+        align="center"
+        width="110"
+      ></el-table-column>
+      <el-table-column
+        prop="name7"
+        label="用工人数"
+        align="center"
+        width="100"
+      ></el-table-column>
+      <el-table-column
+        prop="name8"
+        label="用车数"
+        align="center"
+        width="100"
+      ></el-table-column>
       <el-table-column prop="name4" align="center" width="120">
-        <template  slot="header" slot-scope="scope">
+        <template slot="header" slot-scope="scope">
           <div>维护费用</div>
           <div>（人工+车辆）</div>
         </template>
@@ -92,22 +122,8 @@ export default {
     return {
       loading: false,
       projectList: [],
-      areaList: [],
-      childList: [],
-      form: {
-        name81: 1,
-        project: null,
-        project_id: null,
-        project_code: null,
-        project_name: "",
-        child_code: null,
-        area: [],
-      },
-      rangeList: [
-        { value: 1, label: ">=" },
-        { value: 2, label: "=" },
-        { value: 3, label: "<=" },
-      ],
+      List: [],
+      form: {},
       tableData: [],
     };
   },
@@ -159,88 +175,25 @@ export default {
         });
       }
     },
-    async getChildList() {
-      if (!this.form.project_code) {
-        return this.$message({
-          message: "必须选择一个项目进行查询",
-          type: "error",
-          showClose: true,
-          customClass: "uploadMessage",
-        });
-      }
-      try {
-        const { data, code, message } = await this.$pub.post(
-          "project/child-list",
-          { project_id: this.form.project_id }
-        );
-        if (code === 200) {
-          this.childList = data || [];
-        } else {
-          this.childList = [];
-          this.$notify.error({
-            title: "查询失败",
-            message: message,
-          });
-        }
-      } catch (e) {
-        this.$notify.error({
-          title: "服务器请求失败",
-          message: e.message,
-        });
-      }
-    },
-    async getAreaList() {
-      if (!this.form.project_code) {
-        return this.$message({
-          message: "必须选择一个项目进行查询",
-          type: "error",
-          showClose: true,
-          customClass: "uploadMessage",
-        });
-      }
-      try {
-        const { data, code, message } = await this.$pub.post(
-          "/project/area-list",
-          { project_id: this.form.project_id }
-        );
-        if (code === 200) {
-          this.areaList = data || [];
-        } else {
-          this.areaList = [];
-          this.$notify.error({
-            title: "查询失败",
-            message: message,
-          });
-        }
-      } catch (e) {
-        this.$notify.error({
-          title: "服务器请求失败",
-          message: e.message,
-        });
-      }
-    },
     // 监控项目变更
     handleProjectChange(val) {
-      this.form.project_code = val.projectCode;
-      this.form.project_id = val.id;
-      this.form.project_name = val.projectName;
-      this.form.area = [];
-      this.form.child_code = "";
-      this.childList = [];
-      this.areaList = [];
-      this.getAreaList();
-      this.getChildList();
+      this.form = {
+        project_code: val.projectCode,
+        project_id: val.id,
+        project_name: val.projectName,
+      };
+      this.List = [];
     },
     // 点击搜索
     handleQuery() {
-      console.log(this.form)
+      console.log(this.form);
     },
   },
 };
 </script>
 
 <style lang="scss">
-.faultoperastatisticalpoint {
+.faultOperationTeamanalysis {
   padding: 20px;
   height: 100%;
   width: 100%;
