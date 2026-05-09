@@ -18,10 +18,10 @@
           ></el-option>
         </el-select>
       </el-form-item>
-      <el-form-item label="区域">
+      <el-form-item label="施工单位">
         <el-select
           v-model="form.area"
-          placeholder="默认所有区域"
+          placeholder="默认所有施工单位"
           multiple
           collapse-tags
           clearable
@@ -37,98 +37,6 @@
           >
           </el-option>
         </el-select>
-      </el-form-item>
-      <el-form-item label="子系统">
-        <el-select
-          v-model="form.child_code"
-          placeholder="默认所有子系统"
-          clearable
-          style="width: 220px"
-          size="small"
-          @clear="handleQuery"
-        >
-          <el-option
-            v-for="item in childList"
-            :key="item.key"
-            :label="item.value"
-            :value="item.key"
-          >
-          </el-option>
-        </el-select>
-      </el-form-item>
-      <el-form-item label="点位">
-        <el-input
-          v-model="form.name4"
-          clearable
-          size="small"
-          style="width: 220px"
-        ></el-input>
-      </el-form-item>
-      <el-form-item label="维修类型">
-        <el-select
-          v-model="form.name1"
-          placeholder="请选择"
-          clearable
-          style="width: 220px"
-          size="small"
-        >
-          <el-option
-            v-for="item in []"
-            :key="item.id"
-            :label="item.name2"
-            :value="item"
-          ></el-option>
-        </el-select>
-      </el-form-item>
-      <el-form-item label="故障定性">
-        <el-select
-          v-model="form.name1"
-          placeholder="请选择"
-          clearable
-          style="width: 220px"
-          size="small"
-        >
-          <el-option
-            v-for="item in []"
-            :key="item.id"
-            :label="item.name2"
-            :value="item"
-          ></el-option>
-        </el-select>
-      </el-form-item>
-      <el-form-item label="维修单位">
-        <el-select
-          v-model="form.name1"
-          placeholder="请选择"
-          clearable
-          style="width: 220px"
-          size="small"
-        >
-          <el-option
-            v-for="item in []"
-            :key="item.id"
-            :label="item.name2"
-            :value="item"
-          ></el-option>
-        </el-select>
-      </el-form-item>
-      <el-form-item label="报修次数">
-        <el-select style="width: 60px" v-model="form.name81">
-          <el-option
-            v-for="item in rangeList"
-            :key="item.value"
-            :label="item.label"
-            :value="item.value"
-          >
-          </el-option>
-        </el-select>
-        <el-input
-          v-model="form.name8"
-          placeholder="默认所有报修次数"
-          clearable
-          size="small"
-          style="width: 160px"
-        ></el-input>
       </el-form-item>
       <el-form-item label="维修时间">
         <el-date-picker
@@ -150,36 +58,28 @@
         <el-button>重置</el-button>
       </el-form-item>
     </el-form>
+
     <el-table border :data="tableData">
       <el-table-column type="index" label="序号" width="50"> </el-table-column>
       <el-table-column prop="name1" label="项目名称"></el-table-column>
-      <el-table-column prop="name1" label="区域" width="100"></el-table-column>
-      <el-table-column
-        prop="name1"
-        label="子系统"
-        width="120"
-      ></el-table-column>
-      <el-table-column
-        prop="name1"
-        label="点位编码"
-        width="150"
-      ></el-table-column>
-      <el-table-column prop="name1" label="点位名称"></el-table-column>
-      <el-table-column
-        prop="name1"
-        label="设备总数"
-        width="100"
-      ></el-table-column>
-      <el-table-column
-        prop="name1"
-        label="历史设备故障数"
-        width="120"
-      ></el-table-column>
-      <el-table-column
-        prop="name1"
-        label="报障数量"
-        width="100"
-      ></el-table-column>
+      <el-table-column prop="name2" label="修复点位数量" align="center" width="110"></el-table-column>
+      <el-table-column prop="name3" label="修复设备数量" align="center" width="110"></el-table-column>
+      <el-table-column prop="name4" align="center" width="150">
+        <template  slot="header" slot-scope="scope">
+          <div>维修效率</div>
+          <div>（点位、设备）</div>
+        </template>
+      </el-table-column>
+      <el-table-column prop="name5" label="总工作时长（小时）" align="center" width="100"></el-table-column>
+      <el-table-column prop="name6" label="日均工作时长（小时）" align="center" width="110"></el-table-column>
+      <el-table-column prop="name7" label="用工人数" align="center" width="100"></el-table-column>
+      <el-table-column prop="name8" label="用车数" align="center" width="100"></el-table-column>
+      <el-table-column prop="name4" align="center" width="120">
+        <template  slot="header" slot-scope="scope">
+          <div>维护费用</div>
+          <div>（人工+车辆）</div>
+        </template>
+      </el-table-column>
     </el-table>
   </div>
 </template>
@@ -187,7 +87,7 @@
 <script>
 import { checkPermission, parseTime } from "@/utils/tool";
 export default {
-  name: "faultoperastatisticalpoint",
+  name: "faultOperationTeamanalysis",
   data() {
     return {
       loading: false,
