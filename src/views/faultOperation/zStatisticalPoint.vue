@@ -1,6 +1,6 @@
 <template>
-  <div class="faultoperastatisticalpoint" v-loading="loading">
-    <el-form size="small" inline label-width="80px">
+  <div class="faultoperastatisticalpoint" v-loading="tableLoading">
+    <el-form size="small" inline label-width="80px" :model="form">
       <el-form-item label="项目">
         <el-select
           v-model="form.project"
@@ -8,6 +8,7 @@
           clearable
           style="width: 220px"
           size="small"
+          @clear="handleQuery"
           @change="handleProjectChange"
           value-key="id"
         >
@@ -148,8 +149,10 @@
         <el-button @click="handleReset">重置</el-button>
       </el-form-item>
     </el-form>
+
     <el-table border :data="tableData">
-      <el-table-column type="index" label="序号" width="50" align="center"> </el-table-column>
+      <el-table-column type="index" label="序号" width="50" align="center">
+      </el-table-column>
       <el-table-column prop="project_name" label="项目名称"></el-table-column>
       <el-table-column prop="area" label="区域" width="100"></el-table-column>
       <el-table-column
@@ -166,21 +169,26 @@
       <el-table-column
         prop="sbzs"
         label="设备总数"
-        width="90" align="center"
+        width="90"
+        align="center"
       ></el-table-column>
       <el-table-column
         prop="dwbzzs"
         label="历史设备故障数"
-        width="120" align="center"
+        width="120"
+        align="center"
       ></el-table-column>
       <el-table-column
         prop="sbbzzs"
         label="报障数量"
-        width="90" align="center"
+        width="90"
+        align="center"
       ></el-table-column>
     </el-table>
-
-    <div style="display: flex; justify-content: space-between; margin-top: 10px" v-if="total > 0">
+    <div
+      style="display: flex; justify-content: space-between; margin-top: 10px"
+      v-if="total > 0"
+    >
       <span style="color: #999; font-size: 14px">共 {{ total }} 条记录</span>
       <el-pagination
         layout="prev, pager, next,sizes"
@@ -204,7 +212,7 @@ export default {
   name: "faultoperastatisticalpoint",
   data() {
     return {
-      loading: false,
+      tableLoading: false,
       projectList: [],
       areaList: [],
       childList: [],
@@ -212,12 +220,12 @@ export default {
       builderList: [],
       designList: [],
       form: {
-        count_content_unit: 1,
+        count_content_unit: '>=',
       },
       rangeList: [
-        { value: 1, label: ">=" },
-        { value: 2, label: "=" },
-        { value: 3, label: "<=" },
+        { value: ">=", label: ">=" },
+        { value: "=", label: "=" },
+        { value: "<=", label: "<=" },
       ],
       tableData: [],
       total: 0,
@@ -339,6 +347,14 @@ export default {
     },
     // 维修单位
     async getBuilderList() {
+      if (!this.form.project_code) {
+        return this.$message({
+          message: "必须选择一个项目进行查询",
+          type: "error",
+          showClose: true,
+          customClass: "uploadMessage",
+        });
+      }
       var req = {
         project_code: this.form.project_code,
       };
@@ -347,7 +363,7 @@ export default {
         req
       );
       if (code === 200) {
-        this.BuilderList = data || [];
+        this.builderList = data || [];
       } else {
         this.$notify.error({
           title: "维修单位查询失败",
@@ -400,24 +416,39 @@ export default {
       this.form.project_code = val.projectCode;
       this.form.project_id = val.id;
       this.form.project_name = val.projectName;
+
       this.form.area = [];
       this.form.child_code = "";
       this.form.dept_id = "";
       this.childList = [];
       this.areaList = [];
       this.builderList = [];
+
       this.getAreaList();
       this.getChildList();
       this.getBuilderList();
+
+      this.handleQuery();
     },
     // 点击搜索
     handleQuery() {
+      this.total = 0;
+      this.tableData = [];
       this.page.page_no = 1;
       this.getList();
     },
 
     // 查询接口
     async getList() {
+      if (!this.form.project_code) {
+        return this.$message({
+          message: "必须选择一个项目进行查询",
+          type: "error",
+          showClose: true,
+          customClass: "uploadMessage",
+        });
+      }
+
       this.tableLoading = true;
       const completeTime = this.form.completeTime || [];
       const params = {
@@ -463,12 +494,9 @@ export default {
     // 点击重置
     handleReset() {
       this.form = {
-        count_content_unit: 1,
+        count_content_unit: '>=',
       };
-      this.childList = [];
-      this.areaList = [];
-      this.BuilderList = [];
-      this.designList = [];
+      this.handleQuery();
     },
   },
 };
