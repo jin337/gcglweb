@@ -113,7 +113,7 @@
 
       <el-form-item class="add">
         <el-button type="primary" @click="handleQuery">查询</el-button>
-        <el-button>重置</el-button>
+        <el-button @click="handleReset">重置</el-button>
       </el-form-item>
     </el-form>
 
@@ -273,6 +273,12 @@ export default {
     // 点击搜索
     handleQuery() {
       console.log(this.form);
+    },
+    // 点击重置
+    handleReset() {
+      this.form = {};
+      this.List = [];
+      this.childList = [];
     },
   },
 };

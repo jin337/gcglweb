@@ -113,7 +113,7 @@
 
       <el-form-item class="add">
         <el-button type="primary" @click="handleQuery">查询</el-button>
-        <el-button>重置</el-button>
+        <el-button @click="handleReset">重置</el-button>
       </el-form-item>
     </el-form>
 
@@ -121,43 +121,43 @@
       <el-table-column type="index" label="序号" width="50"> </el-table-column>
       <el-table-column prop="name1" label="项目名称"></el-table-column>
       <el-table-column prop="name2" align="center" width="150">
-        <template slot="header" slot-scope="scope">
+        <template slot="header">
           <div>派单时间</div>
           <div>（本期/同比/环比）</div>
         </template>
       </el-table-column>
       <el-table-column prop="name3" align="center" width="150">
-        <template slot="header" slot-scope="scope">
+        <template slot="header">
           <div>截单数量</div>
           <div>（本期/同比/环比）</div>
         </template>
       </el-table-column>
       <el-table-column prop="name4" align="center" width="150">
-        <template slot="header" slot-scope="scope">
+        <template slot="header">
           <div>派单数量</div>
           <div>（本期/同比/环比）</div>
         </template>
       </el-table-column>
       <el-table-column prop="name5" align="center" width="150">
-        <template slot="header" slot-scope="scope">
+        <template slot="header">
           <div>用车数量</div>
           <div>（本期/同比/环比）</div>
         </template>
       </el-table-column>
       <el-table-column prop="name6" align="center" width="150">
-        <template slot="header" slot-scope="scope">
+        <template slot="header">
           <div>维护费用</div>
           <div>（本期/同比/环比）</div>
         </template>
       </el-table-column>
       <el-table-column prop="name7" align="center" width="200">
-        <template slot="header" slot-scope="scope">
+        <template slot="header">
           <div>单点维护成本</div>
           <div>（维护费用/报修点位总数）</div>
         </template>
       </el-table-column>
       <el-table-column prop="name8" align="center" width="200">
-        <template slot="header" slot-scope="scope">
+        <template slot="header">
           <div>单人维护效率</div>
           <div>（报修点位总数/用工人数）</div>
         </template>
@@ -239,6 +239,11 @@ export default {
     // 点击搜索
     handleQuery() {
       console.log(this.form);
+    },
+    // 点击重置
+    handleReset() {
+      this.form = {};
+      this.List = [];
     },
   },
 };

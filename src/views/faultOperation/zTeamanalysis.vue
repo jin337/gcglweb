@@ -55,7 +55,7 @@
 
       <el-form-item class="add">
         <el-button type="primary" @click="handleQuery">查询</el-button>
-        <el-button>重置</el-button>
+        <el-button @click="handleReset">重置</el-button>
       </el-form-item>
     </el-form>
 
@@ -75,7 +75,7 @@
         width="110"
       ></el-table-column>
       <el-table-column prop="name4" align="center" width="150">
-        <template slot="header" slot-scope="scope">
+        <template slot="header">
           <div>维修效率</div>
           <div>（点位、设备）</div>
         </template>
@@ -105,7 +105,7 @@
         width="100"
       ></el-table-column>
       <el-table-column prop="name4" align="center" width="120">
-        <template slot="header" slot-scope="scope">
+        <template slot="header">
           <div>维护费用</div>
           <div>（人工+车辆）</div>
         </template>
@@ -187,6 +187,11 @@ export default {
     // 点击搜索
     handleQuery() {
       console.log(this.form);
+    },
+    // 点击重置
+    handleReset() {
+      this.form = {};
+      this.List = [];
     },
   },
 };
