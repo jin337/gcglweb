@@ -132,7 +132,7 @@
       <el-form-item label="维修时间">
         <el-date-picker
           v-model="form.completeTime"
-          type="datetimerange"
+          type="daterange"
           align="right"
           unlink-panels
           range-separator="至"
@@ -220,7 +220,16 @@ export default {
       builderList: [],
       designList: [],
       form: {
-        count_content_unit: '>=',
+        count_content_unit: ">=",
+        project: null, // 项目
+        area: [], // 区域（多选）
+        child_code: null, // 子系统
+        content: null, // 点位
+        fault_type: null, // 报修类型
+        fault_proc: null, // 故障定性
+        dept_id: null, // 维修单位
+        count_content: null, // 报修次数值
+        completeTime: [], // 维修时间范围
       },
       rangeList: [
         { value: ">=", label: ">=" },
@@ -418,8 +427,9 @@ export default {
       this.form.project_name = val.projectName;
 
       this.form.area = [];
-      this.form.child_code = "";
-      this.form.dept_id = "";
+      this.form.child_code = null;
+      this.form.dept_id = null;
+
       this.childList = [];
       this.areaList = [];
       this.builderList = [];
@@ -459,7 +469,7 @@ export default {
         fault_type: this.form.fault_type,
         fault_proc: this.form.fault_proc,
         dept_id: this.form?.dept_id || -1,
-        count_content: this.form.count_content,
+        count_content: isNaN(Number(this.form.count_content)) ? null : this.form.count_content,
         count_content_unit: this.form.count_content_unit,
         begin_time: completeTime[0] ? completeTime[0] + " 00:00:00" : null,
         end_time: completeTime[1] ? completeTime[1] + " 23:59:59" : null,
@@ -494,9 +504,18 @@ export default {
     // 点击重置
     handleReset() {
       this.form = {
-        count_content_unit: '>=',
+        count_content_unit: ">=",
+        project: null,
+        area: [],
+        child_code: null,
+        content: null,
+        fault_type: null,
+        fault_proc: null,
+        dept_id: null,
+        count_content: null,
+        completeTime: [],
       };
-      this.handleQuery();
+      this.tableData = [];
     },
   },
 };

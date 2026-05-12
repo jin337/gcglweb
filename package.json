@@ -9,9 +9,9 @@
     "build:prod": "vue-cli-service build",
     "build:stage": "vue-cli-service build --mode staging",
     "preview": "node build/index.js --preview",
-    "build:all": "npm run build:47 && npm run build:211",
+    "build:all": "npm run build:47 && npm run build:221",
     "build:47": "vue-cli-service build --mode 47",
-    "build:211": "vue-cli-service build --mode 211",
+    "build:221": "vue-cli-service build --mode 221",
     "test": "vue-cli-service build --mode test",
     "lint": "eslint --ext .js,.vue src"
   },

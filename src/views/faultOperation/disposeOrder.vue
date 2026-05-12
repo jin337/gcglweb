@@ -863,7 +863,7 @@ export default {
     async handleSubmit(name) {
       const selectedData = this.$refs.xTable.getCheckboxRecords(); // 获取选中的数据
       this.$refs.formRef.validate(async (valid) => {
-        if (this.sumPrice <= 0) {
+        if (this.sumPrice < 0) {
           return;
         }
         if (selectedData.length <= 0) {
