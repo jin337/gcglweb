@@ -89,9 +89,9 @@
         >
           <el-option
             v-for="item in designList"
-            :key="item.class_code"
-            :label="item.class_name"
-            :value="item.class_code"
+            :key="item.proc_code"
+            :label="item.proc_name"
+            :value="item.proc_code"
           ></el-option>
         </el-select>
       </el-form-item>
@@ -112,7 +112,7 @@
         </el-select>
       </el-form-item>
       <el-form-item label="报修次数">
-        <el-select style="width: 60px" v-model="form.count_content_unit">
+        <el-select style="width: 80px" v-model="form.count_content_unit">
           <el-option
             v-for="item in rangeList"
             :key="item.value"
@@ -126,7 +126,7 @@
           placeholder="默认所有报修次数"
           clearable
           size="small"
-          style="width: 160px"
+          style="width: 140px"
         ></el-input>
       </el-form-item>
       <el-form-item label="维修时间">
@@ -220,7 +220,7 @@ export default {
       builderList: [],
       designList: [],
       form: {
-        count_content_unit: ">=",
+        count_content_unit: "",
         project: null, // 项目
         area: [], // 区域（多选）
         child_code: null, // 子系统
@@ -232,6 +232,7 @@ export default {
         completeTime: [], // 维修时间范围
       },
       rangeList: [
+        { value: "", label: "全部" },
         { value: ">=", label: ">=" },
         { value: "=", label: "=" },
         { value: "<=", label: "<=" },
@@ -383,10 +384,10 @@ export default {
     // 故障定性
     async getDesignList() {
       var req = {
-        content: "",
+        fid: "CLS012",
       };
       const { code, data, message } = await this.$pub.post(
-        "/proc/class/list",
+        "/proc/step/list",
         req
       );
       if (code === 200) {
@@ -469,7 +470,9 @@ export default {
         fault_type: this.form.fault_type,
         fault_proc: this.form.fault_proc,
         dept_id: this.form?.dept_id || -1,
-        count_content: isNaN(Number(this.form.count_content)) ? null : this.form.count_content,
+        count_content: isNaN(Number(this.form.count_content))
+          ? null
+          : this.form.count_content,
         count_content_unit: this.form.count_content_unit,
         begin_time: completeTime[0] ? completeTime[0] + " 00:00:00" : null,
         end_time: completeTime[1] ? completeTime[1] + " 23:59:59" : null,
@@ -504,7 +507,7 @@ export default {
     // 点击重置
     handleReset() {
       this.form = {
-        count_content_unit: ">=",
+        count_content_unit: "",
         project: null,
         area: [],
         child_code: null,

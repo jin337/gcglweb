@@ -10,7 +10,9 @@
           size="small"
           @clear="handleQuery"
           @change="handleProjectChange"
-          ><el-option
+          value-key="id"
+        >
+          <el-option
             v-for="item in projectList"
             :key="item.id"
             :label="item.projectName"
@@ -171,7 +173,12 @@
       append-to-body
       @close="detailFlag = false"
     >
-      <el-table border size="small" :data="rowDetailList" v-loading="rowLoading">
+      <el-table
+        border
+        size="small"
+        :data="rowDetailList"
+        v-loading="rowLoading"
+      >
         <el-table-column
           type="index"
           label="序号"
