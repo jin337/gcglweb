@@ -387,6 +387,9 @@ export default {
     },
     haveaddPhoto: { // 是否有添加工序照片功能
       default: true
+    },
+    fed: { // 标识
+      default: null
     }
   },
   provide () {
@@ -550,6 +553,10 @@ export default {
           if (data !== null) {
             this.getBuildRegInfo()
             this.activeMenu = data[0] ? data[0].className : ''
+            if (this.fed && data?.length>0) {
+              const hasFed = data.find(item => item.classCode === this.fed)
+              this.activeMenu = hasFed ? hasFed.className : ''
+            }
             this.procLists = data.map((item, i) => {
               const uuid = item.procList.length > 0 ? item.procList[0].procCode.split('-')[0] : ''
               const obj = Object.assign(item, { uuid })

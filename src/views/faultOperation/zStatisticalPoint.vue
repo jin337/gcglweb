@@ -160,11 +160,13 @@
         label="子系统"
         width="130"
       ></el-table-column>
-      <el-table-column
-        prop="point_code"
-        label="点位编码"
-        width="150"
-      ></el-table-column>
+      <el-table-column prop="point_code" label="点位编码" width="150">
+        <template slot-scope="{ row }">
+          <span class="hand" @click="openDetail(row)">{{
+            row.point_code
+          }}</span>
+        </template>
+      </el-table-column>
       <el-table-column prop="point_name" label="点位名称"></el-table-column>
       <el-table-column
         prop="sbzs"
@@ -203,11 +205,31 @@
       >
       </el-pagination>
     </div>
+
+    <!-- 点位建设详情 -->
+    <el-drawer
+      v-if="pointModel"
+      title="点位详情"
+      :visible.sync="pointModel"
+      :append-to-body="true"
+      custom-class="showInfo_wrap"
+      size="90%"
+      :destroy-on-close="true"
+    >
+      <point-info
+        :pointInfo="pointDetail"
+        :project_id="pointDetail.project_id"
+        :project_code="pointDetail.project_code"
+        fed="CLS012"
+      ></point-info>
+    </el-drawer>
   </div>
 </template>
 
 <script>
 import { checkPermission, parseTime } from "@/utils/tool";
+import pointInfo from "./pointInfo";
+
 export default {
   name: "faultoperastatisticalpoint",
   data() {
@@ -243,6 +265,8 @@ export default {
         page_no: 1,
         page_size: 10,
       },
+      pointModel: false,
+      pointDetail: {},
     };
   },
   created() {
@@ -251,7 +275,9 @@ export default {
     this.getProjectList();
   },
   mounted() {},
-  components: {},
+  components: {
+    pointInfo,
+  },
   methods: {
     checkPermission,
     parseTime,
@@ -520,6 +546,11 @@ export default {
       };
       this.tableData = [];
     },
+    // 打开点位详情抽屉
+    openDetail(row) {
+      this.pointDetail = row;
+      this.pointModel = true;
+    },
   },
 };
 </script>
@@ -530,5 +561,9 @@ export default {
   height: 100%;
   width: 100%;
   box-sizing: border-box;
+  .hand {
+    cursor: pointer;
+    color: #409eff;
+  }
 }
 </style>
