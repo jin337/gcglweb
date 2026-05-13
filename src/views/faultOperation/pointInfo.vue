@@ -553,10 +553,6 @@ export default {
           if (data !== null) {
             this.getBuildRegInfo()
             this.activeMenu = data[0] ? data[0].className : ''
-            if (this.fed && data?.length>0) {
-              const hasFed = data.find(item => item.classCode === this.fed)
-              this.activeMenu = hasFed ? hasFed.className : ''
-            }
             this.procLists = data.map((item, i) => {
               const uuid = item.procList.length > 0 ? item.procList[0].procCode.split('-')[0] : ''
               const obj = Object.assign(item, { uuid })
@@ -568,10 +564,16 @@ export default {
               }
               return obj
             })
-
-            this.$nextTick(() => {
-              procmain && this.jumpTo(procmain)
-            })
+            if (this.fed && data?.length > 0) {
+              const hasFed = data.find(item => item.classCode === this.fed)
+              this.$nextTick(() => {
+                hasFed && this.jumpTo(hasFed)
+              })
+            } else {
+              this.$nextTick(() => {
+                procmain && this.jumpTo(procmain)
+              })
+            }
           } else {
             this.procLists = []
             this.filterProcList = []
@@ -641,9 +643,6 @@ export default {
     jumpTo (procmain) {
       if (!procmain.uuid || !document.getElementById(procmain.uuid)) return
       this.activeMenu = procmain.className
-      // document.getElementById(procmain.uuid).scrollIntoView({
-      //   behavior: 'smooth'
-      // })
       const target = document.getElementById(procmain.uuid)
       target.parentNode.scrollTop = target.offsetTop
     },

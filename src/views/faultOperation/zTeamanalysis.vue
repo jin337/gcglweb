@@ -2,52 +2,19 @@
   <div class="faultOperationTeamanalysis" v-loading="tableLoading">
     <el-form size="small" inline label-width="80px">
       <el-form-item label="项目">
-        <el-select
-          v-model="form.project"
-          placeholder="请选择"
-          clearable
-          style="width: 220px"
-          size="small"
-          @clear="handleQuery"
-          @change="handleProjectChange"
-          value-key="id"
-        >
-          <el-option
-            v-for="item in projectList"
-            :key="item.id"
-            :label="item.projectName"
-            :value="item"
-          ></el-option>
+        <el-select v-model="form.project" placeholder="请选择" clearable style="width: 220px" size="small"
+          @clear="handleQuery" @change="handleProjectChange" value-key="id">
+          <el-option v-for="item in projectList" :key="item.id" :label="item.projectName" :value="item"></el-option>
         </el-select>
       </el-form-item>
       <el-form-item label="施工单位">
-        <el-select
-          v-model="form.dept_id"
-          placeholder="请选择"
-          clearable
-          style="width: 220px"
-          size="small"
-        >
-          <el-option
-            v-for="item in builderList"
-            :key="item.id"
-            :label="item.name"
-            :value="item.id"
-          ></el-option>
+        <el-select v-model="form.dept_id" placeholder="请选择" clearable style="width: 220px" size="small">
+          <el-option v-for="item in builderList" :key="item.id" :label="item.name" :value="item.id"></el-option>
         </el-select>
       </el-form-item>
       <el-form-item label="维修时间">
-        <el-date-picker
-          v-model="form.completeTime"
-          type="daterange"
-          align="right"
-          unlink-panels
-          range-separator="至"
-          start-placeholder="开始时间"
-          end-placeholder="结束时间"
-          value-format="yyyy-MM-dd"
-          style="width: 220px"
-        >
+        <el-date-picker v-model="form.completeTime" type="daterange" align="right" unlink-panels range-separator="至"
+          start-placeholder="开始时间" end-placeholder="结束时间" value-format="yyyy-MM-dd" style="width: 220px">
         </el-date-picker>
       </el-form-item>
 
@@ -60,52 +27,22 @@
     <el-table border :data="tableData">
       <el-table-column type="index" label="序号" width="50"> </el-table-column>
       <el-table-column prop="project_name" label="项目名称"></el-table-column>
-      <el-table-column
-        prop="name2"
-        label="修复点位数量"
-        align="center"
-        width="110"
-      >
+      <el-table-column prop="name2" label="修复点位数量" align="center" width="110">
         <template slot-scope="{ row }">
           <span class="hand" @click="openDetail(row)">{{ row?.name2 }}</span>
         </template>
       </el-table-column>
-      <el-table-column
-        prop="name3"
-        label="修复设备数量"
-        align="center"
-        width="110"
-      ></el-table-column>
+      <el-table-column prop="name3" label="修复设备数量" align="center" width="110"></el-table-column>
       <el-table-column prop="name4" align="center" width="150">
         <template slot="header">
           <div>维修效率</div>
           <div>（点位、设备）</div>
         </template>
       </el-table-column>
-      <el-table-column
-        prop="name5"
-        label="总工作时长（小时）"
-        align="center"
-        width="100"
-      ></el-table-column>
-      <el-table-column
-        prop="name6"
-        label="日均工作时长（小时）"
-        align="center"
-        width="110"
-      ></el-table-column>
-      <el-table-column
-        prop="name7"
-        label="用工人数"
-        align="center"
-        width="100"
-      ></el-table-column>
-      <el-table-column
-        prop="name8"
-        label="用车数"
-        align="center"
-        width="100"
-      ></el-table-column>
+      <el-table-column prop="name5" label="总工作时长（小时）" align="center" width="100"></el-table-column>
+      <el-table-column prop="name6" label="日均工作时长（小时）" align="center" width="110"></el-table-column>
+      <el-table-column prop="name7" label="用工人数" align="center" width="100"></el-table-column>
+      <el-table-column prop="name8" label="用车数" align="center" width="100"></el-table-column>
       <el-table-column prop="name4" align="center" width="120">
         <template slot="header">
           <div>维护费用</div>
@@ -115,100 +52,29 @@
     </el-table>
 
     <!-- 详情 -->
-    <el-dialog
-      title="详情"
-      :visible.sync="detailFlag"
-      width="80%"
-      fullscreen
-      append-to-body
-      @close="detailFlag = false"
-    >
-      <el-table
-        border
-        size="small"
-        :data="rowDetailList"
-        v-loading="rowLoading"
-      >
-        <el-table-column
-          type="index"
-          label="序号"
-          width="50"
-          align="center"
-        ></el-table-column>
+    <el-dialog title="详情" :visible.sync="detailFlag" width="80%" fullscreen append-to-body @close="detailFlag = false">
+      <el-table border size="small" :data="rowDetailList" v-loading="rowLoading">
+        <el-table-column type="index" label="序号" width="50" align="center"></el-table-column>
         <el-table-column prop="project_name" label="项目名称"></el-table-column>
-        <el-table-column
-          prop="order_code"
-          label="工单编号"
-          width="180"
-        ></el-table-column>
-        <el-table-column
-          prop="assign_name"
-          label="派发人"
-          align="center"
-          width="90"
-        ></el-table-column>
-        <el-table-column
-          prop="create_time"
-          label="派单时间"
-          align="center"
-          width="160"
-        >
+        <el-table-column prop="order_code" label="工单编号" width="180"></el-table-column>
+        <el-table-column prop="assign_name" label="派发人" align="center" width="90"></el-table-column>
+        <el-table-column prop="create_time" label="派单时间" align="center" width="160">
           <template slot-scope="{ row }">
             <span>{{ row.create_time ? parseTime(row.create_time) : "" }}</span>
           </template>
         </el-table-column>
-        <el-table-column
-          prop="dws"
-          label="报障点位数量/修复点位数量"
-          align="center"
-          width="110"
-        ></el-table-column>
-        <el-table-column
-          prop="sbs"
-          label="报障设备数量/修复设备数量"
-          align="center"
-          width="110"
-        ></el-table-column>
-        <el-table-column
-          prop="dept_name"
-          label="施工队单位"
-          width="110"
-        ></el-table-column>
-        <el-table-column
-          prop="ygsl"
-          label="用工数量"
-          align="center"
-          width="80"
-        ></el-table-column>
-        <el-table-column
-          prop="ycsl"
-          label="用车数量"
-          align="center"
-          width="80"
-        ></el-table-column>
-        <el-table-column
-          prop="fy"
-          label="维护费用"
-          align="center"
-          width="80"
-        ></el-table-column>
+        <el-table-column prop="dws" label="报障点位数量/修复点位数量" align="center" width="110"></el-table-column>
+        <el-table-column prop="sbs" label="报障设备数量/修复设备数量" align="center" width="110"></el-table-column>
+        <el-table-column prop="dept_name" label="施工队单位" width="110"></el-table-column>
+        <el-table-column prop="ygsl" label="用工数量" align="center" width="80"></el-table-column>
+        <el-table-column prop="ycsl" label="用车数量" align="center" width="80"></el-table-column>
+        <el-table-column prop="fy" label="维护费用" align="center" width="80"></el-table-column>
       </el-table>
-      <div
-        style="display: flex; justify-content: space-between; margin-top: 10px"
-        v-if="total > 0"
-      >
+      <div style="display: flex; justify-content: space-between; margin-top: 10px" v-if="total > 0">
         <span style="color: #999; font-size: 14px">共 {{ total }} 条记录</span>
-        <el-pagination
-          layout="prev, pager, next,sizes"
-          :total="total"
-          :page-size.sync="page.page_size"
-          @current-change="pageChange"
-          @size-change="sizeChange"
-          :current-page.sync="page.page_no"
-          class="pagination"
-          small
-          background
-        >
+        <el-pagination layout="prev, pager, next,sizes" :total="total" :page-size.sync="page.page_size"
+          @current-change="pageChange" @size-change="sizeChange" :current-page.sync="page.page_no" class="pagination"
+          small background>
         </el-pagination>
       </div>
     </el-dialog>
@@ -244,7 +110,7 @@ export default {
   created() {
     // this.getProjectList();
   },
-  mounted() {},
+  mounted() { },
   components: {},
   methods: {
     checkPermission,
@@ -332,8 +198,8 @@ export default {
         project_code: this.form.project_code,
         dept_id: this.form?.dept_id || -1,
 
-        begin_time: completeTime[0] ? completeTime[0] + " 00:00:00" : null,
-        end_time: completeTime[1] ? completeTime[1] + " 23:59:59" : null,
+        begin_time: completeTime[0] ? completeTime[0] : null,
+        end_time: completeTime[1] ? completeTime[1] : null,
       };
       const { data, code } = await this.$pub.post(
         "/point/order/const/trend",
@@ -432,6 +298,7 @@ export default {
   height: 100%;
   width: 100%;
   box-sizing: border-box;
+
   .hand {
     cursor: pointer;
     color: #409eff;

@@ -6,7 +6,7 @@
   "license": "",
   "scripts": {
     "dev": "vue-cli-service serve",
-    "build:prod": "vue-cli-service build",
+    "build": "vue-cli-service build",
     "build:stage": "vue-cli-service build --mode staging",
     "preview": "node build/index.js --preview",
     "build:all": "npm run build:47 && npm run build:221",

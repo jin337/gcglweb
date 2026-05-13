@@ -2,145 +2,55 @@
   <div class="faultoperastatisticalpoint" v-loading="tableLoading">
     <el-form size="small" inline label-width="80px" :model="form">
       <el-form-item label="项目">
-        <el-select
-          v-model="form.project"
-          placeholder="请选择"
-          clearable
-          style="width: 220px"
-          size="small"
-          @clear="handleQuery"
-          @change="handleProjectChange"
-          value-key="id"
-        >
-          <el-option
-            v-for="item in projectList"
-            :key="item.id"
-            :label="item.projectName"
-            :value="item"
-          ></el-option>
+        <el-select v-model="form.project" placeholder="请选择" clearable style="width: 220px" size="small"
+          @clear="handleQuery" @change="handleProjectChange" value-key="id">
+          <el-option v-for="item in projectList" :key="item.id" :label="item.projectName" :value="item"></el-option>
         </el-select>
       </el-form-item>
       <el-form-item label="区域">
-        <el-select
-          v-model="form.area"
-          placeholder="默认所有区域"
-          multiple
-          collapse-tags
-          clearable
-          style="width: 220px"
-          size="small"
-        >
-          <el-option
-            v-for="item in areaList"
-            :key="item.key"
-            :label="item.value"
-            :value="item.key"
-          >
+        <el-select v-model="form.area" placeholder="默认所有区域" multiple collapse-tags clearable style="width: 220px"
+          size="small">
+          <el-option v-for="item in areaList" :key="item.key" :label="item.value" :value="item.key">
           </el-option>
         </el-select>
       </el-form-item>
       <el-form-item label="子系统">
-        <el-select
-          v-model="form.child_code"
-          clearable
-          style="width: 220px"
-          placeholder="默认所有子系统"
-        >
-          <el-option
-            v-for="item in childList"
-            :key="item.key"
-            :label="item.value"
-            :value="item.key"
-          >
+        <el-select v-model="form.child_code" clearable style="width: 220px" placeholder="默认所有子系统">
+          <el-option v-for="item in childList" :key="item.key" :label="item.value" :value="item.key">
           </el-option>
         </el-select>
       </el-form-item>
       <el-form-item label="点位">
-        <el-input
-          v-model="form.content"
-          clearable
-          size="small"
-          style="width: 220px"
-        ></el-input>
+        <el-input v-model="form.content" clearable size="small" style="width: 220px"></el-input>
       </el-form-item>
       <el-form-item label="报修类型">
-        <el-select
-          v-model="form.fault_type"
-          placeholder="请选择"
-          clearable
-          style="width: 220px"
-          size="small"
-        >
-          <el-option
-            v-for="item in faultTypeList"
-            :key="item.value"
-            :label="item.label"
-            :value="item.value"
-          ></el-option>
+        <el-select v-model="form.fault_type" placeholder="请选择" clearable style="width: 220px" size="small">
+          <el-option v-for="item in faultTypeList" :key="item.value" :label="item.label"
+            :value="item.value"></el-option>
         </el-select>
       </el-form-item>
       <el-form-item label="故障定性">
-        <el-select
-          v-model="form.fault_proc"
-          placeholder="请选择"
-          clearable
-          style="width: 220px"
-          size="small"
-        >
-          <el-option
-            v-for="item in designList"
-            :key="item.proc_code"
-            :label="item.proc_name"
-            :value="item.proc_code"
-          ></el-option>
+        <el-select v-model="form.fault_proc" placeholder="请选择" clearable style="width: 220px" size="small">
+          <el-option v-for="item in designList" :key="item.proc_code" :label="item.proc_name"
+            :value="item.proc_code"></el-option>
         </el-select>
       </el-form-item>
       <el-form-item label="维修单位">
-        <el-select
-          v-model="form.dept_id"
-          placeholder="请选择"
-          clearable
-          style="width: 220px"
-          size="small"
-        >
-          <el-option
-            v-for="item in builderList"
-            :key="item.id"
-            :label="item.name"
-            :value="item.id"
-          ></el-option>
+        <el-select v-model="form.dept_id" placeholder="请选择" clearable style="width: 220px" size="small">
+          <el-option v-for="item in builderList" :key="item.id" :label="item.name" :value="item.id"></el-option>
         </el-select>
       </el-form-item>
       <el-form-item label="报修次数">
         <el-select style="width: 80px" v-model="form.count_content_unit">
-          <el-option
-            v-for="item in rangeList"
-            :key="item.value"
-            :label="item.label"
-            :value="item.value"
-          >
+          <el-option v-for="item in rangeList" :key="item.value" :label="item.label" :value="item.value">
           </el-option>
         </el-select>
-        <el-input
-          v-model="form.count_content"
-          placeholder="默认所有报修次数"
-          clearable
-          size="small"
-          style="width: 140px"
-        ></el-input>
+        <el-input v-model="form.count_content" placeholder="默认所有报修次数" clearable size="small"
+          style="width: 140px"></el-input>
       </el-form-item>
       <el-form-item label="维修时间">
-        <el-date-picker
-          v-model="form.completeTime"
-          type="daterange"
-          align="right"
-          unlink-panels
-          range-separator="至"
-          start-placeholder="开始时间"
-          end-placeholder="结束时间"
-          value-format="yyyy-MM-dd"
-          style="width: 220px"
-        >
+        <el-date-picker v-model="form.completeTime" type="daterange" align="right" unlink-panels range-separator="至"
+          start-placeholder="开始时间" end-placeholder="结束时间" value-format="yyyy-MM-dd" style="width: 220px">
         </el-date-picker>
       </el-form-item>
 
@@ -155,11 +65,7 @@
       </el-table-column>
       <el-table-column prop="project_name" label="项目名称"></el-table-column>
       <el-table-column prop="area" label="区域" width="100"></el-table-column>
-      <el-table-column
-        prop="child_name"
-        label="子系统"
-        width="130"
-      ></el-table-column>
+      <el-table-column prop="child_name" label="子系统" width="150"></el-table-column>
       <el-table-column prop="point_code" label="点位编码" width="150">
         <template slot-scope="{ row }">
           <span class="hand" @click="openDetail(row)">{{
@@ -168,60 +74,23 @@
         </template>
       </el-table-column>
       <el-table-column prop="point_name" label="点位名称"></el-table-column>
-      <el-table-column
-        prop="sbzs"
-        label="设备总数"
-        width="90"
-        align="center"
-      ></el-table-column>
-      <el-table-column
-        prop="dwbzzs"
-        label="历史设备故障数"
-        width="120"
-        align="center"
-      ></el-table-column>
-      <el-table-column
-        prop="sbbzzs"
-        label="报障数量"
-        width="90"
-        align="center"
-      ></el-table-column>
+      <el-table-column prop="sbzs" label="设备总数" width="90" align="center"></el-table-column>
+      <el-table-column prop="dwbzzs" label="历史设备故障数" width="120" align="center"></el-table-column>
+      <el-table-column prop="sbbzzs" label="报障数量" width="90" align="center"></el-table-column>
     </el-table>
-    <div
-      style="display: flex; justify-content: space-between; margin-top: 10px"
-      v-if="total > 0"
-    >
+    <div style="display: flex; justify-content: space-between; margin-top: 10px" v-if="total > 0">
       <span style="color: #999; font-size: 14px">共 {{ total }} 条记录</span>
-      <el-pagination
-        layout="prev, pager, next,sizes"
-        :total="total"
-        :page-size.sync="page.page_size"
-        @current-change="pageChange"
-        @size-change="sizeChange"
-        :current-page.sync="page.page_no"
-        class="pagination"
-        small
-        background
-      >
+      <el-pagination layout="prev, pager, next,sizes" :total="total" :page-size.sync="page.page_size"
+        @current-change="pageChange" @size-change="sizeChange" :current-page.sync="page.page_no" class="pagination"
+        small background>
       </el-pagination>
     </div>
 
     <!-- 点位建设详情 -->
-    <el-drawer
-      v-if="pointModel"
-      title="点位详情"
-      :visible.sync="pointModel"
-      :append-to-body="true"
-      custom-class="showInfo_wrap"
-      size="90%"
-      :destroy-on-close="true"
-    >
-      <point-info
-        :pointInfo="pointDetail"
-        :project_id="pointDetail.project_id"
-        :project_code="pointDetail.project_code"
-        fed="CLS012"
-      ></point-info>
+    <el-drawer v-if="pointModel" title="点位详情" :visible.sync="pointModel" :append-to-body="true"
+      custom-class="showInfo_wrap" size="90%" :destroy-on-close="true">
+      <point-info :pointInfo="pointDetail" :project_id="pointDetail.project_id" :project_code="pointDetail.project_code"
+        fed="CLS012"></point-info>
     </el-drawer>
   </div>
 </template>
@@ -274,7 +143,7 @@ export default {
     this.getfault_type();
     this.getProjectList();
   },
-  mounted() {},
+  mounted() { },
   components: {
     pointInfo,
   },
@@ -500,8 +369,8 @@ export default {
           ? null
           : this.form.count_content,
         count_content_unit: this.form.count_content_unit,
-        begin_time: completeTime[0] ? completeTime[0] + " 00:00:00" : null,
-        end_time: completeTime[1] ? completeTime[1] + " 23:59:59" : null,
+        begin_time: completeTime[0] ? completeTime[0] : null,
+        end_time: completeTime[1] ? completeTime[1] : null,
         page_no: this.page.page_no,
         page_size: this.page.page_size,
       };
@@ -561,6 +430,7 @@ export default {
   height: 100%;
   width: 100%;
   box-sizing: border-box;
+
   .hand {
     cursor: pointer;
     color: #409eff;

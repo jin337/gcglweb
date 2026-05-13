@@ -72,18 +72,11 @@ module.exports = {
     plugins: [
       new CompressionPlugin({
         cache: false, // 不启用文件缓存
-        // test: /\.(js|css|html|jpe?g|png|gif|svg)?$/i, // 压缩文件格式
+        test: /\.(js|css|html|jpe?g|png|gif|svg)?$/i, // 压缩文件格式
         filename: '[path][base].gz[query]', // 压缩后的文件名
-        // filename: '[path][name][ext].gz',
-        // algorithm: 'gzip', // 使用gzip压缩
-        // minRatio: 0.8, // 压缩比例，小于 80% 的文件不会被压缩
-        // deleteOriginalAssets: false // 压缩后删除原文件
-         algorithm: 'gzip', //算法
-          test: new RegExp(
-            '\\.(js|css)$' //压缩 js 与 css
-          ),
-          threshold: 10240, //只处理比这个值大的资源。按字节计算
-          minRatio: 0.8
+        algorithm: 'gzip', // 使用gzip压缩
+        minRatio: 0.8, // 压缩比例，小于 80% 的文件不会被压缩
+        deleteOriginalAssets: false // 压缩后删除原文件
       })
     ]
   },
