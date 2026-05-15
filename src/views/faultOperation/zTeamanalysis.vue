@@ -8,9 +8,8 @@
         </el-select>
       </el-form-item>
       <el-form-item label="施工单位">
-        <el-select v-model="form.dept_id" placeholder="请选择" clearable style="width: 220px" size="small">
-          <el-option v-for="item in builderList" :key="item.id" :label="item.name" :value="item.id"></el-option>
-        </el-select>
+        <treeselect v-model="form.dept_id" :normalizer="normalizer" placeholder="输入搜索词查询部门" :options="deptOptions"
+          style="width:250px;" />
       </el-form-item>
       <el-form-item label="维修时间">
         <el-date-picker v-model="form.completeTime" type="daterange" align="right" unlink-panels range-separator="至"
@@ -27,6 +26,7 @@
     <el-table border :data="tableData">
       <el-table-column type="index" label="序号" width="50"> </el-table-column>
       <el-table-column prop="project_name" label="项目名称"></el-table-column>
+      <el-table-column prop="dept_name" label="施工单位"></el-table-column>
       <el-table-column prop="xfdws" label="修复点位数量" align="center" width="110">
         <template slot-scope="{ row }">
           <span class="hand" @click="openDetail(row)">{{ row?.xfdws }}</span>
@@ -93,7 +93,7 @@ export default {
     return {
       tableLoading: false,
       projectList: [],
-      builderList: [],
+      deptOptions: [],
       form: {
         project: null, // 项目
         dept_id: null, // 施工单位
@@ -113,6 +113,7 @@ export default {
   },
   created() {
     this.getProjectList();
+    this.getDept();
   },
   mounted() { },
   components: {},
@@ -133,6 +134,7 @@ export default {
 
       return `${hours}小时`;
     },
+
     async getProjectList() {
       try {
         const have = this.checkPermission(["pointAuthorization:project-slt"]);
@@ -174,29 +176,26 @@ export default {
       }
     },
     // 维修单位
-    async getBuilderList() {
-      if (!this.form.project_code) {
+    async getDept() {
+      const { data, code } = await this.$pub.post('/sys/dept/list-tree', { mc: '' })
+      if (code !== 200) {
         return this.$message({
-          message: "必须选择一个项目进行查询",
-          type: "error",
-          showClose: true,
-          customClass: "uploadMessage",
-        });
+          type: 'error',
+          message: '获取部门出错了',
+          showClose: true
+        })
       }
-      var req = {
-        project_code: this.form.project_code,
-      };
-      const { code, data, message } = await this.$pub.post(
-        "/rate/builder-dept-list",
-        req
-      );
-      if (code === 200) {
-        this.builderList = data || [];
-      } else {
-        this.$notify.error({
-          title: "维修单位查询失败",
-          message: message,
-        });
+      const datas = Array.isArray(data.dept) ? data.dept : data.dept.child
+      this.deptOptions = datas
+    },
+    normalizer(node) { /** 转换菜单数据结构 */
+      if (node.child && !node.child.length) {
+        delete node.child
+      }
+      return {
+        id: node.id,
+        label: node.mc,
+        children: node.child
       }
     },
     // 查询接口
@@ -243,10 +242,6 @@ export default {
 
       this.form.dept_id = null;
 
-      this.builderList = [];
-
-      this.getBuilderList();
-
       this.handleQuery();
     },
     // 点击搜索
@@ -282,7 +277,7 @@ export default {
         page_no: this.page.page_no,
         page_size: this.page.page_size,
 
-        dept_id: this.form?.dept_id || -1,
+        dept_id: row?.dept_id || -1,
 
         begin_time: completeTime[0] ? completeTime[0] : null,
         end_time: completeTime[1] ? completeTime[1] : null,
@@ -326,6 +321,15 @@ export default {
   .hand {
     cursor: pointer;
     color: #409eff;
+  }
+
+  .vue-treeselect__control {
+    height: 30px;
+    border-radius: 0;
+  }
+
+  .vue-treeselect--has-value .vue-treeselect__input {
+    vertical-align: middle
   }
 }
 </style>

@@ -36,9 +36,8 @@
         </el-select>
       </el-form-item>
       <el-form-item label="维修单位">
-        <el-select v-model="form.dept_id" placeholder="请选择" clearable style="width: 220px" size="small">
-          <el-option v-for="item in builderList" :key="item.id" :label="item.name" :value="item.id"></el-option>
-        </el-select>
+        <treeselect v-model="form.dept_id" :normalizer="normalizer" placeholder="输入搜索词查询部门" :options="deptOptions"
+          style="width:250px;" />
       </el-form-item>
       <el-form-item label="报修次数">
         <el-select style="width: 80px" v-model="form.count_content_unit">
@@ -148,7 +147,7 @@ export default {
       areaList: [],
       childList: [],
       faultTypeList: [],
-      builderList: [],
+      deptOptions: [],
       designList: [],
       form: {
         count_content_unit: "",
@@ -185,9 +184,10 @@ export default {
     };
   },
   created() {
+    this.getProjectList();
     this.getDesignList();
     this.getfault_type();
-    this.getProjectList();
+    this.getDept();
   },
   mounted() { },
   components: {
@@ -296,30 +296,26 @@ export default {
         });
       }
     },
-    // 维修单位
-    async getBuilderList() {
-      if (!this.form.project_code) {
+    async getDept() {
+      const { data, code } = await this.$pub.post('/sys/dept/list-tree', { mc: '' })
+      if (code !== 200) {
         return this.$message({
-          message: "必须选择一个项目进行查询",
-          type: "error",
-          showClose: true,
-          customClass: "uploadMessage",
-        });
+          type: 'error',
+          message: '获取部门出错了',
+          showClose: true
+        })
       }
-      var req = {
-        project_code: this.form.project_code,
-      };
-      const { code, data, message } = await this.$pub.post(
-        "/rate/builder-dept-list",
-        req
-      );
-      if (code === 200) {
-        this.builderList = data || [];
-      } else {
-        this.$notify.error({
-          title: "维修单位查询失败",
-          message: message,
-        });
+      const datas = Array.isArray(data.dept) ? data.dept : data.dept.child
+      this.deptOptions = datas
+    },
+    normalizer(node) { /** 转换菜单数据结构 */
+      if (node.child && !node.child.length) {
+        delete node.child
+      }
+      return {
+        id: node.id,
+        label: node.mc,
+        children: node.child
       }
     },
     // 故障定性
@@ -374,11 +370,9 @@ export default {
 
       this.childList = [];
       this.areaList = [];
-      this.builderList = [];
 
       this.getAreaList();
       this.getChildList();
-      this.getBuilderList();
 
       this.handleQuery();
     },
@@ -532,6 +526,15 @@ export default {
   .hand {
     cursor: pointer;
     color: #409eff;
+  }
+
+  .vue-treeselect__control {
+    height: 30px;
+    border-radius: 0;
+  }
+
+  .vue-treeselect--has-value .vue-treeselect__input {
+    vertical-align: middle
   }
 }
 </style>
