@@ -27,23 +27,23 @@
     <el-table border :data="tableData">
       <el-table-column type="index" label="序号" width="50"> </el-table-column>
       <el-table-column prop="project_name" label="项目名称"></el-table-column>
-      <el-table-column prop="name2" label="修复点位数量" align="center" width="110">
+      <el-table-column prop="xfdws" label="修复点位数量" align="center" width="110">
         <template slot-scope="{ row }">
-          <span class="hand" @click="openDetail(row)">{{ row?.name2 }}</span>
+          <span class="hand" @click="openDetail(row)">{{ row?.xfdws }}</span>
         </template>
       </el-table-column>
-      <el-table-column prop="name3" label="修复设备数量" align="center" width="110"></el-table-column>
-      <el-table-column prop="name4" align="center" width="150">
+      <el-table-column prop="xfsbs" label="修复设备数量" align="center" width="110"></el-table-column>
+      <el-table-column prop="dwxl" align="center" width="150">
         <template slot="header">
           <div>维修效率</div>
           <div>（点位、设备）</div>
         </template>
       </el-table-column>
-      <el-table-column prop="name5" label="总工作时长（小时）" align="center" width="100"></el-table-column>
-      <el-table-column prop="name6" label="日均工作时长（小时）" align="center" width="110"></el-table-column>
-      <el-table-column prop="name7" label="用工人数" align="center" width="100"></el-table-column>
-      <el-table-column prop="name8" label="用车数" align="center" width="100"></el-table-column>
-      <el-table-column prop="name4" align="center" width="120">
+      <el-table-column prop="zsc" label="总工作时长（小时）" align="center" width="100"></el-table-column>
+      <el-table-column prop="pjsc" label="日均工作时长（小时）" align="center" width="110"></el-table-column>
+      <el-table-column prop="ygsl" label="用工人数" align="center" width="100"></el-table-column>
+      <el-table-column prop="ycsl" label="用车数" align="center" width="100"></el-table-column>
+      <el-table-column prop="fy" align="center" width="120">
         <template slot="header">
           <div>维护费用</div>
           <div>（人工+车辆）</div>
@@ -53,22 +53,25 @@
 
     <!-- 详情 -->
     <el-dialog title="详情" :visible.sync="detailFlag" width="80%" fullscreen append-to-body @close="detailFlag = false">
-      <el-table border size="small" :data="rowDetailList" v-loading="rowLoading">
+      <el-table border :data="rowDetailList" v-loading="rowLoading">
         <el-table-column type="index" label="序号" width="50" align="center"></el-table-column>
-        <el-table-column prop="project_name" label="项目名称"></el-table-column>
-        <el-table-column prop="order_code" label="工单编号" width="180"></el-table-column>
-        <el-table-column prop="assign_name" label="派发人" align="center" width="90"></el-table-column>
-        <el-table-column prop="create_time" label="派单时间" align="center" width="160">
+        <el-table-column prop="work_date" label="日期" align="center" width="120">
           <template slot-scope="{ row }">
-            <span>{{ row.create_time ? parseTime(row.create_time) : "" }}</span>
+            <span>{{ row.work_date ? parseTime(row.work_date, '{y}-{m}-{d}') : "" }}</span>
           </template>
         </el-table-column>
-        <el-table-column prop="dws" label="报障点位数量/修复点位数量" align="center" width="110"></el-table-column>
-        <el-table-column prop="sbs" label="报障设备数量/修复设备数量" align="center" width="110"></el-table-column>
-        <el-table-column prop="dept_name" label="施工队单位" width="110"></el-table-column>
+        <el-table-column prop="xfdws" label="修复点位数量" align="center" width="110"></el-table-column>
+        <el-table-column prop="xfsbs" label="修复设备数量" align="center" width="110"></el-table-column>
+        <el-table-column prop="pzsl" label="拍照数量" align="center" width="90"></el-table-column>
+        <el-table-column prop="min_time" label="上班时间(第一张拍照时间)"></el-table-column>
+        <el-table-column prop="max_time" label="下班时间(最后一张拍照时间)"></el-table-column>
         <el-table-column prop="ygsl" label="用工数量" align="center" width="80"></el-table-column>
-        <el-table-column prop="ycsl" label="用车数量" align="center" width="80"></el-table-column>
-        <el-table-column prop="fy" label="维护费用" align="center" width="80"></el-table-column>
+        <el-table-column prop="ycsl" label="用车数" align="center" width="80"></el-table-column>
+        <el-table-column label="当日工作时长" align="center" width="110">
+          <template slot-scope="{ row }">
+            <span>{{ calculateDuration(row.max_time, row.min_time) }}</span>
+          </template>
+        </el-table-column>
       </el-table>
       <div style="display: flex; justify-content: space-between; margin-top: 10px" v-if="total > 0">
         <span style="color: #999; font-size: 14px">共 {{ total }} 条记录</span>
@@ -83,6 +86,7 @@
 
 <script>
 import { checkPermission, parseTime } from "@/utils/tool";
+import dayjs from "dayjs";
 export default {
   name: "faultOperationTeamanalysis",
   data() {
@@ -108,13 +112,27 @@ export default {
     };
   },
   created() {
-    // this.getProjectList();
+    this.getProjectList();
   },
   mounted() { },
   components: {},
   methods: {
     checkPermission,
     parseTime,
+    // 计算工作时长
+    calculateDuration(maxTime, minTime) {
+      if (!maxTime || !minTime) return '-';
+
+      const max = dayjs(maxTime);
+      const min = dayjs(minTime);
+
+      if (!max.isValid() || !min.isValid()) return '-';
+      const diffMs = max.diff(min);
+      if (diffMs < 0) return '0';
+      const hours = (diffMs / (1000 * 60 * 60)).toFixed(2);
+
+      return `${hours}小时`;
+    },
     async getProjectList() {
       try {
         const have = this.checkPermission(["pointAuthorization:project-slt"]);
@@ -202,7 +220,7 @@ export default {
         end_time: completeTime[1] ? completeTime[1] : null,
       };
       const { data, code } = await this.$pub.post(
-        "/point/order/const/trend",
+        "/point/order/deptAnalyze/main",
         params
       );
       this.tableLoading = false;
@@ -258,13 +276,19 @@ export default {
     // 获取详情列表
     async getDetailList(row) {
       this.rowLoading = true;
+      const completeTime = this.form.completeTime || [];
       const params = {
         project_code: row.project_code,
         page_no: this.page.page_no,
         page_size: this.page.page_size,
+
+        dept_id: this.form?.dept_id || -1,
+
+        begin_time: completeTime[0] ? completeTime[0] : null,
+        end_time: completeTime[1] ? completeTime[1] : null,
       };
       const { code, data, message } = await this.$pub.post(
-        "/point/order/analyze/detail",
+        "/point/order/deptAnalyze/detail",
         params
       );
       this.rowLoading = false;

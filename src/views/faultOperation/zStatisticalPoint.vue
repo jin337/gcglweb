@@ -75,8 +75,12 @@
       </el-table-column>
       <el-table-column prop="point_name" label="点位名称"></el-table-column>
       <el-table-column prop="sbzs" label="设备总数" width="90" align="center"></el-table-column>
-      <el-table-column prop="dwbzzs" label="历史设备故障数" width="120" align="center"></el-table-column>
-      <el-table-column prop="sbbzzs" label="报障数量" width="90" align="center"></el-table-column>
+      <el-table-column prop="dwbzzs" label="点位报修次数" width="120" align="center">
+        <template slot-scope="{ row }">
+          <span class="hand" @click="openDetaildwbzzs(row)">{{ row.dwbzzs }}</span>
+        </template>
+      </el-table-column>
+      <el-table-column prop="sbbzzs" label="设备报修次数" width="120" align="center"></el-table-column>
     </el-table>
     <div style="display: flex; justify-content: space-between; margin-top: 10px" v-if="total > 0">
       <span style="color: #999; font-size: 14px">共 {{ total }} 条记录</span>
@@ -92,6 +96,42 @@
       <point-info :pointInfo="pointDetail" :project_id="pointDetail.project_id" :project_code="pointDetail.project_code"
         fed="CLS012"></point-info>
     </el-drawer>
+
+    <!-- 详情 -->
+    <el-dialog title="统计查询详情" :visible.sync="detailFlag" width="80%" fullscreen append-to-body
+      @close="detailFlag = false">
+      <el-table border :data="rowDetailList" v-loading="rowLoading">
+        <el-table-column prop="fault_order_code" label="工单编码" align="center" width="180"></el-table-column>
+        <el-table-column prop="fault_category_name" label="故障类别" align="center"></el-table-column>
+        <el-table-column prop="handle_remark" label="故障原因" align="center"></el-table-column>
+        <el-table-column prop="dept_name" label="维护单位" align="center"></el-table-column>
+        <el-table-column prop="create_time" label="派发时间" align="center" width="160">
+          <template slot-scope="{ row }">
+            <span>{{ row.create_time ? parseTime(row.create_time) : "" }}</span>
+          </template>
+        </el-table-column>
+        <el-table-column prop="handle_time" label="修复时间" align="center" width="160">
+          <template slot-scope="{ row }">
+            <span>{{ row.handle_time ? parseTime(row.handle_time) : "" }}</span>
+          </template>
+        </el-table-column>
+        <el-table-column prop="handle_count" label="修复数量" align="center" width="80"></el-table-column>
+        <el-table-column prop="fault_count" label="故障数量" align="center" width="80"></el-table-column>
+        <el-table-column prop="ips" label="故障IP" align="center" width="110"></el-table-column>
+        <el-table-column prop="photo_list" label="修复照片" align="center" width="80">
+          <template slot-scope="{ row }">
+            <div :style="{ cursor: 'pointer', color: '#409EFF' }" @click="handlePreview(row)">
+              {{ row?.photo_list?.length || 0 }}
+            </div>
+          </template>
+        </el-table-column>
+      </el-table>
+    </el-dialog>
+
+    <!-- 图片预览 -->
+    <viewer :images="previewImages" ref="viewer">
+      <img v-for="(img, index) in previewImages" :src="img.filePath" :key="index" style="display: none" />
+    </viewer>
   </div>
 </template>
 
@@ -136,6 +176,12 @@ export default {
       },
       pointModel: false,
       pointDetail: {},
+
+      detailFlag: false,
+      rowDetailList: [],
+      rowLoading: false,
+
+      previewImages: [],
     };
   },
   created() {
@@ -419,6 +465,58 @@ export default {
     openDetail(row) {
       this.pointDetail = row;
       this.pointModel = true;
+    },
+
+    // 打开详情
+    openDetaildwbzzs(row) {
+      this.rowDetail = row;
+      this.rowDetailList = [];
+      this.detailFlag = true;
+      this.getDetailList(row);
+    },
+
+    // 获取详情列表
+    async getDetailList(row) {
+      this.rowLoading = true;
+      const completeTime = this.form.completeTime || [];
+      const params = {
+        project_code: row.project_code,
+        point_code: row.point_code,
+
+        content: this.form.content,
+        area: this.form.area,
+        child_code: this.form.child_code,
+        fault_type: this.form.fault_type,
+        fault_proc: this.form.fault_proc,
+        dept_id: this.form?.dept_id || -1,
+        begin_time: completeTime[0] ? completeTime[0] : null,
+        end_time: completeTime[1] ? completeTime[1] : null,
+      };
+      const { code, data, message } = await this.$pub.post(
+        "/point/order/count/point/detail",
+        params
+      );
+      this.rowLoading = false;
+      if (code !== 200) {
+        this.rowDetailList = [];
+        return this.$message({
+          message: "获取列表出错了",
+          type: "error",
+          showClose: true,
+        });
+      }
+      this.rowDetailList = data.list || [];
+    },
+    // 点击处理记录按钮
+    handlePreview(row) {
+      if (row.photo_list && row.photo_list.length > 0) {
+        this.previewImages = row.photo_list;
+        this.$nextTick(() => {
+          this.$refs.viewer.$viewer.show();
+        });
+      } else {
+        this.$message.warning("没有可预览的图片");
+      }
     },
   },
 };
