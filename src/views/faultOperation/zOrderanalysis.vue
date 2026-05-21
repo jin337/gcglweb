@@ -304,8 +304,8 @@ export default {
         dept_id: this.form?.dept_id || -1,
         child_code: this.form.child_code,
         content: this.form.content,
-        fault_type: this.form.fault_type,
-        fault_proc: this.form.fault_proc,
+        fault_type: this.form.fault_type || null,
+        fault_proc: this.form.fault_proc || null,
 
         begin_time: completeTime[0] ? completeTime[0] : null,
         end_time: completeTime[1] ? completeTime[1] : null,
@@ -363,8 +363,8 @@ export default {
         dept_id: this.form?.dept_id || -1,
         child_code: this.form.child_code,
         content: this.form.content,
-        fault_type: this.form.fault_type,
-        fault_proc: this.form.fault_proc,
+        fault_type: this.form.fault_type || null,
+        fault_proc: this.form.fault_proc || null,
 
         begin_time: completeTime[0] ? completeTime[0] : null,
         end_time: completeTime[1] ? completeTime[1] : null,

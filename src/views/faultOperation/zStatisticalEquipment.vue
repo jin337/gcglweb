@@ -39,10 +39,10 @@
         <treeselect v-model="form.dept_id" :normalizer="normalizer" placeholder="输入搜索词查询部门" :options="deptOptions"
           style="width:250px;" />
       </el-form-item>
-      <el-form-item label="报修次数">
+      <!-- <el-form-item label="报修次数">
         <el-input v-model="form.count_content" placeholder="默认所有报修次数" clearable size="small"
           style="width: 220px"></el-input>
-      </el-form-item>
+      </el-form-item> -->
       <el-form-item label="维修时间">
         <el-date-picker v-model="form.completeTime" type="daterange" align="right" unlink-panels range-separator="至"
           start-placeholder="开始时间" end-placeholder="结束时间" value-format="yyyy-MM-dd" style="width: 220px">
@@ -331,9 +331,9 @@ export default {
         project_code: this.form.project_code,
         content: this.form.content,
         area: this.form.area,
-        child_code: this.form.child_code,
-        fault_type: this.form.fault_type,
-        fault_proc: this.form.fault_proc,
+        child_code: this.form.child_code||null,
+        fault_type: this.form.fault_type||null,
+        fault_proc: this.form.fault_proc||null,
         dept_id: this.form?.dept_id || -1,
         count_content: isNaN(Number(this.form.count_content))
           ? null

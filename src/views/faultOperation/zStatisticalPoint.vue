@@ -401,9 +401,9 @@ export default {
         project_code: this.form.project_code,
         content: this.form.content,
         area: this.form.area,
-        child_code: this.form.child_code,
-        fault_type: this.form.fault_type,
-        fault_proc: this.form.fault_proc,
+        child_code: this.form.child_code || null,
+        fault_type: this.form.fault_type || null,
+        fault_proc: this.form.fault_proc || null,
         dept_id: this.form?.dept_id || -1,
         count_content: isNaN(Number(this.form.count_content))
           ? null
@@ -479,9 +479,9 @@ export default {
 
         content: this.form.content,
         area: this.form.area,
-        child_code: this.form.child_code,
-        fault_type: this.form.fault_type,
-        fault_proc: this.form.fault_proc,
+        child_code: this.form.child_code || null,
+        fault_type: this.form.fault_type || null,
+        fault_proc: this.form.fault_proc || null,
         dept_id: this.form?.dept_id || -1,
         begin_time: completeTime[0] ? completeTime[0] : null,
         end_time: completeTime[1] ? completeTime[1] : null,
