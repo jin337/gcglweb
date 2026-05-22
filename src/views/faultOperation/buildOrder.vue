@@ -16,6 +16,8 @@
             :options="deptOptions" :flat="true" style="width:250px;" />
         </el-form-item>
         <div class="right-btn">
+          <a class="downline" :href="url1">点位导入模板</a>
+
           <el-upload v-if="!isEdit" class="upload-demo" ref="upload" action="#" :multiple="false"
             :show-file-list="false" name="files" :file-list="fileList" :before-upload="beforeUpload"
             :http-request="httpRequest" :on-exceed="handleExceed" :on-change="handleChanged" accept=".xlsx" :limit="1">
@@ -198,9 +200,9 @@
 </template>
 
 <script>
-import XEUtils from 'xe-utils'
-import mixin from './mixin.js'
-import selectPointBox from './SelectPoint.vue'
+import XEUtils from 'xe-utils';
+import mixin from './mixin.js';
+import selectPointBox from './SelectPoint.vue';
 export default {
   name: 'buildOrder',
   mixins: [mixin],
@@ -238,7 +240,7 @@ export default {
       default: false
     }
   },
-  data () {
+  data() {
     const project_nameFilterMethod = ({ option, row, column }) => {
       if (option.data) {
         return XEUtils.toValueString(row[column.field]).toLowerCase().indexOf(option.data) > -1
@@ -340,19 +342,21 @@ export default {
       point_codeFilterMethod,
       point_nameFilterMethod,
       fileList: [],
-      file: []
+      file: [],
+      url1: ''
     }
   },
-  mounted () {
+  mounted() {
     this.getDept()
     this.init()
+    this.url1 = process.env.VUE_APP_BASE_URL + "/api/point/order/add/export/Template_PointAdd.xlsx"
   },
   components: {
     selectPointBox
   },
   computed: {
     // 计算金额合计
-    sumPrice () {
+    sumPrice() {
       const workertotalAmount = this.form.selectedWorkers.reduce((total, worker) => {
         const workerInfo = this.workerList.find((w) => w.value === worker)
         if (workerInfo) {
@@ -371,7 +375,7 @@ export default {
     }
   },
   methods: {
-    async init () {
+    async init() {
       // 故障列表=》生成工单
       this.tableData = Object.values(this.currentData.reduce((acc, item) => {
         const { point_code } = item
@@ -421,7 +425,7 @@ export default {
         this.form.carQuantities = carInfo.Quantities//  车辆数量
       }
     },
-    async getDept () {
+    async getDept() {
       const { data, code } = await this.$pub.post('/sys/dept/list-tree', { mc: '' })
       if (code !== 200) {
         return this.$message({
@@ -438,7 +442,7 @@ export default {
         }
       })
     },
-    normalizer (node) { /** 转换菜单数据结构 */
+    normalizer(node) { /** 转换菜单数据结构 */
       if (node.child && !node.child.length) {
         delete node.child
       }
@@ -449,11 +453,11 @@ export default {
       }
     },
 
-    selectPoint () {
+    selectPoint() {
       this.selectFlag = true
     },
     // 选择点位后回调
-    initTableData (arr) {
+    initTableData(arr) {
       const arrMap = new Map(arr.map(item => [item.point_code, item]))
       const mergedData = this.tableData.map(item => {
         // 如果 point_code 在 arr 中存在，则使用 arr 中的数据
@@ -470,11 +474,11 @@ export default {
       this.selectFlag = false
     },
     // 改变故障类型实时界面切换显示
-    handleSelect (row) {
+    handleSelect(row) {
       this.$set(this.tableData, this.tableData.indexOf(row), { ...row })
     },
     // 删除当前行
-    handleDelete (row) {
+    handleDelete(row) {
       // 确认是否删除
       this.$confirm('确定要删除该行吗？', '提示', {
         confirmButtonText: '确定',
@@ -490,7 +494,7 @@ export default {
           this.$message.info('已取消删除')
         })
     },
-    async handleSubmit () {
+    async handleSubmit() {
       this.$refs.formRef.validate(async (valid) => {
         if (this.sumPrice <= 0) {
           return
@@ -536,7 +540,7 @@ export default {
         }
       })
     },
-    confirmFilterEvent (option) {
+    confirmFilterEvent(option) {
       const $table = this.$refs.tableRefbuildOrder
       if ($table) {
         $table.updateFilterOptionStatus(option, !!option.data)
@@ -545,17 +549,17 @@ export default {
     },
 
     // 上传
-    handleChanged (file, fileList) {
+    handleChanged(file, fileList) {
       // 如果只需要保留最新上传的文件
       if (fileList.length > 1) {
         this.fileList = [fileList[fileList.length - 1]] // 只保留最后一个文件
       }
     },
-    handleExceed (file, fileList) {
+    handleExceed(file, fileList) {
       this.fileList = fileList
     },
     // 上传文件前的钩子函数
-    beforeUpload (file) {
+    beforeUpload(file) {
       if (file.size / 1024 / 1024 > 50) {
         this.$message({
           type: 'error',
@@ -579,7 +583,7 @@ export default {
       return true
     },
     // 上传
-    async httpRequest (opt) {
+    async httpRequest(opt) {
       this.file = [opt.file]
       const upData = new FormData()
       this.file.some((file) => {
@@ -660,9 +664,14 @@ export default {
   .right-btn {
     margin-left: auto;
 
+    .downline {
+      text-decoration: none;
+      cursor: pointer;
+    }
+
     .upload-demo {
       display: inline-block;
-      margin-right: 10px;
+      margin: 0 10px;
     }
   }
 

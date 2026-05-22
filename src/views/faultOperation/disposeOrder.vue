@@ -13,12 +13,16 @@
       <div class="topwrap">
         <span class="firm">派发单位：{{ currentData.fault_dept_name }}</span>
         <div class="btns" v-if="isOpear">
-          <el-button size="mini" type="primary" @click="handleSubmit('temp')"
-            >暂存</el-button
-          >
-          <el-button size="mini" type="primary" @click="handleSubmit"
-            >确定</el-button
-          >
+          <a class="downline" :href="url1">导入结果模板</a>
+
+          <el-upload class="upload-demo" ref="upload" action="#" :multiple="false" :show-file-list="false" name="files"
+            :file-list="fileList" :before-upload="beforeUpload" :http-request="httpRequest" :on-exceed="handleExceed"
+            :on-change="handleChanged" accept=".xlsx" :limit="1">
+            <el-button size="mini" type="primary">导入结果</el-button>
+          </el-upload>
+
+          <el-button size="mini" type="primary" @click="handleSubmit('temp')">暂存</el-button>
+          <el-button size="mini" type="primary" @click="handleSubmit">确定</el-button>
         </div>
       </div>
 
@@ -26,58 +30,22 @@
         <div slot="header" class="clearfix">
           <span>点位列表</span>
         </div>
-        <vxe-table
-          size="mini"
-          ref="xTable"
-          :max-height="tableHeight"
-          :data="form.tableData"
-          :row-config="{ isHover: true, keyField: 'id' }"
-          :checkbox-config="checkboxConfig"
-          highlight-current-row
-          border
-          @cell-dblclick="handleRowDblClick"
-        >
+        <vxe-table size="mini" ref="xTable" :max-height="tableHeight" :data="form.tableData"
+          :row-config="{ isHover: true, keyField: 'id' }" :checkbox-config="checkboxConfig" highlight-current-row border
+          @cell-dblclick="handleRowDblClick">
           <vxe-column type="checkbox" min-width="40px" align="center" />
-          <vxe-column
-            title="项目"
-            field="project_name"
-            align="center"
-            width="300px"
-            show-overflow
-          />
+          <vxe-column title="项目" field="project_name" align="center" width="300px" show-overflow />
           <vxe-column title="区域" field="area" width="80px" align="center" />
-          <vxe-column
-            title="子系统"
-            field="child_name"
-            width="120px"
-            header-align="center"
-            show-overflow
-          />
-          <vxe-column
-            title="点位编码"
-            field="point_code"
-            width="130px"
-            header-align="center"
-          >
+          <vxe-column title="子系统" field="child_name" width="120px" header-align="center" show-overflow />
+          <vxe-column title="点位编码" field="point_code" width="130px" header-align="center">
             <template v-slot="{ row, rowIndex }">
               <div class="curp blue" @click="openPoint(row, rowIndex)">
                 {{ row.point_code }}
               </div>
             </template>
           </vxe-column>
-          <vxe-column
-            title="点位名称"
-            field="point_name"
-            header-align="center"
-            width="200px"
-            show-overflow
-          />
-          <vxe-column
-            title="修复数量"
-            field="handle_count"
-            width="80px"
-            align="center"
-          >
+          <vxe-column title="点位名称" field="point_name" header-align="center" width="200px" show-overflow />
+          <vxe-column title="修复数量" field="handle_count" width="80px" align="center">
             <template v-slot="{ row, rowIndex }">
               <!-- <el-form-item :prop="`tableData.${rowIndex}.handle_count`" v-if="row.checked && row.status === 0"
                 :rules="rules.movePoint">
@@ -89,65 +57,26 @@
               }}</span>
             </template>
           </vxe-column>
-          <vxe-column
-            title="报障数量"
-            field="count"
-            width="80px"
-            align="center"
-          />
-          <vxe-column
-            title="故障类型"
-            field="fault_type_name"
-            header-align="center"
-            width="110px"
-          />
-          <vxe-column
-            title="故障类别"
-            field="fault_category_name"
-            header-align="center"
-            width="110px"
-          />
-          <vxe-column
-            field="handle_remark"
-            title="故障原因"
-            width="200px"
-            align="center"
-          >
+          <vxe-column title="报障数量" field="count" width="80px" align="center" />
+          <vxe-column title="故障类型" field="fault_type_name" header-align="center" width="110px" />
+          <vxe-column title="故障类别" field="fault_category_name" header-align="center" width="110px" />
+          <vxe-column field="handle_remark" title="故障原因" width="200px" align="center">
             <template v-slot="{ row, rowIndex }">
-              <el-form-item
-                class="handle_remark"
-                :prop="`tableData.${rowIndex}.handle_remark`"
-                v-if="row.checked && row.status === 0"
-                :rules="rules.handle_remark"
-              >
-                <el-input
-                  v-model="row.handle_remark"
-                  placeholder="输入故障原因"
-                  size="mini"
-                  :disabled="!isOpear"
-                />
+              <el-form-item class="handle_remark" :prop="`tableData.${rowIndex}.handle_remark`"
+                v-if="row.checked && row.status === 0" :rules="rules.handle_remark">
+                <el-input v-model="row.handle_remark" placeholder="输入故障原因" size="mini" :disabled="!isOpear" />
               </el-form-item>
               <span>{{ row.handle_remark }}</span>
             </template>
           </vxe-column>
-          <vxe-column
-            field="photo_list"
-            title="维修照片"
-            width="80px"
-            align="center"
-          >
+          <vxe-column field="photo_list" title="维修照片" width="80px" align="center">
             <template v-slot="{ row }">
               <div style="cursor: pointer" @click="handlePreview(row)">
                 {{ row.photo_list.length > 0 ? row.photo_list.length : 0 }}
               </div>
             </template>
           </vxe-column>
-          <vxe-column
-            field="handle_time"
-            title="处理时间"
-            align="center"
-            width="150px"
-          >
+          <vxe-column field="handle_time" title="处理时间" align="center" width="150px">
             <template v-slot="{ row }">
               <span>{{
                 row.handle_time ? parseTime(row.handle_time) : ""
@@ -177,19 +106,10 @@
                   <div class="vux-flexbox" v-if="isOpear">
                     <span class="label">人力选择</span>
                     <el-form-item prop="selectedWorkers">
-                      <el-select
-                        v-model="form.selectedWorkers"
-                        multiple
-                        placeholder="请选择工种"
-                        style="width: 255px"
-                        :disabled="!isOpear"
-                      >
-                        <el-option
-                          v-for="worker in workerList"
-                          :key="worker.value"
-                          :label="worker.fullName"
-                          :value="worker.value"
-                        >
+                      <el-select v-model="form.selectedWorkers" multiple placeholder="请选择工种" style="width: 255px"
+                        :disabled="!isOpear">
+                        <el-option v-for="worker in workerList" :key="worker.value" :label="worker.fullName"
+                          :value="worker.value">
                           <span>{{ worker.fullName }}</span>
                         </el-option>
                       </el-select>
@@ -197,31 +117,16 @@
                   </div>
 
                   <!-- 动态渲染选中的工种和数量输入框 -->
-                  <div
-                    class="vux-flexbox"
-                    v-if="form.selectedWorkers.length > 0"
-                  >
+                  <div class="vux-flexbox" v-if="form.selectedWorkers.length > 0">
                     <span class="label">人力数量</span>
                     <div class="xunhuanbox">
-                      <el-form-item
-                        v-for="worker in form.selectedWorkers"
-                        :key="worker"
-                        :prop="`workerQuantities[${worker}]`"
-                        :rules="workerQuantityRules"
-                      >
+                      <el-form-item v-for="worker in form.selectedWorkers" :key="worker"
+                        :prop="`workerQuantities[${worker}]`" :rules="workerQuantityRules">
                         <el-tag style="margin-right: 4px">
                           <span>{{ getWorkerName(worker) }}：</span>
-                          <el-input-number
-                            :disabled="!isOpear"
-                            v-model="form.workerQuantities[worker]"
-                            placeholder="请输入数量"
-                            style="width: 86px"
-                            size="mini"
-                            :min="1"
-                            :step="1"
-                            step-strictly
-                            controls-position="right"
-                          />
+                          <el-input-number :disabled="!isOpear" v-model="form.workerQuantities[worker]"
+                            placeholder="请输入数量" style="width: 86px" size="mini" :min="1" :step="1" step-strictly
+                            controls-position="right" />
                         </el-tag>
                       </el-form-item>
                     </div>
@@ -234,19 +139,9 @@
                   <div class="vux-flexbox" v-if="isOpear">
                     <span class="label">车辆选择</span>
                     <el-form-item prop="selectedCars">
-                      <el-select
-                        v-model="form.selectedCars"
-                        multiple
-                        placeholder="请选择车辆"
-                        style="width: 255px"
-                        :disabled="!isOpear"
-                      >
-                        <el-option
-                          v-for="car in carList"
-                          :key="car.value"
-                          :label="car.fullName"
-                          :value="car.value"
-                        >
+                      <el-select v-model="form.selectedCars" multiple placeholder="请选择车辆" style="width: 255px"
+                        :disabled="!isOpear">
+                        <el-option v-for="car in carList" :key="car.value" :label="car.fullName" :value="car.value">
                           <span>{{ car.fullName }}</span>
                         </el-option>
                       </el-select>
@@ -257,25 +152,13 @@
                   <div class="vux-flexbox" v-if="form.selectedCars.length > 0">
                     <span class="label">车辆数量</span>
                     <div class="xunhuanbox">
-                      <el-form-item
-                        v-for="car in form.selectedCars"
-                        :key="car"
-                        :prop="`carQuantities[${car}]`"
-                        :rules="carQuantityRules"
-                      >
+                      <el-form-item v-for="car in form.selectedCars" :key="car" :prop="`carQuantities[${car}]`"
+                        :rules="carQuantityRules">
                         <el-tag style="margin-right: 4px">
                           <span>{{ getCarName(car) }}：</span>
-                          <el-input-number
-                            v-model="form.carQuantities[car]"
-                            placeholder="请输入数量"
-                            style="width: 86px"
-                            :disabled="!isOpear"
-                            size="mini"
-                            :min="1"
-                            :step="1"
-                            step-strictly
-                            controls-position="right"
-                          />
+                          <el-input-number v-model="form.carQuantities[car]" placeholder="请输入数量" style="width: 86px"
+                            :disabled="!isOpear" size="mini" :min="1" :step="1" step-strictly
+                            controls-position="right" />
                         </el-tag>
                       </el-form-item>
                     </div>
@@ -297,12 +180,8 @@
                 <div class="hesuanwrap vux-flexbox">
                   <span class="label">调价</span>
                   <el-form-item prop="numberMoney">
-                    <el-input
-                      v-model="form.numberMoney"
-                      placeholder="请输入价格"
-                      style="width: 255px"
-                      :disabled="!isOpear"
-                    />
+                    <el-input v-model="form.numberMoney" placeholder="请输入价格" style="width: 255px"
+                      :disabled="!isOpear" />
                   </el-form-item>
                 </div>
 
@@ -310,12 +189,7 @@
                 <div class="vux-flexbox">
                   <span class="label">价格合计</span>
                   <el-form-item prop="sumPrice">
-                    <el-input
-                      v-model="sumPrice"
-                      style="width: 255px"
-                      readonly
-                      :disabled="!isOpear"
-                    />
+                    <el-input v-model="sumPrice" style="width: 255px" readonly :disabled="!isOpear" />
                     <div class="el-form-item__error">{{ sumMsg }}</div>
                   </el-form-item>
                 </div>
@@ -323,17 +197,8 @@
                 <!-- 备注 -->
                 <div class="vux-flexbox">
                   <span class="label">核算备注</span>
-                  <el-form-item
-                    prop="price_remark"
-                    style="width: calc(100% - 70px)"
-                  >
-                    <el-input
-                      size="mini"
-                      v-model="form.price_remark"
-                      type="textarea"
-                      :rows="2"
-                      :disabled="!isOpear"
-                    />
+                  <el-form-item prop="price_remark" style="width: calc(100% - 70px)">
+                    <el-input size="mini" v-model="form.price_remark" type="textarea" :rows="2" :disabled="!isOpear" />
                   </el-form-item>
                 </div>
                 <!-- 核算end -->
@@ -369,45 +234,23 @@
               <p class="rowcls">
                 <strong>移交运营商</strong>
                 <el-form-item prop="movePoint">
-                  <el-input
-                    v-model="form.movePoint"
-                    @blur="handlefinishBlur"
-                    :disabled="!isOpear"
-                    class="underline-input"
-                    placeholder="请输入数字"
-                  ></el-input>
+                  <el-input v-model="form.movePoint" @blur="handlefinishBlur" :disabled="!isOpear"
+                    class="underline-input" placeholder="请输入数字"></el-input>
                 </el-form-item>
                 <span>个点位,</span>
                 <el-form-item prop="moveDevice" :rules="rules.movePoint">
-                  <el-input
-                    v-model="form.moveDevice"
-                    @blur="handlefinishBlur"
-                    :disabled="!isOpear"
-                    class="underline-input"
-                    placeholder="请输入数字"
-                  ></el-input>
+                  <el-input v-model="form.moveDevice" @blur="handlefinishBlur" :disabled="!isOpear"
+                    class="underline-input" placeholder="请输入数字"></el-input>
                 </el-form-item>
                 <span>台相机</span>
               </p>
 
               <div class="online-textarea">
                 <el-form-item prop="remark" label="备注">
-                  <el-input
-                    size="mini"
-                    v-model="form.remark"
-                    type="textarea"
-                    :disabled="!isOpear"
-                    :rows="2"
-                  />
+                  <el-input size="mini" v-model="form.remark" type="textarea" :disabled="!isOpear" :rows="2" />
                 </el-form-item>
                 <el-form-item prop="remark" label="施工人员">
-                  <el-input
-                    size="mini"
-                    v-model="form.build_user"
-                    type="textarea"
-                    :disabled="!isOpear"
-                    :rows="2"
-                  />
+                  <el-input size="mini" v-model="form.build_user" type="textarea" :disabled="!isOpear" :rows="2" />
                 </el-form-item>
               </div>
             </div>
@@ -418,55 +261,24 @@
 
     <!-- 图片预览 -->
     <viewer :images="previewImages" ref="viewer">
-      <img
-        v-for="(img, index) in previewImages"
-        :src="img.filePath"
-        :key="index"
-        style="display: none"
-      />
+      <img v-for="(img, index) in previewImages" :src="img.filePath" :key="index" style="display: none" />
     </viewer>
 
     <!-- 修复数量 -->
     <el-dialog append-to-body title="修复数量" :visible.sync="faultModel">
       <div class="faultbtns" v-if="isOpear && deviceList.length">
-        <el-button size="mini" type="primary" @click="saveFault"
-          >确定</el-button
-        >
+        <el-button size="mini" type="primary" @click="saveFault">确定</el-button>
       </div>
 
-      <vxe-table
-        size="small"
-        max-height="350"
-        :row-config="{ isHover: true }"
-        ref="faultTable"
-        :data="deviceList"
-        border
-        style="width: 100%"
-        :header-row-style="{ height: '36px' }"
-        :row-style="{ height: '36px' }"
-        :cell-style="{ padding: '0px' }"
-      >
-        <vxe-column
-          type="seq"
-          width="60"
-          title="序号"
-          align="center"
-        ></vxe-column>
+      <vxe-table size="small" max-height="350" :row-config="{ isHover: true }" ref="faultTable" :data="deviceList"
+        border style="width: 100%" :header-row-style="{ height: '36px' }" :row-style="{ height: '36px' }"
+        :cell-style="{ padding: '0px' }">
+        <vxe-column type="seq" width="60" title="序号" align="center"></vxe-column>
         <vxe-column field="ip" title="IP" header-align="center"></vxe-column>
         <vxe-column field="fault_type" title="处理" align="center">
           <template v-slot="{ row }">
-            <el-select
-              size="mini"
-              :disabled="!isOpear"
-              v-model="row.status"
-              placeholder="请选择"
-            >
-              <el-option
-                v-for="item in OperatingStatuslist"
-                :key="item.value"
-                :label="item.label"
-                :value="item.value"
-              >
+            <el-select size="mini" :disabled="!isOpear" v-model="row.status" placeholder="请选择">
+              <el-option v-for="item in OperatingStatuslist" :key="item.value" :label="item.label" :value="item.value">
               </el-option>
             </el-select>
           </template>
@@ -480,20 +292,10 @@
     </el-dialog>
 
     <!-- 点位编码 -->
-    <el-drawer
-      v-if="pointModel"
-      title="点位建设详情"
-      :visible.sync="pointModel"
-      :append-to-body="true"
-      custom-class="showInfo_wrap"
-      size="90%"
-      :destroy-on-close="true"
-    >
-      <point-info
-        :pointInfo="pointDetail"
-        :project_id="pointDetail.project_id"
-        :project_code="pointDetail.project_code"
-      ></point-info>
+    <el-drawer v-if="pointModel" title="点位建设详情" :visible.sync="pointModel" :append-to-body="true"
+      custom-class="showInfo_wrap" size="90%" :destroy-on-close="true">
+      <point-info :pointInfo="pointDetail" :project_id="pointDetail.project_id"
+        :project_code="pointDetail.project_code"></point-info>
     </el-drawer>
   </div>
 </template>
@@ -548,10 +350,17 @@ export default {
         callback(); // 校验通过
       }
     };
+    const uploadValid = (rule, value, callback) => {
+      if (this.fileList.length > 0) {
+        callback()
+      } else {
+        callback(new Error('必须上传文件'))
+      }
+    };
     return {
       loading: false,
       detail: {},
-      tableHeight:'360px',
+      tableHeight: '360px',
       form: {
         tableData: [],
         estimate: "大工（350），数量：2人，大车（200），数量：2辆，合计：900元",
@@ -598,6 +407,9 @@ export default {
             trigger: "blur",
           },
         ],
+        upload: [
+          { validator: uploadValid, trigger: 'change' }
+        ]
         // handle_remark: [
         //   { required: true, message: '必填', trigger: 'blur' }
         // ]
@@ -619,6 +431,9 @@ export default {
       pointIndex: null,
       pointDetail: {},
       OperatingStatuslist: [], //运营状态
+      url1: '',
+      fileList: [],
+      file: [],
     };
   },
   computed: {
@@ -688,6 +503,10 @@ export default {
       deep: true, // 深度监听
     },
   },
+
+  created() {
+    this.url1 = process.env.VUE_APP_BASE_URL + "/api/point/order/add/export/PointOrderHandleAdd_Template.xlsx"
+  },
   mounted() {
     this.getTableHeight()
     window.addEventListener('resize', () => this.getTableHeight())
@@ -697,7 +516,7 @@ export default {
   methods: {
     parseTime,
     moment,
-        getTableHeight () {
+    getTableHeight() {
       this.$nextTick(() => {
         const el_wrap = document.getElementsByClassName('faultoperaworkorder_dialog')[0]
         if (el_wrap) {
@@ -752,6 +571,11 @@ export default {
       //     ]
       //   }
       // })
+      this.transDetail(data)
+    },
+
+    // 详情数据转换
+    transDetail(data) {
       this.detail = data;
       this.form.tableData = (data.point_list || []).map((m) => {
         return {
@@ -774,9 +598,8 @@ export default {
         // if (m.type === 3) {//type为3是调价
         //   return; // 跳过本次迭代
         // }
-        this.form.estimate += `${m.name}(${m.price})，数量：${m.count}${
-          type[m.type]
-        }，`;
+        this.form.estimate += `${m.name}(${m.price})，数量：${m.count}${type[m.type]
+          }，`;
       });
       this.form.estimate += `合计：${data.price_first}元`;
 
@@ -950,6 +773,95 @@ export default {
       }, 0);
       this.faultModel = false;
     },
+    // 上传文件前的钩子函数
+    beforeUpload(file) {
+      if (file.size / 1024 / 1024 > 50) {
+        this.$message({
+          type: 'error',
+          message: '上传文件不超过50M',
+          showClose: true
+        })
+        return false
+      }
+      var ext = file.name.substring(file.name.lastIndexOf('.') + 1)
+      const extension =
+        ext === 'xlsx'
+      if (!extension) {
+        this.$message({
+          type: 'error',
+          message: '上传文件格式只能为xlsx',
+          showClose: true
+        })
+        return false
+      }
+      this.fileList = [] // 清空已上传的文件列表
+      return true
+    },
+    // 上传
+    async httpRequest(opt) {
+      this.file = [opt.file]
+      const upData = new FormData()
+      upData.append('order_id', this.currentData.id)
+      this.file.some((file) => {
+        upData.append('file', file, file.name)
+        const fileType = file.name.substring(file.name.lastIndexOf('.') + 1)
+        const isvsdx = fileType === 'xlsx'
+        if (!isvsdx) {
+          this.$message({
+            type: 'error',
+            message: '文件格式目前仅支持XLSX!',
+            showClose: true
+          })
+          return true
+        }
+      })
+
+      const { data, code } = await this.$pub.post('/point/order/handle-imp', upData)
+      if (code === 200) {
+        this.transDetail(data)
+        const point_list = data.point_list
+        point_list.forEach((e,i) => {
+          const list = e.device_list || []
+
+          this.form.tableData[i].device_list = list
+          const over = list.filter((item) => item.status === 1).length;
+          const operator = list.filter(
+            (item) => item.status === 3
+          ).length;
+
+          this.form.tableData[i].handle_count = over;
+          this.form.tableData[i].move_count = operator;
+
+          this.form.tableData[i].checked = over > 0 || operator > 0;
+
+          this.form.movePoint = this.form.tableData.filter(
+            (f) => f.move_count > 0
+          ).length;
+          this.form.moveDevice = this.form.tableData.reduce((total, item) => {
+            return (
+              total + (item.device_list?.filter((d) => d.status === 3).length || 0)
+            );
+          }, 0);
+        })
+
+      } else {
+        this.$message({
+          type: 'error',
+          message: '上传失败',
+          showClose: true
+        })
+      }
+    },
+    handleExceed(file, fileList) {
+      this.fileList = fileList
+    },
+    // 上传
+    handleChanged(file, fileList) {
+      // 如果只需要保留最新上传的文件
+      if (fileList.length > 1) {
+        this.fileList = [fileList[fileList.length - 1]] // 只保留最后一个文件
+      }
+    },
   },
 };
 </script>
@@ -957,7 +869,8 @@ export default {
 <style lang="scss">
 .disposeOrderBox {
   position: relative;
-  .el-card__body{
+
+  .el-card__body {
     padding: 10px 20px;
   }
 
@@ -972,6 +885,16 @@ export default {
     position: absolute;
     right: 20px;
     top: 18px;
+
+    .downline {
+      margin-right: 10px;
+      text-decoration: none;
+    }
+
+    .upload-demo {
+      display: inline-block;
+      margin-right: 10px;
+    }
 
     .btns {
       display: inline-block;
@@ -999,10 +922,12 @@ export default {
     .jielun {
       // width: 360px;
       width: 50%;
+
       .online-textarea {
         display: flex;
         flex-wrap: wrap;
         gap: 10px;
+
         .el-form-item {
           flex: 1;
         }
@@ -1100,6 +1025,7 @@ export default {
       margin-left: 10px;
       display: flex;
       flex-wrap: wrap;
+
       .vux-flexbox {
         margin-top: 13px;
       }
