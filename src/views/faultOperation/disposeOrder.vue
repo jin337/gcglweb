@@ -819,8 +819,10 @@ export default {
       const { data, code } = await this.$pub.post('/point/order/handle-imp', upData)
       if (code === 200) {
         this.transDetail(data)
-        const point_list = data.point_list
-        point_list.forEach((e,i) => {
+        const point_list = data?.point_list || []
+
+        // 计算点位和数量
+        point_list.forEach((e, i) => {
           const list = e.device_list || []
 
           this.form.tableData[i].device_list = list
