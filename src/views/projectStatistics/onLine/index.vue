@@ -4,182 +4,82 @@
       <p class="title">在线汇总</p>
       <el-form class="header" inline size="mini">
         <el-form-item label="项目">
-          <el-select
-            v-model="leftForm.project_code"
-            placeholder="请选择"
-            filterable
-          >
-            <el-option
-              v-for="item in projectList"
-              :key="item.projectCode"
-              :label="item.projectName"
-              :value="item.projectCode"
-            ></el-option>
+          <el-select v-model="leftForm.project_code" placeholder="请选择" filterable>
+            <el-option v-for="item in projectList" :key="item.projectCode" :label="item.projectName"
+              :value="item.projectCode"></el-option>
           </el-select>
         </el-form-item>
         <!-- <el-form-item label="日期" prop="check_date">
           <el-date-picker v-model="leftForm.check_date" align="right" placeholder="选择日期" value-format="yyyy-MM-dd">
           </el-date-picker>
         </el-form-item> -->
-          <el-form-item label="周期">
-            <el-date-picker
-              v-model="range"
-              type="daterange"
-              align="right"
-              unlink-panels
-              range-separator="至"
-              start-placeholder="开始日期"
-              end-placeholder="结束日期"
-              style="width:240px"
-              @change="onChangeDate"
-              :picker-options="pickerOptions"
-            >
-            </el-date-picker>
-          </el-form-item>
+        <el-form-item label="周期">
+          <el-date-picker v-model="range" type="daterange" align="right" unlink-panels range-separator="至"
+            start-placeholder="开始日期" end-placeholder="结束日期" style="width:240px" @change="onChangeDate"
+            :picker-options="pickerOptions">
+          </el-date-picker>
+        </el-form-item>
         <el-form-item>
           <el-button type="primary" @click="getLeftData">查询</el-button>
         </el-form-item>
       </el-form>
-      <vxe-table
-        show-overflow
-        :height="leftTableHeight"
-        :data="leftData"
-        :row-config="{ height: 30 }"
-        highlight-current-row
-        empty-text="暂无在线汇总请查询"
-      >
-        <vxe-column
-          title="项目编码"
-          field="project_code"
-          width="120px"
-        ></vxe-column>
-        <vxe-column
-          title="在线日期"
-          width="120px"
-          field="check_date"
-        ></vxe-column>
-        <vxe-column
-          title="不在线数量"
-          field="fail_status"
-          width="120"
-          align="center"
-        />
-        <vxe-column
-          title="在线数量"
-          field="ok_status"
-          width="100"
-          align="center"
-        />
+      <vxe-table show-overflow :height="leftTableHeight" :data="leftData" :row-config="{ height: 30 }"
+        highlight-current-row empty-text="暂无在线汇总请查询">
+        <vxe-column title="项目编码" field="project_code" width="120px"></vxe-column>
+        <vxe-column title="在线日期" width="120px" field="check_date"></vxe-column>
+        <vxe-column title="不在线数量" field="fail_status" width="120" align="center" />
+        <vxe-column title="在线数量" field="ok_status" width="100" align="center" />
         <vxe-column title="设备总数" field="sum" width="120" align="center" />
-        <vxe-column
-          title="在线百分比"
-          field="percentage"
-          width="120"
-          align="center"
-        ></vxe-column>
+        <vxe-column title="在线百分比" field="percentage" width="120" align="center"></vxe-column>
       </vxe-table>
     </div>
     <div class="_right" v-loading="rightLoading">
       <p class="title">在线明细</p>
       <el-form class="header" inline size="mini">
         <el-form-item label="项目">
-          <el-select
-            v-model="rightForm.project_code"
-            placeholder="请选择"
-            filterable
-          >
-            <el-option
-              v-for="item in projectList"
-              :key="item.projectCode"
-              :label="item.projectName"
-              :value="item.projectCode"
-            ></el-option>
+          <el-select v-model="rightForm.project_code" placeholder="请选择" filterable>
+            <el-option v-for="item in projectList" :key="item.projectCode" :label="item.projectName"
+              :value="item.projectCode"></el-option>
           </el-select>
         </el-form-item>
         <el-form-item label="日期" prop="check_date">
-          <el-date-picker
-            v-model="rightForm.check_date"
-            align="right"
-            placeholder="选择日期"
-            value-format="yyyy-MM-dd"
-          >
+          <el-date-picker v-model="rightForm.check_date" align="right" placeholder="选择日期" value-format="yyyy-MM-dd">
           </el-date-picker>
         </el-form-item>
         <el-form-item label="点位">
-          <el-input
-            v-model="rightForm.point_code"
-            placeholder="点位编码"
-            @clear="getRightData"
-            clearable
-            style="width: 140px"
-          ></el-input>
+          <el-input v-model="rightForm.point_code" placeholder="点位编码" @clear="getRightData" clearable
+            style="width: 140px"></el-input>
         </el-form-item>
         <el-form-item label="IP">
-          <el-input
-            v-model="rightForm.ip"
-            placeholder="IP地址"
-            @clear="getRightData"
-            clearable
-            style="width: 140px"
-          ></el-input>
+          <el-input v-model="rightForm.ip" placeholder="IP地址" @clear="getRightData" clearable
+            style="width: 140px"></el-input>
         </el-form-item>
         <el-form-item label="状态">
-          <el-select
-            v-model="rightForm.check_status"
-            placeholder="请选择"
-            style="width: 100px"
-          >
-            <el-option
-              v-for="item in check_statusList"
-              :key="item.value"
-              :label="item.label"
-              :value="item.value"
-            />
+          <el-select v-model="rightForm.check_status" placeholder="请选择" style="width: 100px">
+            <el-option v-for="item in check_statusList" :key="item.value" :label="item.label" :value="item.value" />
           </el-select>
         </el-form-item>
         <el-form-item>
           <el-button type="primary" @click="getRightData">查询</el-button>
+          <el-button type="primary" @click="getRightDataExp">导出</el-button>
         </el-form-item>
       </el-form>
-      <vxe-table
-        show-overflow
-        :height="rightTableHeight"
-        :data="rightData"
-        :row-config="{ height: 30 }"
-        highlight-current-row
-        empty-text="暂无在线详细请查询"
-      >
-        <vxe-column
-          title="项目编码"
-          field="project_code"
-          width="150px"
-        ></vxe-column>
-        <vxe-column
-          title="点位编码"
-          field="point_code"
-          width="150px"
-        ></vxe-column>
+      <vxe-table show-overflow :height="rightTableHeight" :data="rightData" :row-config="{ height: 30 }"
+        highlight-current-row empty-text="暂无在线详细请查询">
+        <vxe-column title="项目编码" field="project_code" width="150px"></vxe-column>
+        <vxe-column title="点位编码" field="point_code" width="150px"></vxe-column>
         <vxe-column title="点位名称" field="point_name" min-width="120px" />
         <vxe-column title="设备名称" field="device_model" width="150px" />
         <vxe-column title="IP地址" field="ip" width="120px" align="center" />
-        <vxe-column
-          title="在线状态"
-          field="check_status_name"
-          width="80px"
-          align="center"
-        ></vxe-column>
-        <vxe-column
-          title="在线日期"
-          field="check_date"
-          width="120px"
-          align="center"
-        ></vxe-column>
+        <vxe-column title="在线状态" field="check_status_name" width="80px" align="center"></vxe-column>
+        <vxe-column title="在线日期" field="check_date" width="120px" align="center"></vxe-column>
       </vxe-table>
     </div>
   </div>
 </template>
 
 <script>
+import { downloadFile } from '@/utils/tool';
 import moment from 'moment';
 export default {
   name: "onLine",
@@ -313,13 +213,13 @@ export default {
   },
   components: {},
   methods: {
-        onChangeDate() {
+    onChangeDate() {
       if (this.range && this.range[0] && this.range[1]) {
         this.leftForm.check_date_begin = moment(this.range[0]).format('YYYY-MM-DD')
         this.leftForm.check_date_end = moment(this.range[1]).format('YYYY-MM-DD')
       } else {
-        this.leftForm.check_date_begin=""
-        this.leftForm.check_date_end=""
+        this.leftForm.check_date_begin = ""
+        this.leftForm.check_date_end = ""
       }
     },
     getTableHeight() {
@@ -369,7 +269,7 @@ export default {
       }
     },
     async getLeftData() {
-      if (!this.leftForm.project_code || (!this.leftForm.check_date_begin&& !this.leftForm.check_date_end)) {
+      if (!this.leftForm.project_code || (!this.leftForm.check_date_begin && !this.leftForm.check_date_end)) {
         return;
       }
       this.leftLoading = true;
@@ -428,6 +328,34 @@ export default {
       });
       this.rightLoading = false;
     },
+    async getRightDataExp() {
+      if (!this.rightForm.project_code || !this.rightForm.check_date) {
+        this.$message({
+          type: "error",
+          message: "请选择项目和日期",
+          showClose: true,
+        });
+        return;
+      }
+      const params = {
+        project_code: this.rightForm.project_code,
+        check_date: this.rightForm.check_date,
+        point_code: this.rightForm.point_code,
+        ip: this.rightForm.ip,
+        check_status: this.rightForm.check_status,
+      };
+      const result = await this.$pub.post(
+        "rate/project_online_device_detail_exp",
+        params,
+        {
+          headers: {
+            'Content-Type': 'application/x-download'
+          },
+          responseType: 'blob'
+        }
+      );
+      downloadFile(result, "在线明细", 'xlsx')
+    }
   },
 };
 </script>
