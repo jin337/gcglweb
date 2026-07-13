@@ -71,9 +71,9 @@
 </template>
 
 <script>
-import QRCode from 'qrcodejs2'
-import SidebarItem from './SidebarItem'
-import editPass from '../editPass'
+import QRCode from 'qrcodejs2';
+import editPass from '../editPass';
+import SidebarItem from './SidebarItem';
 export default {
   props: {
     isCollapse: {
@@ -246,6 +246,7 @@ export default {
   }
 
   .navbar {
+
     .el-menu-item {
       padding: 0 15px;
     }
@@ -265,7 +266,7 @@ export default {
 </style>
 <style scoped lang="scss">
 .main_header {
-  overflow-y: auto;
+  // overflow-y: auto;
 
   .logo-box {
     cursor: pointer;
@@ -276,7 +277,11 @@ export default {
   }
 
   .navbar {
-    // flex: 1;
+    flex: 1;
+
+    .el-menu.el-menu--horizontal {
+      justify-content: flex-end;
+    }
   }
 
   a:-webkit-any-link {
@@ -284,10 +289,9 @@ export default {
   }
 
   .title {
-    max-width: 280px;
-    min-width: 170px;
     padding: 0 20px;
     color: white;
+    word-break: keep-all;
   }
 
   .menu {
@@ -297,15 +301,10 @@ export default {
 
   .tools {
     // display: flex;
-    margin-left: auto;
+    margin-left: 20px;
     background: #23b7bd;
     min-width: 90px;
-    height: 100%;
 
-    li {
-      height: 100%;
-      line-height: 60px;
-    }
 
     .topic {
       text-decoration: none;
