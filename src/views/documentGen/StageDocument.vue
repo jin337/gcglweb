@@ -36,8 +36,8 @@
       </el-table-column>
       <el-table-column prop="message" label="执行信息" align="center">
       </el-table-column>
-      <el-table-column prop="query_para" label="查询参数" align="center" style="display: flex; justify-content: space-around;"
-        width="100px">
+      <el-table-column prop="query_para" label="查询参数" align="center"
+        style="display: flex; justify-content: space-around;" width="100px">
 
         <template slot-scope="scope">
           <el-tooltip effect="dark" :content="scope.row.query_para" placement="top" :enterable="false"
@@ -79,8 +79,8 @@
           </el-select>
         </el-form-item>
         <el-form-item label="工序">
-          <el-cascader v-model="form.proc_code" :options="procs" :props="procsProps" collapse-tags size="small" filterable
-            style="width: 100%" :key="iscascaderShow" clearable></el-cascader>
+          <el-cascader v-model="form.proc_code" :options="procs" :props="procsProps" collapse-tags size="small"
+            filterable style="width: 100%" :key="iscascaderShow" clearable></el-cascader>
         </el-form-item>
         <el-form-item label="施工单位">
           <el-select v-model="form.dept_id" clearable collapse-tags style="width:100%" placeholder="选择施工单位">
@@ -149,6 +149,12 @@
             <el-radio :label="statu.all">全部</el-radio>
           </el-radio-group>
         </el-form-item>
+        <el-form-item label="照片是否生成">
+          <el-radio-group v-model="form.is_have_photo" style="line-height:64px;">
+            <el-radio :label="statu.no">否</el-radio>
+            <el-radio :label="statu.yes">是</el-radio>
+          </el-radio-group>
+        </el-form-item>
         <el-form-item label="导出字段">
           <el-checkbox-group v-model="form.exp_fileds">
             <el-checkbox v-for="item in exp_filedsList" :disabled="item.isSure" :label="item.value" :key="item.value">{{
@@ -165,13 +171,13 @@
 </template>
 
 <script>
-import mixin from '@/mixins/common.js'
-import moment from 'moment'
-import config from '@/config/config.js'
+import config from '@/config/config.js';
+import mixin from '@/mixins/common.js';
+import moment from 'moment';
 export default {
   name: 'StageDocument',
   mixins: [mixin],
-  data () {
+  data() {
     return {
       config,
       searchstatus: null,
@@ -188,6 +194,7 @@ export default {
         dept_id: '',
         range: [],
         audit_status: 'yes',
+        is_have_photo: 'no',
         is_reg: 'no',
         have_device: 'no',
         finish_photo: 'no',
@@ -224,7 +231,7 @@ export default {
   computed: {
 
   },
-  mounted () {
+  mounted() {
     this.getStatus()
     this.refresh()
     this.getFileUrl()
@@ -234,7 +241,7 @@ export default {
   },
   methods: {
     moment,
-    getStatus () {
+    getStatus() {
       this.$dict(this, 'documentStatus').then(res => {
         if (res.code === 200) {
           this.statusList = (res.data || []).map(m => {
@@ -253,7 +260,7 @@ export default {
         }
       })
     },
-    async handleStatusChange () {
+    async handleStatusChange() {
       this.tableLoading = true
       const params = this.searchstatus ? {
         user_id: this.$store.state.userInfo.id,
@@ -267,15 +274,15 @@ export default {
       this.tableData = data || []
       this.tableLoading = false
     },
-    refresh () {
+    refresh() {
       this.handleStatusChange()
     },
-    async getFileUrl () {
+    async getFileUrl() {
       const api = config.defaultApi
       const baseurl = this.$apiUrl + api
       this.file_url = baseurl + '/gen/photo-doc-templates/templatesImp.xlsx'
     },
-    add () {
+    add() {
       this.pointList = null
       this.form = {
         project: null,
@@ -285,6 +292,7 @@ export default {
         dept_id: '',
         range: [],
         audit_status: 'yes',
+        is_have_photo: 'no',
         is_reg: 'no',
         have_device: 'no',
         finish_photo: 'no',
@@ -297,7 +305,7 @@ export default {
       this.addFlag = true
     },
     // 新增 start
-    handleProjectChange () {
+    handleProjectChange() {
       this.iscascaderShow++
       const obj = {
         child_code: '',
@@ -306,6 +314,7 @@ export default {
         dept_id: '',
         range: [],
         audit_status: 'yes',
+        is_have_photo: 'no',
         is_reg: 'no',
         have_device: 'no',
         finish_photo: 'no',
@@ -322,7 +331,7 @@ export default {
       this.getProcList()
       this.getBuilderList()
     },
-    beforeAvatarUpload (file) {
+    beforeAvatarUpload(file) {
       const fileType = file.name.substring(file.name.lastIndexOf('.') + 1)
       const isvsdx = fileType === 'xlsx'
       if (!isvsdx) {
@@ -334,7 +343,7 @@ export default {
       }
       return isvsdx
     },
-    handleError (e, file, fileList) {
+    handleError(e, file, fileList) {
       const msg = JSON.parse(e.message)
       this.$notify({
         title: msg.message,
@@ -342,18 +351,18 @@ export default {
         duration: 0
       })
     },
-    httpRequest (param) {
+    httpRequest(param) {
       this.file.push(param.file)
     },
-    handleChange (file, fileList) {
+    handleChange(file, fileList) {
       if (fileList.length > 0) {
         this.fileList = [fileList[fileList.length - 1]]
       }
     },
-    handleRemove (file, fileList) {
+    handleRemove(file, fileList) {
       this.fileList = []
     },
-    async submit () {
+    async submit() {
       try {
         this.$refs.addForm.validate(async valid => {
           if (valid) {
@@ -368,6 +377,7 @@ export default {
               begin_time: this.form.range ? this.form.range[0] : null,
               end_time: this.form.range ? this.form.range[1] : null,
               audit_status: this.form.audit_status === 'yes' ? [1, 3] : this.form.audit_status === 'no' ? [0] : [0, 1, 3],
+              is_have_photo: this.form.is_have_photo === 'yes' ? '1' : '0',
               is_reg: this.form.is_reg === 'yes' ? '1' : '0',
               have_device: this.form.have_device === 'yes' ? '1' : '0',
               // finish_photo_status: Number(this.form.finish_photo_status),
@@ -388,6 +398,14 @@ export default {
               })
             } else {
               upData.append('file', null)
+              this.$message({
+                message: '请上传点位列表文件',
+                type: 'error',
+                showClose: true,
+                customClass: 'uploadMessage'
+              })
+              this.submitloading = false
+              return
             }
 
             upData.append('query_info', JSON.stringify(query_info))

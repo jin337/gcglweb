@@ -38,7 +38,7 @@
 </template>
 
 <script>
-import { checkPermission, parseTime } from "@/utils/tool";
+import { checkPermission, downloadFile, parseTime } from "@/utils/tool";
 export default {
   name: "operator",
   data() {
