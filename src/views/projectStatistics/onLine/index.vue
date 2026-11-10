@@ -296,7 +296,7 @@ export default {
       }
     },
     async getLeftData() {
-      if (!this.leftForm.project_code || !this.leftForm.area || (!this.leftForm.check_date_begin && !this.leftForm.check_date_end)) {
+      if (!this.leftForm.project_code || (!this.leftForm.check_date_begin && !this.leftForm.check_date_end)) {
         return;
       }
       this.leftLoading = true;
