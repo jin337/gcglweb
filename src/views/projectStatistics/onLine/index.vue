@@ -21,7 +21,7 @@
           </el-date-picker>
         </el-form-item>
         <el-form-item label="区域">
-          <el-select v-model="leftForm.area" placeholder="请选择" filterable>
+          <el-select v-model="leftForm.area" placeholder="请选择" filterable clearable>
             <el-option v-for="item in areaList" :key="item" :label="item" :value="item"></el-option>
           </el-select>
         </el-form-item>
