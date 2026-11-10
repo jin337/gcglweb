@@ -20,6 +20,8 @@
         <el-button type="primary" size="small" @click="addPoint" v-hasPermi="['points:add']">新增点位</el-button>
         <el-button size="small" @click="importExcel" :loading="importLoading" v-hasPermi="['points:imp']">导入</el-button>
         <el-button size="small" @click="exportSel" :loading="exportLoading" v-if="form.project_code">导出</el-button>
+        <el-button size="small" @click="exportOperator" :loading="exportLoading"
+          v-if="form.project_code">导出链路</el-button>
       </div>
     </el-form>
     <!-- 高级查询区 -->
@@ -273,24 +275,24 @@
 </template>
 
 <script>
-import addPoint from './addPoint/index'
-import importTable from './import'
-import cellclick from './cellClick'
-import lnglat from './lnglatInfo/index'
-import direct from './directNums'
-import pubContainer from './pubContainer'
-import areaContainer from './areaContainer'
-import pointInfo from './pointInfo'
-import editLngLat from './editLngLat'
-import MaterialStatistics from './MaterialStatistics'
-import { downloadFile, checkPermission } from '@/utils/tool'
 import config from '@/config/config.js'
+import { checkPermission, downloadFile } from '@/utils/tool'
+import addPoint from './addPoint/index'
+import areaContainer from './areaContainer'
+import cellclick from './cellClick'
+import direct from './directNums'
+import editLngLat from './editLngLat'
+import importTable from './import'
 import installDept from './installDept'
+import lnglat from './lnglatInfo/index'
+import MaterialStatistics from './MaterialStatistics'
+import pointInfo from './pointInfo'
+import pubContainer from './pubContainer'
 
 export default {
   name: 'points',
   mixins: [cellclick],
-  data () {
+  data() {
     return {
       form: {
         point_code: '',
@@ -365,13 +367,13 @@ export default {
   },
   computed: {
   },
-  created () {
+  created() {
     this.init()
     this.getStatusList()
     this.getOriginList()
     this.getDirectionList()
   },
-  mounted () {
+  mounted() {
     window.onresize = () => {
       this.tableHeight = window.innerHeight - 235
     }
@@ -381,7 +383,7 @@ export default {
   },
   methods: {
     checkPermission,
-    async init () {
+    async init() {
       try {
         const params = {
           user_id: this.$store.state.userInfo.id
@@ -406,7 +408,7 @@ export default {
         })
       }
     },
-    handleProjectChange (val) {
+    handleProjectChange(val) {
       this.form.project_code = val.projectCode
       this.form.project_id = val.id
 
@@ -423,7 +425,8 @@ export default {
       this.getAreaList()
       this.getTagList()
     },
-    resetSearch () {
+    resetSearch() {
+      this.exportLoading = false
       this.form.point_code = ''
       Object.assign(this.opers, { isIndeterminate: false, checkAll: false, checkedList: [] })
       Object.assign(this.child, { isIndeterminate: false, checkAll: false, checkedList: [] })
@@ -434,11 +437,11 @@ export default {
       this.searchLock = -1
       this.handleQuery()
     },
-    handleQuery () {
+    handleQuery() {
       this.page.page_no = 1
       this.getPointList()
     },
-    async getPointList () {
+    async getPointList() {
       if (!this.form.project_code) {
         return this.$message({
           type: 'error',
@@ -483,7 +486,7 @@ export default {
         this.total = data.total
       }
     },
-    validate (row) {
+    validate(row) {
       let val = row.lng_lat.replace(/(\s*)|(\s*$)/g, '')
       val = val.replace('，', ',')
       let error = false
@@ -507,7 +510,7 @@ export default {
       }
       return error
     },
-    async getChildList () {
+    async getChildList() {
       try {
         const { data, code, message } = await this.$pub.post('project/child-list', { project_id: this.form.project_id })
         if (Number(code) === 200) {
@@ -533,7 +536,7 @@ export default {
         })
       }
     },
-    async getOpersList () {
+    async getOpersList() {
       try {
         const req = { dict_label: 'point_oper_status' }
         const { data, code, message } = await this.$pub.post('/sys/dict/list-slt', req)
@@ -557,7 +560,7 @@ export default {
         })
       }
     },
-    async getAreaList () {
+    async getAreaList() {
       try {
         var req = {
           project_code: this.form.project_code
@@ -578,7 +581,7 @@ export default {
         })
       }
     },
-    async getStatusList () {
+    async getStatusList() {
       try {
         const req = { dict_label: 'point_status' }
         const { data, code, message } = await this.$pub.post('/sys/dict/list-slt', req)
@@ -602,7 +605,7 @@ export default {
         })
       }
     },
-    async getTagList () {
+    async getTagList() {
       const params = {
         projectCode: this.form.project_code
       }
@@ -618,7 +621,7 @@ export default {
         })
       }
     },
-    async getOriginList () {
+    async getOriginList() {
       this.$dict(this, 'origin').then((res) => {
         if (res.code === 200) {
           this.origin.list = (res.data || []).map(m => {
@@ -637,7 +640,7 @@ export default {
         }
       })
     },
-    selectDictLabel (datas, value) {
+    selectDictLabel(datas, value) {
       const actions = []
       Object.keys(datas).map((key) => {
         if (datas[key].status === (value)) {
@@ -647,7 +650,7 @@ export default {
       })
       return actions.join('')
     },
-    selectOriginLabel (datas, value) {
+    selectOriginLabel(datas, value) {
       const actions = []
       Object.keys(datas).map((key) => {
         if (datas[key].origin === (value)) {
@@ -657,15 +660,15 @@ export default {
       })
       return actions.join('')
     },
-    pageChange (num) {
+    pageChange(num) {
       this.page.page_no = num
       this.getPointList()
     },
-    sizeChange (val) {
+    sizeChange(val) {
       this.page.page_size = val
       this.getPointList()
     },
-    toggleGJsearch () {
+    toggleGJsearch() {
       if (!this.form.project_code) {
         return this.$message({
           type: 'error',
@@ -682,7 +685,7 @@ export default {
       // }
     },
     // 全选start
-    handleCheckAllChange (val, item) {
+    handleCheckAllChange(val, item) {
       if (val) {
         this[item].checkAll = true// 全选
         this[item].isIndeterminate = false// 半选
@@ -712,16 +715,16 @@ export default {
         this[item].checkedList = []
       }
     },
-    handleCheckedCitiesChange (val, item) {
+    handleCheckedCitiesChange(val, item) {
       const checkedCount = val.length
       this[item].checkAll = checkedCount === this[item].list.length
       this[item].isIndeterminate = checkedCount > 0 && checkedCount < this[item].list.length
     },
     // 全选end
-    addPoint () {
+    addPoint() {
       this.addShow = true
     },
-    handleAddClose (done) {
+    handleAddClose(done) {
       if (this.form.project_code) {
         this.handleQuery()
         this.getChildList()
@@ -729,7 +732,7 @@ export default {
       }
       done()
     },
-    async getDirectionList () {
+    async getDirectionList() {
       this.$dict(this, 'GPS_TYPE').then((res) => {
         if (res.code === 200) {
           this.coordinateList = (res.data || []).map(m => {
@@ -748,14 +751,39 @@ export default {
         }
       })
     },
-    exportSel () {
+    exportSel() {
       this.showexport = true
     },
-    exportcancel () {
+    async exportOperator() {
+      this.exportLoading = true
+      const params = {
+        project_code: this.form.project_code,
+        child_array: this.child.checkedList,
+        area_array: this.area.checkedList,
+        status_array: this.status.checkedList,
+        tag_array: this.tag.checkedList,
+        point_cond: this.form.point_code,
+        gps_type: this.coordinate
+      }
+      const result = await this.$pub.post(
+        '/point/manage/export-points-operator',
+        params,
+        {
+          headers: {
+            'Content-Type': 'application/x-download'
+          },
+          responseType: 'blob'
+        }
+      )
+      const title = this.form.project_code + '点位列表_链路'
+      downloadFile(result, title, 'xlsx')
+      this.exportLoading = false
+    },
+    exportcancel() {
       this.showexport = false
       this.coordinate = 0
     },
-    async exportExcel () {
+    async exportExcel() {
       this.exportLoading = true
       const params = {
         project_code: this.form.project_code,
@@ -782,15 +810,15 @@ export default {
       downloadFile(result, title, 'xlsx')
       this.exportLoading = false
     },
-    importExcel () {
+    importExcel() {
       this.importTable = true
     },
-    async cancleImport (done) {
+    async cancleImport(done) {
       const file_name = this.$refs.importEx.file_name
       file_name && await this.$pub.post('/point/manage/import-init-del', { file_name })
       done()
     },
-    statusColor (status) {
+    statusColor(status) {
       let color = '#606266'
       switch (status) {
         case 0:
@@ -811,7 +839,7 @@ export default {
       }
       return color
     },
-    originColor (status) {
+    originColor(status) {
       let color = '#606266'
       switch (status) {
         case 0:
@@ -823,25 +851,25 @@ export default {
       }
       return color
     },
-    handleCloseDirect (done) {
+    handleCloseDirect(done) {
       this.handleQuery()
       done()
     },
-    materialTable () {
+    materialTable() {
       this.materialVisible = true
     },
-    installDept () {
+    installDept() {
       this.installdeptVisible = true
     },
-    cancleInstall () {
+    cancleInstall() {
       this.installdeptVisible = false
     },
     // is_lock为1禁止一切操作
-    isLock (row) {
+    isLock(row) {
       return row.is_lock === 1
     },
     // 锁定点位，解锁点位
-    async changeLock (row) {
+    async changeLock(row) {
       const params = {
         point_id: row.point_id,
         is_lock: row.is_lock === 0 ? '1' : '0'
