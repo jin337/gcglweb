@@ -149,7 +149,7 @@
             <el-radio :label="statu.all">全部</el-radio>
           </el-radio-group>
         </el-form-item>
-        <el-form-item label="照片是否生成">
+        <el-form-item label="无照片是否生成">
           <el-radio-group v-model="form.is_have_photo" style="line-height:64px;">
             <el-radio :label="statu.no">否</el-radio>
             <el-radio :label="statu.yes">是</el-radio>

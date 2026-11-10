@@ -4,7 +4,8 @@
       <p class="title">在线汇总</p>
       <el-form class="header" inline size="mini">
         <el-form-item label="项目">
-          <el-select v-model="leftForm.project_code" placeholder="请选择" filterable>
+          <el-select v-model="leftForm.project_code" placeholder="请选择" filterable
+            @change="getAreaList(leftForm.project_code)">
             <el-option v-for="item in projectList" :key="item.projectCode" :label="item.projectName"
               :value="item.projectCode"></el-option>
           </el-select>
@@ -19,6 +20,11 @@
             :picker-options="pickerOptions">
           </el-date-picker>
         </el-form-item>
+        <el-form-item label="区域">
+          <el-select v-model="leftForm.area" placeholder="请选择" filterable>
+            <el-option v-for="item in areaList" :key="item" :label="item" :value="item"></el-option>
+          </el-select>
+        </el-form-item>
         <el-form-item>
           <el-button type="primary" @click="getLeftData">查询</el-button>
         </el-form-item>
@@ -26,6 +32,7 @@
       <vxe-table show-overflow :height="leftTableHeight" :data="leftData" :row-config="{ height: 30 }"
         highlight-current-row empty-text="暂无在线汇总请查询">
         <vxe-column title="项目编码" field="project_code" width="120px"></vxe-column>
+        <vxe-column title="区域" field="area" width="100"></vxe-column>
         <vxe-column title="在线日期" width="120px" field="check_date"></vxe-column>
         <vxe-column title="不在线数量" field="fail_status" width="120" align="center" />
         <vxe-column title="在线数量" field="ok_status" width="100" align="center" />
@@ -86,8 +93,10 @@ export default {
   data() {
     return {
       projectList: [],
+      areaList: [],
       leftForm: {
         project_code: null,
+        area: null,
         check_date: null,
       },
       rightForm: {
@@ -268,13 +277,32 @@ export default {
         });
       }
     },
+    async getAreaList(project_code) {
+      try {
+        const { data, code } = await this.$pub.post("point/manage/area-list", { project_code });
+        if (code === 200) {
+          this.areaList = data || [];
+        } else {
+          this.$notify.error({
+            title: "查询失败",
+            message: message,
+          });
+        }
+      } catch (e) {
+        this.$notify.error({
+          title: "服务器请求失败",
+          message: e.message,
+        });
+      }
+    },
     async getLeftData() {
-      if (!this.leftForm.project_code || (!this.leftForm.check_date_begin && !this.leftForm.check_date_end)) {
+      if (!this.leftForm.project_code || !this.leftForm.area || (!this.leftForm.check_date_begin && !this.leftForm.check_date_end)) {
         return;
       }
       this.leftLoading = true;
       const params = {
         project_code: this.leftForm.project_code,
+        area: this.leftForm.area,
         check_date_begin: this.leftForm.check_date_begin,
         check_date_end: this.leftForm.check_date_end
       };
