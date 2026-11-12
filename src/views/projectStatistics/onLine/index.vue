@@ -27,6 +27,7 @@
         </el-form-item>
         <el-form-item>
           <el-button type="primary" @click="getLeftData">查询</el-button>
+          <el-button type="primary" :disabled="!leftData.length" @click="showLineChart">折线展示</el-button>
         </el-form-item>
       </el-form>
       <vxe-table show-overflow :height="leftTableHeight" :data="leftData" :row-config="{ height: 30 }"
@@ -82,16 +83,24 @@
         <vxe-column title="在线日期" field="check_date" width="120px" align="center"></vxe-column>
       </vxe-table>
     </div>
+
+    <!-- 折线图 -->
+    <el-dialog title="折线展示" @close="closeLineChart" :visible.sync="lineFlag" width="1200px" destroy-on-close>
+      <div class="lineChart" ref="lineChart"></div>
+    </el-dialog>
   </div>
 </template>
 
 <script>
 import { downloadFile } from '@/utils/tool';
+import * as echarts from 'echarts';
 import moment from 'moment';
 export default {
   name: "onLine",
   data() {
     return {
+      lineFlag: false,
+      chartInstance: null,
       projectList: [],
       areaList: [],
       leftForm: {
@@ -220,6 +229,9 @@ export default {
     this.getTableHeight();
     window.addEventListener("resize", () => this.getTableHeight());
   },
+  beforeDestroy() {
+    if (this.chartInstance) this.chartInstance.dispose();
+  },
   components: {},
   methods: {
     onChangeDate() {
@@ -321,6 +333,7 @@ export default {
         return {
           ...m,
           percentage: (m.ok_status / m.sum).toFixed(2) * 100 + "%",
+          percentage_number: ((m.ok_status / m.sum) * 100).toFixed(2),
         };
       });
       this.leftLoading = false;
@@ -383,7 +396,103 @@ export default {
         }
       );
       downloadFile(result, "在线明细", 'xlsx')
-    }
+    },
+    showLineChart() {
+      this.lineFlag = true;
+      this.$nextTick(() => {
+        const chartDom = this.$refs.lineChart;
+        if (!chartDom) return;
+        if (this.chartInstance) {
+          this.chartInstance.dispose();
+        }
+
+        this.chartInstance = echarts.init(chartDom);
+
+        const xAxisData = this.leftData.map(item => item.check_date);
+        const percentageData = this.leftData.map(item => item.percentage_number);
+        const sumData = this.leftData.map(item => item.sum);
+        const okData = this.leftData.map(item => item.ok_status);
+        const failData = this.leftData.map(item => item.fail_status);
+
+
+
+        const yMin = Math.max(0, Math.floor(Math.min(...percentageData) * 0.95));
+        const yMax = Math.min(100, Math.ceil(Math.max(...percentageData) * 1.05));
+
+        const option = {
+          animations: false,
+          title: {
+            text: '在线率折线图',
+            left: 'center'
+          },
+          tooltip: {
+            trigger: 'axis',
+            formatter: function (params) {
+              // 1. 获取当前悬停的数据项对应的索引
+              const dataIndex = params[0].dataIndex;
+
+              // 2. 通过索引，从你定义的三个数据数组中取出对应的原始数值
+              const sum = sumData ? sumData[dataIndex] : '-';
+              const ok = okData ? okData[dataIndex] : '-';
+              const fail = failData ? failData[dataIndex] : '-';
+
+              // 3. 拼接自定义的 HTML 弹窗内容
+              return `
+      <div style="font-size: 13px; margin-bottom: 5px; color: #666;">${params[0].axisValue}</div>
+      <div style="display: flex; align-items: left; justify-content: space-between; margin-bottom: 3px;">
+        在线百分比: <span style="font-weight: bold; margin-left: 20px;">${params[0].value}%</span>
+      </div>
+      <div style="display: flex; align-items: left; justify-content: space-between; margin-bottom: 3px;">
+        设备总数: <span style="font-weight: bold; margin-left: 20px;">${sum}</span>
+      </div>
+      <div style="display: flex; align-items: left; justify-content: space-between; margin-bottom: 3px;">
+        在线数量: <span style="font-weight: bold; margin-left: 20px;">${ok}</span>
+      </div>
+      <div style="display: flex; align-items: left; justify-content: space-between;">
+        不在线数量: <span style="font-weight: bold; margin-left: 20px;">${fail}</span>
+      </div>
+    `;
+            }.bind(this)
+          },
+          grid: {
+            left: '2%',
+            right: '2%',
+            bottom: '2%',
+            containLabel: true
+          },
+          xAxis: {
+            type: 'category',
+            data: xAxisData
+          },
+          yAxis: {
+            type: 'value',
+            min: yMin, // 最小值
+            max: yMax,  // 最大值
+            axisLabel: {
+              formatter: function (value) {
+                return value + '%';
+              }
+            }
+          },
+          series: [
+            {
+              type: 'line',
+              smooth: true,
+              data: percentageData
+            },
+          ]
+        };
+
+        this.chartInstance && this.chartInstance.setOption(option);
+      }, 100);
+    },
+    closeLineChart() {
+      this.lineFlag = false;
+      if (this.chartInstance) {
+        this.chartInstance.dispose();
+        this.chartInstance = null;
+      }
+    },
   },
 };
 </script>
@@ -394,6 +503,11 @@ export default {
   width: 100%;
   display: flex;
   align-items: center;
+
+  .lineChart {
+    width: 100%;
+    height: 500px;
+  }
 
   ._left {
     width: 40%;
