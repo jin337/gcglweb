@@ -428,15 +428,12 @@ export default {
           tooltip: {
             trigger: 'axis',
             formatter: function (params) {
-              // 1. 获取当前悬停的数据项对应的索引
               const dataIndex = params[0].dataIndex;
 
-              // 2. 通过索引，从你定义的三个数据数组中取出对应的原始数值
               const sum = sumData ? sumData[dataIndex] : '-';
               const ok = okData ? okData[dataIndex] : '-';
               const fail = failData ? failData[dataIndex] : '-';
 
-              // 3. 拼接自定义的 HTML 弹窗内容
               return `
       <div style="font-size: 13px; margin-bottom: 5px; color: #666;">${params[0].axisValue}</div>
       <div style="display: flex; align-items: left; justify-content: space-between; margin-bottom: 3px;">
@@ -466,8 +463,8 @@ export default {
           },
           yAxis: {
             type: 'value',
-            min: yMin, // 最小值
-            max: yMax,  // 最大值
+            min: yMin,
+            max: yMax,
             axisLabel: {
               formatter: function (value) {
                 return value + '%';
