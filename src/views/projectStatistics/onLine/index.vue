@@ -407,12 +407,13 @@ export default {
         }
 
         this.chartInstance = echarts.init(chartDom);
+        const chartData = this.leftData.filter(item => item.check_date !== '平均')
 
-        const xAxisData = this.leftData.map(item => item.check_date);
-        const percentageData = this.leftData.map(item => item.percentage_number);
-        const sumData = this.leftData.map(item => item.sum);
-        const okData = this.leftData.map(item => item.ok_status);
-        const failData = this.leftData.map(item => item.fail_status);
+        const xAxisData = chartData.map(item => item.check_date);
+        const percentageData = chartData.map(item => item.percentage_number);
+        const sumData = chartData.map(item => item.sum);
+        const okData = chartData.map(item => item.ok_status);
+        const failData = chartData.map(item => item.fail_status);
 
 
 
